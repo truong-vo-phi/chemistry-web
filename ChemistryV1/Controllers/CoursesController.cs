@@ -75,6 +75,11 @@ public class CoursesController : Controller
             return NotFound();
         }
 
+        if (course.Status?.ToLower() != "published" && !User.IsInRole("Admin") && !User.IsInRole("Teacher"))
+        {
+            return NotFound();
+        }
+
         var chapters = course.Chapters
             .OrderBy(ch => ch.OrderIndex)
             .ToList();
@@ -130,9 +135,12 @@ public class CoursesController : Controller
                 EnrolledAt = DateTime.Now
             });
             await _context.SaveChangesAsync();
+            TempData["EnrollSuccess"] = "Đăng ký khóa học thành công!";
         }
-
-        TempData["EnrollSuccess"] = "Đăng ký khóa học thành công!";
+        else
+        {
+            TempData["EnrollError"] = "Bạn đã đăng ký khóa học này rồi.";
+        }
         return RedirectToAction(nameof(Details), new { id });
     }
 }
