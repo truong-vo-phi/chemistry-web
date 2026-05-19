@@ -1,0 +1,16 @@
+@model ChemistryV1.Models.Lesson
+@{
+    ViewData["Title"] = "Delete Lesson";
+}
+
+<h1>Delete Lesson</h1>
+
+<div class="alert alert-warning">
+    Are you sure you want to delete <strong>@Model.Title</strong>?
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-controller="TeacherCourses" asp-action="Content" asp-route-id="@ViewBag.CourseId" class="btn btn-secondary">Cancel</a>
+</form>
