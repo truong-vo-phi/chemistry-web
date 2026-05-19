@@ -9,7 +9,7 @@ using ChemistryV1.ViewModels;
 
 namespace ChemistryV1.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Admin,Teacher")]
 public class DashboardController : Controller
 {
     private readonly ElearningDbContext _context;

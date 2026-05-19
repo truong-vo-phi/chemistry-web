@@ -4,8 +4,11 @@ using ChemistryV1.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace ChemistryV1.Controllers;
 
+[Authorize(Roles = "Admin,Teacher")]
 public class CategoriesController : Controller
 {
     private readonly ElearningDbContext _context;
@@ -131,8 +134,19 @@ public class CategoriesController : Controller
             return View(viewModel);
         }
 
-        category.UpdatedAt = DateTime.Now;
-        _context.Update(category);
+        var dbCategory = await _context.Categories.FindAsync(id);
+        if (dbCategory == null)
+        {
+            return NotFound();
+        }
+
+        dbCategory.Name = category.Name;
+        dbCategory.Slug = category.Slug;
+        dbCategory.Description = category.Description;
+        dbCategory.Icon = category.Icon;
+        dbCategory.IsActive = category.IsActive;
+        dbCategory.UpdatedAt = DateTime.Now;
+
         await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }

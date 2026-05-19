@@ -269,10 +269,10 @@
                                     <td class="px-6 py-5">
                                         <div class="flex flex-col items-center gap-1">
                                             <label class="relative inline-flex items-center cursor-pointer">
-                                                <input class="sr-only peer" type="checkbox" checked="@(isPublished)" />
+                                                <input class="sr-only peer status-checkbox" type="checkbox" data-course-id="@course.Id" @(isPublished ? "checked" : "") onchange="toggleCourseStatus(this)" />
                                                 <div class="toggle-switch"></div>
                                             </label>
-                                            <span class="text-[10px] font-bold @(isPublished ? "text-secondary" : "text-on-surface-variant") uppercase">
+                                            <span class="status-label text-[10px] font-bold @(isPublished ? "text-secondary" : "text-on-surface-variant") uppercase">
                                                 @(isPublished ? "Published" : "Draft")
                                             </span>
                                         </div>
@@ -302,5 +302,52 @@
             </div>
         </section>
     </main>
+
+    <script>
+        async function toggleCourseStatus(checkbox) {
+            const courseId = checkbox.getAttribute('data-course-id');
+            const parentDiv = checkbox.closest('div');
+            const labelSpan = parentDiv.querySelector('.status-label');
+
+            try {
+                const response = await fetch(`/TeacherCourses/ToggleStatus/${courseId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        const newStatus = result.newStatus.toLowerCase();
+                        const isPub = (newStatus === 'published');
+                        checkbox.checked = isPub;
+                        
+                        if (isPub) {
+                            labelSpan.textContent = 'Published';
+                            labelSpan.classList.remove('text-on-surface-variant');
+                            labelSpan.classList.add('text-secondary');
+                        } else {
+                            labelSpan.textContent = 'Draft';
+                            labelSpan.classList.remove('text-secondary');
+                            labelSpan.classList.add('text-on-surface-variant');
+                        }
+                    } else {
+                        alert('Không thể cập nhật trạng thái.');
+                        checkbox.checked = !checkbox.checked;
+                    }
+                } else {
+                    alert('Lỗi kết nối máy chủ.');
+                    checkbox.checked = !checkbox.checked;
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Có lỗi xảy ra.');
+                checkbox.checked = !checkbox.checked;
+            }
+        }
+    </script>
 </body>
 </html>
