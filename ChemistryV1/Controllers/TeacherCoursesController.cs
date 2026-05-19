@@ -5,8 +5,11 @@ using ChemistryV1.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace ChemistryV1.Controllers;
 
+[Authorize(Roles = "Admin,Teacher")]
 public class TeacherCoursesController : Controller
 {
     private readonly ElearningDbContext _context;
@@ -218,6 +221,21 @@ public class TeacherCoursesController : Controller
         await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ToggleStatus(int id)
+    {
+        var course = await _context.Courses.FindAsync(id);
+        if (course == null)
+        {
+            return NotFound();
+        }
+
+        course.Status = (course.Status?.ToLower() == "published") ? "draft" : "published";
+        await _context.SaveChangesAsync();
+
+        return Json(new { success = true, newStatus = course.Status });
     }
 
     public async Task<IActionResult> Content(int id)

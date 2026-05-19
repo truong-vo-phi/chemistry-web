@@ -326,7 +326,7 @@
                                 <div class="flex items-center gap-4">
                                     <span class="font-label-sm text-on-surface-variant uppercase tracking-widest text-xs" id="status-label">@(Model.Category.IsActive ? "Active" : "Draft")</span>
                                     <button class="relative inline-flex h-10 w-16 items-center rounded-full @(Model.Category.IsActive ? "bg-secondary" : "bg-outline-variant/30") transition-colors focus:outline-none shadow-inner" id="status-toggle" onclick="toggleStatus()" type="button">
-                                        <span class="inline-block h-7 w-7 @(Model.Category.IsActive ? "translate-x-7.5" : "translate-x-1.5") transform rounded-full bg-white shadow-md transition-transform" id="toggle-circle"></span>
+                                        <span class="inline-block h-7 w-7 @(Model.Category.IsActive ? "translate-x-7" : "translate-x-1") transform rounded-full bg-white shadow-md transition-transform" id="toggle-circle"></span>
                                     </button>
                                 </div>
                             </div>
@@ -361,7 +361,7 @@
             </form>
         </div>
     </main>
-
+ 
     <script>
         let isActive = @Model.Category.IsActive.ToString().ToLower();
         function toggleStatus() {
@@ -373,17 +373,17 @@
             
             hiddenInput.value = isActive;
             label.textContent = isActive ? "Active" : "Draft";
-
+ 
             if (isActive) {
                 toggle.classList.remove('bg-outline-variant/30');
                 toggle.classList.add('bg-secondary');
-                circle.classList.add('translate-x-7.5');
-                circle.classList.remove('translate-x-1.5');
+                circle.classList.add('translate-x-7');
+                circle.classList.remove('translate-x-1');
             } else {
                 toggle.classList.remove('bg-secondary');
                 toggle.classList.add('bg-outline-variant/30');
-                circle.classList.add('translate-x-1.5');
-                circle.classList.remove('translate-x-7.5');
+                circle.classList.add('translate-x-1');
+                circle.classList.remove('translate-x-7');
             }
         }
 
@@ -399,10 +399,21 @@
         }
 
         function generateSlug(name) {
-            const slug = name.toLowerCase()
-                .replace(/[^\w\s-]/g, '')
-                .replace(/\s+/g, '-');
-            document.getElementById('cat-slug').value = slug;
+            let str = name.toLowerCase();
+            str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+            str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+            str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+            str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+            str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+            str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+            str = str.replace(/đ/g, "d");
+            
+            str = str.replace(/[^a-z0-9\s-]/g, "");
+            str = str.replace(/\s+/g, "-");
+            str = str.replace(/-+/g, "-");
+            str = str.trim().replace(/^-+|-+$/g, "");
+            
+            document.getElementById('cat-slug').value = str;
         }
     </script>
 </body>

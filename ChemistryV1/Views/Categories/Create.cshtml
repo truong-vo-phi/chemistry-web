@@ -244,15 +244,15 @@
                 
                 <form class="relative z-10 space-y-10" asp-action="Create" method="post">
                     @Html.AntiForgeryToken()
-                    <input type="hidden" id="category-icon" name="Icon" value="@Model.Category.Icon" />
-                    <input type="hidden" id="category-isactive" name="IsActive" value="@Model.Category.IsActive.ToString().ToLower()" />
+                    <input type="hidden" id="category-icon" name="Category.Icon" value="@Model.Category.Icon" />
+                    <input type="hidden" id="category-isactive" name="Category.IsActive" value="@Model.Category.IsActive.ToString().ToLower()" />
 
                     <div class="space-y-3">
                         <label class="font-label-sm text-primary tracking-widest flex items-center gap-2" for="cat-name">
                             <span class="material-symbols-outlined text-lg">label</span>
                             CATEGORY NAME
                         </label>
-                        <input class="w-full rounded-full border-2 border-outline-variant/50 bg-white/40 px-8 py-5 text-body-lg font-semibold focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-outline-variant" id="cat-name" name="Name" value="@Model.Category.Name" placeholder="e.g. Quantum Alchemy" type="text" oninput="generateSlug(this.value)" required />
+                        <input class="w-full rounded-full border-2 border-outline-variant/50 bg-white/40 px-8 py-5 text-body-lg font-semibold focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-outline-variant" id="cat-name" name="Category.Name" value="@Model.Category.Name" placeholder="e.g. Quantum Alchemy" type="text" oninput="generateSlug(this.value)" required />
                         <span class="text-error text-xs">@Html.ValidationMessageFor(m => m.Category.Name)</span>
                     </div>
 
@@ -261,7 +261,7 @@
                             <span class="material-symbols-outlined text-lg">link</span>
                             SLUG
                         </label>
-                        <input class="w-full rounded-full border-2 border-outline-variant/50 bg-white/40 px-8 py-5 text-body-md font-semibold focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-outline-variant" id="cat-slug" name="Slug" value="@Model.Category.Slug" placeholder="quantum-alchemy" type="text" required />
+                        <input class="w-full rounded-full border-2 border-outline-variant/50 bg-white/40 px-8 py-5 text-body-md font-semibold focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-outline-variant" id="cat-slug" name="Category.Slug" value="@Model.Category.Slug" placeholder="quantum-alchemy" type="text" required />
                         <span class="text-error text-xs">@Html.ValidationMessageFor(m => m.Category.Slug)</span>
                     </div>
 
@@ -285,7 +285,7 @@
                             <span class="material-symbols-outlined text-lg">description</span>
                             DESCRIPTION
                         </label>
-                        <textarea class="w-full rounded-2xl border-2 border-outline-variant/50 bg-white/40 px-8 py-5 text-body-md focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none resize-none placeholder:text-outline-variant" id="cat-desc" name="Description" placeholder="Briefly describe the mystical secrets hidden within this category..." rows="5">@Model.Category.Description</textarea>
+                        <textarea class="w-full rounded-2xl border-2 border-outline-variant/50 bg-white/40 px-8 py-5 text-body-md focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none resize-none placeholder:text-outline-variant" id="cat-desc" name="Category.Description" placeholder="Briefly describe the mystical secrets hidden within this category..." rows="5">@Model.Category.Description</textarea>
                     </div>
 
                     <div class="flex flex-col md:flex-row gap-gutter md:items-center justify-between p-6 bg-white/60 rounded-2xl border border-white/80 shadow-inner">
@@ -359,10 +359,21 @@
         }
 
         function generateSlug(name) {
-            const slug = name.toLowerCase()
-                .replace(/[^\w\s-]/g, '')
-                .replace(/\s+/g, '-');
-            document.getElementById('cat-slug').value = slug;
+            let str = name.toLowerCase();
+            str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+            str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+            str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+            str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+            str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+            str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+            str = str.replace(/đ/g, "d");
+            
+            str = str.replace(/[^a-z0-9\s-]/g, "");
+            str = str.replace(/\s+/g, "-");
+            str = str.replace(/-+/g, "-");
+            str = str.trim().replace(/^-+|-+$/g, "");
+            
+            document.getElementById('cat-slug').value = str;
         }
     </script>
 </body>
