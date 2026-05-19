@@ -1,0 +1,386 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Academy Dashboard - ChemLab 3D</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&amp;family=Quicksand:wght@500;600;700&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "surface-variant": "#e4e3db",
+                "surface": "#fbf9f1",
+                "tertiary": "#825100",
+                "surface-container-high": "#eae8e0",
+                "on-background": "#1b1c17",
+                "inverse-on-surface": "#f3f1e9",
+                "surface-tint": "#005ac2",
+                "surface-container-lowest": "#ffffff",
+                "on-surface": "#1b1c17",
+                "on-error": "#ffffff",
+                "tertiary-container": "#a36700",
+                "on-primary": "#ffffff",
+                "surface-container": "#f0eee6",
+                "secondary-container": "#6cf8bb",
+                "on-secondary-container": "#00714d",
+                "secondary": "#006c49",
+                "inverse-surface": "#30312c",
+                "primary-fixed-dim": "#adc6ff",
+                "on-primary-container": "#fefcff",
+                "surface-dim": "#dcdad2",
+                "on-secondary-fixed": "#002113",
+                "on-error-container": "#93000a",
+                "secondary-fixed": "#6ffbbe",
+                "on-primary-fixed-variant": "#004395",
+                "primary-fixed": "#d8e2ff",
+                "surface-bright": "#fbf9f1",
+                "primary": "#0058be",
+                "on-surface-variant": "#424754",
+                "on-tertiary-fixed-variant": "#653e00",
+                "on-primary-fixed": "#001a42",
+                "inverse-primary": "#adc6ff",
+                "on-secondary-fixed-variant": "#005236",
+                "surface-container-low": "#f5f4ec",
+                "error-container": "#ffdad6",
+                "primary-container": "#2170e4",
+                "background": "#fbf9f1",
+                "secondary-fixed-dim": "#4edea3",
+                "outline": "#727785",
+                "on-tertiary-fixed": "#2a1700",
+                "tertiary-fixed-dim": "#ffb95f",
+                "on-tertiary-container": "#fffbff",
+                "on-secondary": "#ffffff",
+                "outline-variant": "#c2c6d6",
+                "tertiary-fixed": "#ffddb8",
+                "surface-container-highest": "#e4e3db",
+                "on-tertiary": "#ffffff",
+                "error": "#ba1a1a"
+              },
+              "borderRadius": {
+                "DEFAULT": "1rem",
+                "lg": "2rem",
+                "xl": "3rem",
+                "full": "9999px"
+              },
+              "spacing": {
+                "margin-mobile": "16px",
+                "gutter": "24px",
+                "container-max": "1200px",
+                "unit": "8px",
+                "margin-desktop": "48px"
+              },
+              "fontFamily": {
+                "label-sm": ["Lexend"],
+                "display-lg": ["Lexend"],
+                "display-lg-mobile": ["Lexend"],
+                "body-md": ["Quicksand"],
+                "headline-md": ["Lexend"],
+                "body-lg": ["Quicksand"]
+              },
+              "fontSize": {
+                "label-sm": ["14px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "500"}],
+                "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "500"}]
+              }
+            },
+          },
+        }
+    </script>
+    <style>
+        body {
+            background-color: #fbf9f1;
+            font-family: "Quicksand", sans-serif;
+        }
+
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(0, 88, 190, 0.05);
+        }
+
+        .squishy-btn {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .squishy-btn:active {
+            transform: translateY(2px) scale(0.98);
+        }
+
+        .radial-progress {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radial-progress::after {
+            content: "";
+            position: absolute;
+            width: 68px;
+            height: 68px;
+            background: #ffffff;
+            border-radius: 50%;
+        }
+
+        .pulse-light {
+            animation: pulse-animation 2s infinite;
+        }
+
+        @@keyframes pulse-animation {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface">
+    <!-- Sidebar -->
+    <aside class="h-screen w-64 fixed left-0 top-0 hidden md:flex flex-col bg-surface-container-low border-r border-outline-variant/30 p-gutter gap-unit z-50">
+        <div class="mb-gutter flex items-center gap-3">
+            <div class="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg transform rotate-3">
+                <span class="material-symbols-outlined text-on-primary text-3xl">school</span>
+            </div>
+            <div>
+                <h1 class="font-display-lg text-[18px] text-primary tracking-tight leading-none">Magical Academy</h1>
+                <p class="font-label-sm text-on-surface-variant opacity-70">Master Alchemist</p>
+            </div>
+        </div>
+        <nav class="flex-grow space-y-3">
+            <a class="flex items-center gap-3 p-4 bg-secondary-container text-on-secondary-container rounded-2xl border border-secondary/20 font-label-sm" asp-controller="Dashboard" asp-action="Index">
+                <span class="material-symbols-outlined">analytics</span> Laboratory
+            </a>
+            <a class="flex items-center gap-3 p-4 text-on-surface-variant hover:bg-surface-container-high rounded-2xl transition-all hover:translate-x-1 font-label-sm" asp-controller="TeacherCourses" asp-action="Index">
+                <span class="material-symbols-outlined">auto_stories</span> Spellbook
+            </a>
+            <a class="flex items-center gap-3 p-4 text-on-surface-variant hover:bg-surface-container-high rounded-2xl transition-all hover:translate-x-1 font-label-sm" asp-controller="Courses" asp-action="Library">
+                <span class="material-symbols-outlined">school</span> Academy
+            </a>
+            <a class="flex items-center gap-3 p-4 text-on-surface-variant hover:bg-surface-container-high rounded-2xl transition-all hover:translate-x-1 font-label-sm" asp-controller="Categories" asp-action="Index">
+                <span class="material-symbols-outlined">menu_book</span> Categories
+            </a>
+        </nav>
+        <div class="pt-gutter border-t border-outline-variant/30 space-y-2">
+            <a class="flex items-center gap-3 p-4 text-on-surface-variant hover:bg-surface-container-high rounded-2xl transition-all font-label-sm" href="#">
+                <span class="material-symbols-outlined">help</span> Support
+            </a>
+            <a class="flex items-center gap-3 p-4 text-on-surface-variant hover:bg-surface-container-high rounded-2xl transition-all font-label-sm" asp-controller="Account" asp-action="Logout">
+                <span class="material-symbols-outlined">logout</span> Log Out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Header -->
+    <header class="w-full sticky top-0 z-40 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/20 h-20 md:pl-64">
+        <div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop h-full">
+            <div class="flex items-center gap-4">
+                <button class="md:hidden p-2 rounded-full hover:bg-surface-container-high">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <h2 class="font-headline-md text-headline-md text-primary">Laboratory Performance</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="hidden sm:flex items-center gap-2 bg-gradient-to-r from-amber-500/10 to-orange-500/10 px-4 py-2 rounded-full border border-amber-500/30 text-amber-700 font-bold text-sm">
+                    <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                    <span>2,450 XP</span>
+                </div>
+                <button class="p-2 rounded-full hover:bg-primary-container/20 transition-all active:scale-90">
+                    <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+                </button>
+                <div class="w-10 h-10 rounded-full border-2 border-primary-container/30 overflow-hidden shadow-sm flex items-center justify-center bg-primary text-on-primary">
+                    <span class="material-symbols-outlined">person</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="md:pl-64 pb-24 md:pb-12">
+        <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-gutter">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+                <!-- Dashboard Statistics Columns -->
+                <div class="lg:col-span-8 space-y-gutter">
+                    <!-- Dashboard Intro Card -->
+                    <div class="glass-morphism rounded-3xl p-8 relative overflow-hidden bg-gradient-to-br from-primary/5 via-transparent to-secondary/5">
+                        <div class="absolute -right-16 -top-16 w-48 h-48 bg-primary/10 rounded-full blur-3xl"></div>
+                        <h3 class="font-headline-md text-2xl text-primary mb-2">Welcome Back, Professor!</h3>
+                        <p class="text-on-surface-variant text-sm max-w-xl">
+                            All alchemical modules are operating at nominal capacity. Monitor student engagement, library activity, and virtual reactions in real-time below.
+                        </p>
+                    </div>
+
+                    <!-- Statistics Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+                        <!-- Stat Item 1: Active Students -->
+                        <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-3xl p-6 shadow-sm flex items-center justify-between">
+                            <div class="space-y-2">
+                                <span class="text-xs font-bold text-outline uppercase tracking-wider">Active Students</span>
+                                <h4 class="font-display-lg text-4xl text-on-background font-bold">@ViewBag.TotalStudents</h4>
+                                <span class="text-xs text-secondary flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm font-bold">trending_up</span> +12% this week
+                                </span>
+                            </div>
+                            <div class="radial-progress bg-gradient-to-r from-primary to-primary-container" style="background: conic-gradient(#0058be 75%, #e4e3db 0)">
+                                <span class="font-bold text-primary text-xs z-10">75%</span>
+                            </div>
+                        </div>
+
+                        <!-- Stat Item 2: Lab Hours Conducted -->
+                        <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-3xl p-6 shadow-sm flex items-center justify-between">
+                            <div class="space-y-2">
+                                <span class="text-xs font-bold text-outline uppercase tracking-wider">Lab Hours Conducted</span>
+                                <h4 class="font-display-lg text-4xl text-on-background font-bold">8,420 H</h4>
+                                <span class="text-xs text-secondary flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm font-bold">check_circle</span> 88% Efficiency rating
+                                </span>
+                            </div>
+                            <div class="radial-progress bg-gradient-to-r from-secondary to-secondary-container" style="background: conic-gradient(#006c49 88%, #e4e3db 0)">
+                                <span class="font-bold text-secondary text-xs z-10">88%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Experiment Performance (Simulated Chart Grid) -->
+                    <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-3xl p-8 shadow-sm">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <h4 class="font-headline-md text-lg text-on-surface">Weekly Reaction Metrics</h4>
+                                <p class="text-xs text-outline">Simulated alchemical reaction rates & student test completions</p>
+                            </div>
+                            <span class="text-xs bg-primary-container/10 border border-primary/20 text-primary px-3 py-1.5 rounded-full font-bold">May 2026</span>
+                        </div>
+                        
+                        <!-- Premium Visual Chart Grid -->
+                        <div class="h-64 flex items-end gap-3 pt-6 border-b border-outline-variant/20">
+                            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+                                <div class="w-full bg-primary/10 hover:bg-primary/20 rounded-t-xl transition-all h-[30%] relative group">
+                                    <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-[10px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">150</div>
+                                </div>
+                                <span class="text-[10px] font-bold text-outline">Mon</span>
+                            </div>
+                            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+                                <div class="w-full bg-primary/10 hover:bg-primary/20 rounded-t-xl transition-all h-[55%] relative group">
+                                    <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-[10px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">340</div>
+                                </div>
+                                <span class="text-[10px] font-bold text-outline">Tue</span>
+                            </div>
+                            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+                                <div class="w-full bg-primary/10 hover:bg-primary/20 rounded-t-xl transition-all h-[45%] relative group">
+                                    <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-[10px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">280</div>
+                                </div>
+                                <span class="text-[10px] font-bold text-outline">Wed</span>
+                            </div>
+                            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+                                <div class="w-full bg-secondary/15 hover:bg-secondary/25 rounded-t-xl transition-all h-[80%] relative group">
+                                    <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-[10px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">490</div>
+                                </div>
+                                <span class="text-[10px] font-bold text-outline">Thu</span>
+                            </div>
+                            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+                                <div class="w-full bg-primary/10 hover:bg-primary/20 rounded-t-xl transition-all h-[60%] relative group">
+                                    <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-[10px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">380</div>
+                                </div>
+                                <span class="text-[10px] font-bold text-outline">Fri</span>
+                            </div>
+                            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+                                <div class="w-full bg-primary/10 hover:bg-primary/20 rounded-t-xl transition-all h-[95%] relative group">
+                                    <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-[10px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">560</div>
+                                </div>
+                                <span class="text-[10px] font-bold text-outline">Sat</span>
+                            </div>
+                            <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+                                <div class="w-full bg-secondary/20 hover:bg-secondary/35 rounded-t-xl transition-all h-[75%] relative group">
+                                    <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-[10px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">460</div>
+                                </div>
+                                <span class="text-[10px] font-bold text-outline">Sun</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Academy Achievements Sidebar -->
+                <div class="lg:col-span-4 space-y-gutter">
+                    <!-- Achievements Panel -->
+                    <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-3xl p-6 shadow-sm">
+                        <h4 class="font-headline-md text-lg text-on-surface mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-secondary">emoji_events</span>
+                            Academy Achievements
+                        </h4>
+                        
+                        <div class="space-y-4">
+                            <!-- Badge 1 -->
+                            <div class="flex items-center gap-4 p-4 bg-surface rounded-2xl border border-outline-variant/10">
+                                <div class="w-12 h-12 bg-emerald-500/10 text-emerald-600 rounded-full flex items-center justify-center shadow-inner">
+                                    <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">science</span>
+                                </div>
+                                <div>
+                                    <h5 class="font-bold text-sm text-on-surface">Alchemical Mastery</h5>
+                                    <p class="text-[11px] text-on-surface-variant">Conducted 50+ experiments successfully</p>
+                                </div>
+                            </div>
+
+                            <!-- Badge 2 -->
+                            <div class="flex items-center gap-4 p-4 bg-surface rounded-2xl border border-outline-variant/10">
+                                <div class="w-12 h-12 bg-cyan-500/10 text-cyan-600 rounded-full flex items-center justify-center shadow-inner">
+                                    <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">widgets</span>
+                                </div>
+                                <div>
+                                    <h5 class="font-bold text-sm text-on-surface">Master of Elements</h5>
+                                    <p class="text-[11px] text-on-surface-variant">Unlocked all 8 alchemical categories</p>
+                                </div>
+                            </div>
+
+                            <!-- Badge 3 -->
+                            <div class="flex items-center gap-4 p-4 bg-surface rounded-2xl border border-outline-variant/10">
+                                <div class="w-12 h-12 bg-violet-500/10 text-violet-600 rounded-full flex items-center justify-center shadow-inner">
+                                    <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                                </div>
+                                <div>
+                                    <h5 class="font-bold text-sm text-on-surface">Quantum Leap</h5>
+                                    <p class="text-[11px] text-on-surface-variant">Completed Lesson 1.1 in record time</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Database Statistics Overview -->
+                    <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-3xl p-6 shadow-sm">
+                        <h4 class="font-headline-md text-lg text-on-surface mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">analytics</span>
+                            Database Metrics
+                        </h4>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-outline">Total Courses</span>
+                                <span class="font-bold text-primary">@ViewBag.TotalCourses</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-outline">Total Lessons</span>
+                                <span class="font-bold text-secondary">@ViewBag.TotalLessons</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-outline">Total Categories</span>
+                                <span class="font-bold text-tertiary">@ViewBag.TotalCategories</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

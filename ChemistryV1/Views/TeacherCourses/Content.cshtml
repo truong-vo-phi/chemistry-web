@@ -1,0 +1,287 @@
+@model ChemistryV1.ViewModels.CourseContentViewModel
+@{
+    Layout = null;
+    var chapters = Model.Chapters.OrderBy(c => c.OrderIndex).ToList();
+    var activeChapter = chapters.FirstOrDefault();
+    var activeLesson = activeChapter?.Lessons.OrderBy(l => l.OrderIndex).FirstOrDefault();
+}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ChemLab 3D - Course Builder</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&amp;family=Quicksand:wght@500;700&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-variant": "#e4e3db",
+                        surface: "#fbf9f1",
+                        tertiary: "#825100",
+                        "surface-container-high": "#eae8e0",
+                        "on-background": "#1b1c17",
+                        "inverse-on-surface": "#f3f1e9",
+                        "surface-tint": "#005ac2",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1b1c17",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#a36700",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#f0eee6",
+                        "secondary-container": "#6cf8bb",
+                        "on-secondary-container": "#00714d",
+                        secondary: "#006c49",
+                        "inverse-surface": "#30312c",
+                        "primary-fixed-dim": "#adc6ff",
+                        "on-primary-container": "#fefcff",
+                        "surface-dim": "#dcdad2",
+                        "on-secondary-fixed": "#002113",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-primary-fixed-variant": "#004395",
+                        "primary-fixed": "#d8e2ff",
+                        "surface-bright": "#fbf9f1",
+                        primary: "#0058be",
+                        "on-surface-variant": "#424754",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-primary-fixed": "#001a42",
+                        "inverse-primary": "#adc6ff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "surface-container-low": "#f5f4ec",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#2170e4",
+                        background: "#fbf9f1",
+                        "secondary-fixed-dim": "#4edea3",
+                        outline: "#727785",
+                        "on-tertiary-fixed": "#2a1700",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-tertiary-container": "#fffbff",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#c2c6d6",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface-container-highest": "#e4e3db",
+                        "on-tertiary": "#ffffff",
+                        error: "#ba1a1a"
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                        lg: "2rem",
+                        xl: "3rem",
+                        full: "9999px"
+                    },
+                    spacing: {
+                        "margin-desktop": "32px",
+                        gutter: "24px",
+                        "margin-mobile": "16px",
+                        "container-max": "1200px",
+                        unit: "8px"
+                    },
+                    fontFamily: {
+                        "label-sm": ["Lexend"],
+                        "display-lg": ["Lexend"],
+                        "headline-md": ["Lexend"],
+                        "body-md": ["Quicksand"],
+                        "display-lg-mobile": ["Lexend"],
+                        "body-lg": ["Quicksand"]
+                    },
+                    fontSize: {
+                        "label-sm": ["14px", { lineHeight: "1.2", fontWeight: "600" }],
+                        "display-lg": ["48px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "headline-md": ["24px", { lineHeight: "1.4", fontWeight: "600" }],
+                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "500" }],
+                        "display-lg-mobile": ["32px", { lineHeight: "1.2", fontWeight: "700" }],
+                        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #fbf9f1; }
+        .squishy-btn:active {
+            transform: translateY(2px);
+            box-shadow: none !important;
+        }
+        .editor-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .editor-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .editor-scroll::-webkit-scrollbar-thumb {
+            background-color: #dcdad2;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md text-on-surface bg-background flex h-screen overflow-hidden">
+    <nav class="w-64 flex-shrink-0 bg-surface-container border-r-2 border-primary/10 shadow-md flex flex-col h-full py-6 z-50 hidden md:flex">
+        <div class="px-6 mb-8 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold overflow-hidden border-2 border-primary">
+                <img alt="User Avatar" class="w-full h-full object-cover" src="https://via.placeholder.com/80" />
+            </div>
+            <div>
+                <h1 class="font-headline-md text-headline-md font-bold text-primary leading-tight">ChemLab 3D</h1>
+                <span class="text-xs text-on-surface-variant">Novice Alchemist</span>
+            </div>
+        </div>
+        <div class="flex-1 flex flex-col gap-2 overflow-y-auto editor-scroll">
+            <a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-variant rounded-lg p-3 mx-2 hover:scale-[1.02] transition-transform active:translate-y-[2px] active:shadow-none duration-150" asp-controller="Dashboard" asp-action="Index">
+                <span class="material-symbols-outlined">science</span>
+                <span>Alchemy Lab</span>
+            </a>
+            <a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-variant rounded-lg p-3 mx-2 hover:scale-[1.02] transition-transform active:translate-y-[2px] active:shadow-none duration-150" asp-controller="TeacherCourses" asp-action="Index">
+                <span class="material-symbols-outlined">auto_awesome</span>
+                <span>Quests</span>
+            </a>
+            <a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-variant rounded-lg p-3 mx-2 hover:scale-[1.02] transition-transform active:translate-y-[2px] active:shadow-none duration-150" asp-controller="Courses" asp-action="Library">
+                <span class="material-symbols-outlined">grid_view</span>
+                <span>Periodic Table</span>
+            </a>
+            <a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-variant rounded-lg p-3 mx-2 hover:scale-[1.02] transition-transform active:translate-y-[2px] active:shadow-none duration-150" asp-controller="Categories" asp-action="Index">
+                <span class="material-symbols-outlined">menu_book</span>
+                <span>Categories</span>
+            </a>
+        </div>
+        <div class="px-4 mt-auto pt-6 border-t-2 border-primary/10">
+            <button class="w-full bg-primary text-on-primary font-label-sm text-label-sm py-3 rounded-full border-2 border-on-primary-fixed-variant shadow-[0px_4px_0px_0px_rgba(0,67,149,0.3)] hover:brightness-110 squishy-btn transition-all flex items-center justify-center gap-2 mb-4">
+                <span class="material-symbols-outlined text-sm">play_arrow</span>
+                Start Experiment
+            </button>
+        </div>
+    </nav>
+    <div class="flex-1 flex flex-col h-full bg-surface">
+        <header class="h-16 flex-shrink-0 z-40 bg-surface/80 backdrop-blur-md border-b-2 border-outline-variant/30 flex justify-between items-center px-6">
+            <div class="flex items-center gap-2 text-sm font-label-sm">
+                <a class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1" asp-controller="TeacherCourses" asp-action="Index">
+                    <span class="material-symbols-outlined text-[18px]">menu_book</span> Library
+                </a>
+                <span class="material-symbols-outlined text-outline text-[16px]">chevron_right</span>
+                <span class="text-primary font-bold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[18px]">edit_document</span> Spellbook Editor
+                </span>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-on-surface-variant flex items-center gap-1 mr-2">
+                    <span class="material-symbols-outlined text-[14px]">cloud_done</span> Saved just now
+                </span>
+                <a class="px-5 py-2 bg-surface text-on-surface font-label-sm rounded-full border-2 border-outline-variant hover:bg-surface-variant transition-colors squishy-btn text-sm shadow-[0_2px_0_0_rgba(114,119,133,0.3)]" asp-controller="TeacherCourses" asp-action="Edit" asp-route-id="@Model.Course.Id">
+                    Edit Course
+                </a>
+                <a class="px-5 py-2 bg-secondary text-on-secondary font-label-sm rounded-full border-2 border-secondary-fixed hover:brightness-110 transition-all squishy-btn text-sm shadow-[0_4px_0_0_rgba(0,108,73,0.3)] flex items-center gap-2" asp-controller="Lessons" asp-action="Create" asp-route-chapterId="@activeChapter?.Id">
+                    <span class="material-symbols-outlined text-[18px]">publish</span> New Lesson
+                </a>
+            </div>
+        </header>
+        <main class="flex-1 overflow-hidden flex p-6 gap-6">
+            <div class="w-1/3 max-w-[400px] flex flex-col bg-surface-container-lowest rounded-[2rem] border-2 border-outline-variant/30 shadow-sm overflow-hidden relative">
+                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-primary-fixed/30 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="p-5 border-b border-surface-variant flex justify-between items-center bg-surface-container-lowest/80 backdrop-blur-sm z-10">
+                    <h2 class="font-headline-md text-xl text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">view_timeline</span> Curriculum
+                    </h2>
+                    <a class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center border-2 border-secondary shadow-[0_2px_0_0_rgba(0,108,73,0.3)] hover:brightness-105 squishy-btn transition-all" title="Add Chapter" asp-controller="Chapters" asp-action="Create" asp-route-courseId="@Model.Course.Id">
+                        <span class="material-symbols-outlined text-[18px]">add</span>
+                    </a>
+                </div>
+                <div class="flex-1 overflow-y-auto editor-scroll p-5 z-10">
+                    @foreach (var chapter in chapters)
+                    {
+                        <div class="mb-6 relative">
+                            <div class="flex items-center gap-3 mb-3 group">
+                                <span class="material-symbols-outlined text-outline opacity-0 group-hover:opacity-100 transition-opacity text-[18px] -ml-2">drag_indicator</span>
+                                <div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm z-10 border-2 border-surface-container-lowest shadow-sm">
+                                    @chapter.OrderIndex
+                                </div>
+                                <h4 class="font-label-sm text-label-sm flex-1">@chapter.Title</h4>
+                                <a class="text-outline hover:text-primary" asp-controller="Chapters" asp-action="Edit" asp-route-id="@chapter.Id">
+                                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                                </a>
+                            </div>
+                            <div class="ml-10 flex flex-col gap-2">
+                                @foreach (var lesson in chapter.Lessons.OrderBy(l => l.OrderIndex))
+                                {
+                                    var isActive = activeLesson?.Id == lesson.Id;
+                                    <a class="flex items-center gap-3 @(isActive ? "bg-primary-fixed/40 border-2 border-primary/20" : "hover:bg-surface-variant/50 border-2 border-transparent") rounded-xl p-2 cursor-pointer transition-colors group relative" asp-controller="Lessons" asp-action="Edit" asp-route-id="@lesson.Id">
+                                        <div class="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-primary shadow-sm border border-primary/10">
+                                            <span class="material-symbols-outlined text-[18px]">article</span>
+                                        </div>
+                                        <div class="flex-1">
+                                            <span class="font-label-sm text-sm text-on-surface block">@lesson.Title</span>
+                                            <span class="text-xs text-on-surface-variant block">@lesson.ContentType</span>
+                                        </div>
+                                        <span class="text-outline hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <span class="material-symbols-outlined text-[16px]">more_vert</span>
+                                        </span>
+                                    </a>
+                                }
+                                <a class="flex items-center gap-2 text-xs font-label-sm text-primary mt-1 p-2 rounded-lg hover:bg-primary-fixed/50 transition-colors w-fit border border-dashed border-primary/30" asp-controller="Lessons" asp-action="Create" asp-route-chapterId="@chapter.Id">
+                                    <span class="material-symbols-outlined text-[16px]">add</span> Add Lesson
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="flex-1 flex flex-col bg-surface-container-lowest rounded-[2rem] border-2 border-outline-variant/30 shadow-sm overflow-hidden relative">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-secondary-container/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="p-6 border-b border-surface-variant relative z-10 bg-surface-container-lowest/90 backdrop-blur-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="inline-block px-3 py-1 bg-primary-fixed/50 text-on-primary-container rounded-full text-xs font-bold mb-2 border border-primary/20 uppercase tracking-wider flex items-center gap-1 w-fit">
+                                <span class="material-symbols-outlined text-[14px]">article</span> Lesson
+                            </span>
+                            <div class="flex items-center gap-3 group">
+                                <h2 class="font-headline-md text-2xl text-on-surface">@activeLesson?.Title ?? "Select a lesson"</h2>
+                            </div>
+                        </div>
+                        @if (activeLesson != null)
+                        {
+                            <div class="flex gap-2">
+                                <a class="p-2 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-colors" asp-controller="Lessons" asp-action="Details" asp-route-id="@activeLesson.Id" title="Preview Lesson">
+                                    <span class="material-symbols-outlined">visibility</span>
+                                </a>
+                                <a class="p-2 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-colors" asp-controller="Lessons" asp-action="Edit" asp-route-id="@activeLesson.Id" title="Lesson Settings">
+                                    <span class="material-symbols-outlined">settings</span>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto editor-scroll p-8 bg-surface/50 z-10 flex flex-col gap-6">
+                    <div class="bg-surface-container-lowest rounded-2xl border-2 border-surface-variant p-6 shadow-sm">
+                        <div class="flex items-center gap-2 text-on-surface-variant mb-4">
+                            <span class="material-symbols-outlined text-[18px]">format_align_left</span>
+                            <span class="text-xs font-bold uppercase tracking-wider">Lesson Content</span>
+                        </div>
+                        @if (activeLesson != null && !string.IsNullOrWhiteSpace(activeLesson.DocumentContent))
+                        {
+                            <div class="prose prose-sm max-w-none">
+                                <p>@activeLesson.DocumentContent</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-sm text-on-surface-variant">Select a lesson or add content to begin.</p>
+                        }
+                    </div>
+                    <div class="mt-4 pb-12 flex justify-center">
+                        @if (activeLesson != null)
+                        {
+                            <a class="flex items-center gap-2 bg-surface hover:bg-primary-fixed/30 text-primary px-6 py-3 rounded-full border-2 border-dashed border-primary/40 hover:border-primary transition-all font-label-sm shadow-sm hover:shadow-md" asp-controller="Lessons" asp-action="Edit" asp-route-id="@activeLesson.Id">
+                                <span class="material-symbols-outlined">edit</span>
+                                Edit Lesson
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
