@@ -1,0 +1,270 @@
+@model ChemistryV1.ViewModels.CategoryManagementViewModel
+@{
+    Layout = null;
+    var iconPool = new[] { "science", "eco", "bolt", "biotech", "psychology" };
+}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ChemLab 3D - Category Management</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="~/css/academy.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&amp;family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-variant": "#e4e3db",
+                        surface: "#fbf9f1",
+                        tertiary: "#825100",
+                        "surface-container-high": "#eae8e0",
+                        "on-background": "#1b1c17",
+                        "inverse-on-surface": "#f3f1e9",
+                        "surface-tint": "#005ac2",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1b1c17",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#a36700",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#f0eee6",
+                        "secondary-container": "#6cf8bb",
+                        "on-secondary-container": "#00714d",
+                        secondary: "#006c49",
+                        "inverse-surface": "#30312c",
+                        "primary-fixed-dim": "#adc6ff",
+                        "on-primary-container": "#fefcff",
+                        "surface-dim": "#dcdad2",
+                        "on-secondary-fixed": "#002113",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-primary-fixed-variant": "#004395",
+                        "primary-fixed": "#d8e2ff",
+                        "surface-bright": "#fbf9f1",
+                        primary: "#0058be",
+                        "on-surface-variant": "#424754",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-primary-fixed": "#001a42",
+                        "inverse-primary": "#adc6ff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "surface-container-low": "#f5f4ec",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#2170e4",
+                        background: "#fbf9f1",
+                        "secondary-fixed-dim": "#4edea3",
+                        outline: "#727785",
+                        "on-tertiary-fixed": "#2a1700",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-tertiary-container": "#fffbff",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#c2c6d6",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface-container-highest": "#e4e3db",
+                        "on-tertiary": "#ffffff",
+                        error: "#ba1a1a"
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                        lg: "2rem",
+                        xl: "3rem",
+                        full: "9999px"
+                    },
+                    spacing: {
+                        "margin-desktop": "48px",
+                        gutter: "24px",
+                        "margin-mobile": "16px",
+                        "container-max": "1200px",
+                        unit: "8px"
+                    },
+                    fontFamily: {
+                        "label-sm": ["Lexend", "sans-serif"],
+                        "display-lg": ["Lexend", "sans-serif"],
+                        "headline-md": ["Lexend", "sans-serif"],
+                        "body-md": ["Quicksand", "sans-serif"],
+                        "display-lg-mobile": ["Lexend", "sans-serif"],
+                        "body-lg": ["Quicksand", "sans-serif"]
+                    },
+                    fontSize: {
+                        "label-sm": ["14px", { lineHeight: "1.2", fontWeight: "600" }],
+                        "display-lg": ["48px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "headline-md": ["24px", { lineHeight: "1.4", fontWeight: "600" }],
+                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "500" }],
+                        "display-lg-mobile": ["32px", { lineHeight: "1.2", fontWeight: "700" }],
+                        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .btn-tactile {
+            box-shadow: 0 4px 0 0 var(--tw-shadow-color);
+        }
+        .btn-tactile:active {
+            box-shadow: 0 0px 0 0 var(--tw-shadow-color);
+            transform: translateY(4px);
+        }
+        .card-tactile {
+            box-shadow: 0 6px 0 0 var(--tw-shadow-color);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .card-tactile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 0 var(--tw-shadow-color);
+        }
+        .bg-lab-grid {
+            background-image: radial-gradient(var(--tw-colors-outline-variant) 1px, transparent 1px);
+            background-size: 24px 24px;
+            background-position: 0 0;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body class="academy-shell bg-surface text-on-surface font-body-md min-h-screen antialiased overflow-x-hidden">
+    <aside class="academy-sidebar hidden md:flex h-full w-64 fixed left-0 top-0 rounded-r-lg border-r-2 border-secondary-container bg-surface-container-low shadow-md flex-col py-6 z-50">
+        <div class="px-6 mb-8 flex flex-col gap-1">
+            <span class="font-headline-md text-headline-md font-bold text-primary">ChemLab 3D</span>
+            <div class="flex items-center gap-3 mt-4">
+                <div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center border-2 border-secondary">
+                    <span class="material-symbols-outlined text-secondary">school</span>
+                </div>
+                <div>
+                    <div class="font-label-sm text-label-sm text-on-surface">Magical Academy</div>
+                    <div class="text-[10px] text-on-surface-variant uppercase tracking-wider">Teacher Panel</div>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-grow space-y-3 px-2">
+            <a class="flex items-center gap-3 p-4 text-on-surface-variant hover:bg-surface-container-high rounded-2xl transition-all hover:translate-x-1 font-label-sm" asp-controller="Dashboard" asp-action="Index">
+                <span class="material-symbols-outlined">science</span> Laboratory
+            </a>
+            <a class="flex items-center gap-3 p-4 text-on-surface-variant hover:bg-surface-container-high rounded-2xl transition-all hover:translate-x-1 font-label-sm" asp-controller="TeacherCourses" asp-action="Index">
+                <span class="material-symbols-outlined">auto_stories</span> Spellbook
+            </a>
+            <a class="flex items-center gap-3 p-4 text-on-surface-variant hover:bg-surface-container-high rounded-2xl transition-all hover:translate-x-1 font-label-sm" asp-controller="Courses" asp-action="Library">
+                <span class="material-symbols-outlined">school</span> Academy
+            </a>
+            <a class="flex items-center gap-3 p-4 bg-secondary-container text-on-secondary-container rounded-2xl border border-secondary/20 font-label-sm" asp-controller="Categories" asp-action="Index">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu_book</span> Categories
+            </a>
+        </nav>
+        <div class="px-4 mt-auto mb-6">
+            <button class="w-full bg-primary text-on-primary font-label-sm text-label-sm py-3 px-4 rounded-full border-2 border-on-primary-fixed-variant btn-tactile shadow-on-primary-fixed-variant transition-all duration-150 flex justify-center items-center gap-2">
+                <span class="material-symbols-outlined text-xl">play_arrow</span>
+                Start Experiment
+            </button>
+        </div>
+        <div class="mt-auto px-2 flex flex-col gap-2 pt-4 border-t-2 border-outline-variant/30 mx-4">
+            <a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-variant hover:scale-[1.02] transition-transform rounded-lg p-3 active:translate-y-[2px] duration-150" href="#">
+                <span class="material-symbols-outlined">settings</span>
+                <span class="font-label-sm text-label-sm">Settings</span>
+            </a>
+            <a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-variant hover:scale-[1.02] transition-transform rounded-lg p-3 active:translate-y-[2px] duration-150" href="#">
+                <span class="material-symbols-outlined">help_outline</span>
+                <span class="font-label-sm text-label-sm">Support</span>
+            </a>
+        </div>
+    </aside>
+        <partial name="_AcademySidebar" />
+        <partial name="_AcademySidebar" />
+    <header class="academy-topbar hidden md:flex fixed top-0 right-0 w-[calc(100%-256px)] h-16 bg-surface/80 backdrop-blur-md border-b-2 border-primary/10 shadow-sm justify-between items-center px-margin-desktop z-40">
+        <div class="flex-1 flex justify-between items-center gap-4">
+            <form method="get" class="flex items-center gap-4 flex-1 max-w-2xl">
+                <div class="relative w-full max-w-md">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                    <input class="w-full bg-surface-container-lowest border-2 border-outline-variant rounded-full pl-12 pr-4 py-2 text-body-md font-body-md outline-none transition-all focus:border-primary" name="search" placeholder="Search academy..." type="text" value="@Model.Search" />
+                </div>
+            </form>
+            <div class="flex items-center gap-4">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="flex items-center gap-3">
+                        <img alt="User profile avatar" class="w-10 h-10 rounded-full border-2 border-primary object-cover" src="@User.FindFirst("AvatarUrl")?.Value" />
+                        <div class="text-left hidden lg:block">
+                            <p class="text-xs font-bold text-on-surface leading-tight">@User.Identity.Name</p>
+                            <p class="text-[9px] uppercase font-bold text-primary tracking-wider leading-none">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</p>
+                        </div>
+                        <a class="text-xs font-bold text-error hover:bg-error-container/20 px-3 py-1.5 rounded-full border border-error/20 transition-all ml-2" asp-controller="Account" asp-action="Logout">Đăng xuất</a>
+                    </div>
+                }
+                else
+                {
+                    <a class="bg-primary text-on-primary px-6 py-2 rounded-full font-bold squishy-button" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                }
+            </div>
+        </div>
+    </header>
+    <main class="w-full md:w-[calc(100%-256px)] md:ml-64 pt-24 pb-16 px-margin-mobile md:px-margin-desktop min-h-screen relative">
+        <div class="absolute inset-0 bg-lab-grid pointer-events-none -z-10"></div>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+            <div>
+                <h2 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-2">Category Manifest</h2>
+                <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Organize the academy's grimoires. Manage course groupings, update symbolic representations, and maintain the elemental balance.</p>
+            </div>
+            <a class="bg-secondary text-on-secondary font-label-sm text-label-sm py-3 px-6 rounded-full border-2 border-on-secondary-fixed btn-tactile shadow-on-secondary-fixed transition-all duration-150 flex items-center gap-2 flex-shrink-0 group" asp-action="Create">
+                <span class="material-symbols-outlined transition-transform group-hover:rotate-90 duration-300">add_circle</span>
+                Add New Category
+            </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter">
+            @for (var i = 0; i < Model.Categories.Count; i++)
+            {
+                var card = Model.Categories[i];
+                var icon = string.IsNullOrWhiteSpace(card.Category.Icon) ? iconPool[i % iconPool.Length] : card.Category.Icon;
+                <article class="bg-surface-container-lowest border-2 border-primary/30 rounded-xl p-6 relative flex flex-col gap-6 card-tactile shadow-primary/20">
+                    <div class="flex justify-between items-start">
+                        <div class="w-14 h-14 rounded-[1rem] bg-primary-container text-on-primary-container flex items-center justify-center border-2 border-primary border-b-4">
+                            <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">@icon</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <a aria-label="Edit @card.Category.Name" class="w-10 h-10 rounded-full border-2 border-outline-variant bg-surface flex items-center justify-center text-on-surface-variant hover:border-primary hover:text-primary transition-colors btn-tactile shadow-outline-variant hover:bg-primary-fixed" asp-action="Edit" asp-route-id="@card.Category.Id">
+                                <span class="material-symbols-outlined text-[20px]">edit</span>
+                            </a>
+                            <a aria-label="Delete @card.Category.Name" class="w-10 h-10 rounded-full border-2 border-outline-variant bg-surface flex items-center justify-center text-on-surface-variant hover:border-error hover:text-error transition-colors btn-tactile shadow-outline-variant hover:bg-error-container" asp-action="Delete" asp-route-id="@card.Category.Id">
+                                <span class="material-symbols-outlined text-[20px]">delete</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-headline-md text-headline-md text-on-surface mb-1">@card.Category.Name</h3>
+                        <p class="font-label-sm text-label-sm text-on-surface-variant mb-3">@card.Category.Slug</p>
+                        <p class="font-body-md text-body-md text-on-surface-variant">@card.Category.Description</p>
+                    </div>
+                    <div class="pt-4 border-t-2 border-surface-variant flex items-center gap-2">
+                        <span class="px-3 py-1 bg-surface-variant rounded-full font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 border border-outline/20">
+                            <span class="material-symbols-outlined text-[16px]">menu_book</span>
+                            @card.CourseCount Courses
+                        </span>
+                        @if (card.Category.IsActive)
+                        {
+                            <span class="px-3 py-1 bg-secondary-container rounded-full font-label-sm text-label-sm text-on-secondary-container flex items-center gap-1 border border-secondary/20">
+                                <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                Active
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="px-3 py-1 bg-surface-variant rounded-full font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 border border-outline/20">
+                                <span class="material-symbols-outlined text-[16px]">build</span>
+                                Hidden
+                            </span>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    </main>
+    <footer class="w-full md:w-[calc(100%-256px)] md:ml-64 bg-surface-container-low border-t-2 border-outline-variant p-8 flex flex-col md:flex-row justify-between items-center gap-4 z-10 relative mt-auto">
+        <div class="font-label-sm text-label-sm font-bold text-on-surface">© 2024 ChemLab 3D Academy. Master the Elements.</div>
+        <div class="flex flex-wrap gap-6 justify-center">
+            <a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer hover:opacity-80" href="#">Terms of Service</a>
+            <a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer hover:opacity-80" href="#">Privacy Policy</a>
+            <a class="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer hover:opacity-80" href="#">Contact Instructor</a>
+        </div>
+    </footer>
+</body>
+</html>

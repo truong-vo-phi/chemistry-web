@@ -1,0 +1,209 @@
+@model ChemistryV1.Models.User
+@{
+    Layout = null;
+    var users = ViewBag.Users as List<ChemistryV1.Models.User> ?? new List<ChemistryV1.Models.User>();
+    var returnUrl = ViewBag.ReturnUrl as string;
+}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Đăng Nhập | ChemLab 3D</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&amp;family=Quicksand:wght@500;700&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        background: "#fbf9f1",
+                        primary: "#0058be",
+                        secondary: "#006c49",
+                        "secondary-container": "#6cf8bb",
+                        "surface-container": "#f0eee6",
+                        "on-surface": "#1b1c17",
+                        "on-surface-variant": "#424754",
+                        error: "#ba1a1a",
+                        "error-container": "#ffdad6"
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                        lg: "2rem",
+                        xl: "3rem",
+                        full: "9999px"
+                    },
+                    fontFamily: {
+                        "body-lg": ["Quicksand"],
+                        "headline-md": ["Lexend"],
+                        "display-lg": ["Lexend"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #fbf9f1 0%, #e4e3db 100%);
+            min-height: 100vh;
+            font-family: 'Quicksand', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        .bubble {
+            position: absolute;
+            background: rgba(0, 88, 190, 0.05);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float-bubble 12s infinite ease-in-out;
+        }
+
+        @@keyframes float-bubble {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.1); }
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            border: 2px solid rgba(0, 88, 190, 0.15);
+            box-shadow: 0 12px 36px rgba(0, 88, 190, 0.08);
+            border-radius: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .squishy-btn {
+            box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.1);
+            transition: all 0.1s ease-in-out;
+        }
+
+        .squishy-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .quick-user-card {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid transparent;
+        }
+
+        .quick-user-card:hover {
+            transform: translateY(-4px);
+            background: white;
+            box-shadow: 0 8px 16px rgba(0, 88, 190, 0.06);
+        }
+    </style>
+</head>
+<body class="p-4">
+    <!-- Bubble Decorations -->
+    <div class="bubble w-32 h-32 top-10 left-10" style="animation-delay: 0s;"></div>
+    <div class="bubble w-48 h-48 bottom-10 right-10" style="animation-delay: 2s; background: rgba(0, 108, 73, 0.05);"></div>
+    <div class="bubble w-20 h-20 bottom-1/3 left-1/4" style="animation-delay: 4s;"></div>
+
+    <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-12 gap-8 z-10">
+        
+        <!-- Welcome Info -->
+        <div class="md:col-span-5 flex flex-col justify-center text-left p-4">
+            <div class="w-16 h-16 bg-primary rounded-3xl flex items-center justify-center text-white mb-6 shadow-lg shadow-primary/20">
+                <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">science</span>
+            </div>
+            <h1 class="font-display-lg text-4xl font-bold text-primary mb-4 leading-tight">ChemLab 3D</h1>
+            <p class="text-on-surface-variant text-lg mb-6 leading-relaxed">
+                Đăng nhập để tham gia làm thí nghiệm hóa học 3D, lưu trữ tiến độ học lý thuyết, và nhận các huy hiệu danh giá của Học Viện Pháp Thuật.
+            </p>
+            
+            <div class="hidden md:flex flex-col gap-4 mt-4">
+                <div class="flex items-center gap-3 text-sm text-on-surface-variant">
+                    <span class="material-symbols-outlined text-primary">verified</span>
+                    <span>Lưu lịch sử bài học lý thuyết</span>
+                </div>
+                <div class="flex items-center gap-3 text-sm text-on-surface-variant">
+                    <span class="material-symbols-outlined text-primary">shield</span>
+                    <span>Bảo mật, dễ dàng kết nối</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Form Panel -->
+        <div class="md:col-span-7 login-card p-6 md:p-10 flex flex-col justify-center">
+            <h2 class="font-headline-md text-2xl font-bold text-on-surface mb-6">Đăng Nhập Hệ Thống</h2>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="mb-6 rounded-2xl bg-error-container p-4 text-error text-sm font-bold flex items-center gap-2 border border-error/20">
+                    <span class="material-symbols-outlined">error</span>
+                    <div asp-validation-summary="All" class="list-none"></div>
+                </div>
+            }
+
+            <!-- Quick Login Area -->
+            <div class="mb-8">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant/70 mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">flash_on</span>
+                    Đăng nhập nhanh (Chỉ 1 click)
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    @foreach (var u in users)
+                    {
+                        var roleColor = u.Role == "Admin" ? "bg-red-100 text-red-700 border-red-200" :
+                                        u.Role == "Teacher" ? "bg-emerald-100 text-emerald-700 border-emerald-200" :
+                                        "bg-blue-100 text-blue-700 border-blue-200";
+
+                        <form method="post" asp-action="QuickLogin">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="userId" value="@u.Id" />
+                            <input type="hidden" name="returnUrl" value="@returnUrl" />
+                            <button type="submit" class="quick-user-card w-full p-4 rounded-2xl bg-surface-container/50 border border-primary/10 flex flex-col items-center text-center cursor-pointer">
+                                <img src="@u.AvatarUrl" alt="Avatar" class="w-12 h-12 rounded-full object-cover mb-2 border-2 border-white shadow-sm" />
+                                <span class="font-bold text-xs text-on-surface truncate max-w-full">@u.FullName</span>
+                                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider mt-1.5 border @roleColor">@u.Role</span>
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 mb-6">
+                <div class="h-px bg-primary/10 flex-1"></div>
+                <span class="text-xs text-on-surface-variant font-bold uppercase">Hoặc dùng tài khoản</span>
+                <div class="h-px bg-primary/10 flex-1"></div>
+            </div>
+
+            <!-- Standard Login Form -->
+            <form method="post" asp-action="Login">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface mb-2 uppercase tracking-wider">Tên đăng nhập</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">person</span>
+                            <input name="username" type="text" class="w-full bg-white/70 border-2 border-primary/10 focus:border-primary focus:ring-0 rounded-full pl-12 pr-4 py-3 text-sm font-medium outline-none transition-all" placeholder="admin / teacher / student" required />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface mb-2 uppercase tracking-wider">Mật khẩu</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">lock</span>
+                            <input name="password" type="password" class="w-full bg-white/70 border-2 border-primary/10 focus:border-primary focus:ring-0 rounded-full pl-12 pr-4 py-3 text-sm font-medium outline-none transition-all" placeholder="Nhập mật khẩu (mặc định: 123)" required />
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="squishy-btn w-full bg-primary text-white py-4 rounded-full font-bold text-sm tracking-wider uppercase mt-8 flex items-center justify-center gap-2 border-2 border-primary/10 hover:brightness-105 shadow-lg shadow-primary/20">
+                    Đăng Nhập
+                    <span class="material-symbols-outlined text-sm">login</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

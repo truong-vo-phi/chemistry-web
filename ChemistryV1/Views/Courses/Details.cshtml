@@ -1,0 +1,371 @@
+@model ChemistryV1.ViewModels.CourseDetailsViewModel
+@{
+    Layout = null;
+    var course = Model.Course;
+    var placeholderImage = "https://via.placeholder.com/960x540?text=Course";
+    var lessons = Model.Chapters.SelectMany(ch => ch.Lessons.OrderBy(l => l.OrderIndex)).ToList();
+}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>@course.Title | ChemLab 3D</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&amp;family=Quicksand:wght@500;600;700&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        error: "#ba1a1a",
+                        "surface-variant": "#e4e3db",
+                        background: "#fbf9f1",
+                        surface: "#fbf9f1",
+                        "on-tertiary-container": "#fffbff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#00714d",
+                        "on-surface": "#1b1c17",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#fbf9f1",
+                        secondary: "#006c49",
+                        "surface-tint": "#005ac2",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-secondary-fixed-variant": "#005236",
+                        outline: "#727785",
+                        "primary-fixed-dim": "#adc6ff",
+                        "surface-container-highest": "#e4e3db",
+                        "surface-container-high": "#eae8e0",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#002113",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed": "#d8e2ff",
+                        "outline-variant": "#c2c6d6",
+                        "on-primary-fixed": "#001a42",
+                        "on-primary-container": "#fefcff",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#adc6ff",
+                        "on-error-container": "#93000a",
+                        "on-background": "#1b1c17",
+                        "surface-container-low": "#f5f4ec",
+                        "inverse-surface": "#30312c",
+                        "surface-container": "#f0eee6",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-primary-fixed-variant": "#004395",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#dcdad2",
+                        primary: "#0058be",
+                        "secondary-fixed": "#6ffbbe",
+                        "tertiary-container": "#a36700",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-surface-variant": "#424754",
+                        "inverse-on-surface": "#f3f1e9",
+                        "primary-container": "#2170e4",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "tertiary-fixed": "#ffddb8",
+                        "secondary-container": "#6cf8bb",
+                        tertiary: "#825100"
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                        lg: "2rem",
+                        xl: "3rem",
+                        full: "9999px"
+                    },
+                    spacing: {
+                        gutter: "24px",
+                        "margin-mobile": "16px",
+                        unit: "8px",
+                        "container-max": "1200px",
+                        "margin-desktop": "48px"
+                    },
+                    fontFamily: {
+                        "label-sm": ["Lexend"],
+                        "display-lg-mobile": ["Lexend"],
+                        "body-md": ["Quicksand"],
+                        "body-lg": ["Quicksand"],
+                        "display-lg": ["Lexend"],
+                        "headline-md": ["Lexend"]
+                    },
+                    fontSize: {
+                        "label-sm": ["14px", { lineHeight: "1.2", fontWeight: "600" }],
+                        "display-lg-mobile": ["32px", { lineHeight: "1.2", fontWeight: "700" }],
+                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "500" }],
+                        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "500" }],
+                        "display-lg": ["48px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "headline-md": ["24px", { lineHeight: "1.4", fontWeight: "600" }]
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body {
+            background-color: #fbf9f1;
+            -webkit-font-smoothing: antialiased;
+        }
+        .squishy-btn {
+            box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.1);
+            transition: all 0.1s ease-in-out;
+        }
+        .squishy-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.1);
+        }
+        .magical-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        @@keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .card-border {
+            border-width: 2px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="text-on-background font-body-md overflow-x-hidden">
+    <header class="bg-background w-full top-0 sticky z-50 border-b-2 border-surface-variant shadow-sm md:pl-64">
+        <div class="flex justify-between items-center px-gutter py-4 w-full max-w-container-max mx-auto">
+            <div class="flex items-center gap-4">
+                <span class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary">ChemLab 3D</span>
+            </div>
+            <div class="hidden md:flex items-center gap-gutter">
+                <nav class="flex gap-6">
+                    @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Teacher")))
+                    {
+                        <a class="text-on-surface-variant hover:bg-surface-container-high transition-colors px-3 py-2 rounded-lg font-label-sm" asp-controller="Dashboard" asp-action="Index">Laboratory</a>
+                        <a class="text-on-surface-variant hover:bg-surface-container-high transition-colors px-3 py-2 rounded-lg font-label-sm" asp-controller="TeacherCourses" asp-action="Index">Spellbook</a>
+                    }
+                    <a class="text-primary font-bold font-label-sm" asp-controller="Courses" asp-action="Library">Academy</a>
+                </nav>
+                <div class="flex items-center gap-4">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="flex items-center gap-3">
+                            <img alt="User profile avatar" class="w-10 h-10 rounded-full border-2 border-primary object-cover" src="@User.FindFirst("AvatarUrl")?.Value" />
+                            <div class="text-left hidden lg:block">
+                                <p class="text-xs font-bold text-on-surface leading-tight">@User.Identity.Name</p>
+                                <p class="text-[9px] uppercase font-bold text-primary tracking-wider leading-none">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</p>
+                            </div>
+                            <a class="text-xs font-bold text-error hover:bg-error-container/20 px-3 py-1.5 rounded-full border border-error/20 transition-all ml-2" asp-controller="Account" asp-action="Logout">Đăng xuất</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <a class="bg-primary text-on-primary px-6 py-2 rounded-full font-bold squishy-btn" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="flex flex-col md:flex-row max-w-container-max mx-auto min-h-screen">
+        <partial name="_AcademySidebar" />
+        <main class="flex-1 min-w-0 md:ml-64 px-margin-mobile md:px-margin-desktop py-gutter overflow-x-hidden">
+            <section class="relative overflow-hidden rounded-xl bg-primary-container text-on-primary-container p-8 md:p-12 mb-gutter shadow-md magical-float">
+                <div class="relative z-10 max-w-2xl">
+                    <div class="inline-flex items-center gap-2 bg-secondary-container text-on-secondary-container px-4 py-1 rounded-full mb-6 font-label-sm">
+                        <span class="material-symbols-outlined text-sm">stars</span>
+                        <span>@(course.CourseCategories.FirstOrDefault()?.Category?.Name ?? "Chemistry")</span>
+                    </div>
+                    <h1 class="font-display-lg text-display-lg-mobile md:text-display-lg mb-4">@course.Title</h1>
+                    <p class="font-body-lg text-body-lg mb-8 opacity-90">@course.Description</p>
+                    <div class="flex flex-col sm:flex-row items-center gap-6">
+                        <form method="post" asp-action="Enroll" asp-route-id="@course.Id">
+                            @Html.AntiForgeryToken()
+                            <button class="squishy-btn w-full sm:w-auto bg-secondary-container text-on-secondary-container px-8 py-4 rounded-full font-headline-md border-2 border-secondary font-bold flex items-center justify-center gap-2" type="submit">
+                                <span>Enroll Now</span>
+                                <span class="material-symbols-outlined">bolt</span>
+                            </button>
+                        </form>
+                        <div class="flex items-center gap-3">
+                            <img alt="Instructor avatar" class="w-12 h-12 rounded-full border-2 border-white shadow-sm" src="@(course.Teacher?.AvatarUrl ?? "https://via.placeholder.com/64")" />
+                            <div>
+                                <p class="font-label-sm leading-none">Instructor</p>
+                                <p class="font-bold">@course.Teacher?.FullName</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute top-1/2 right-0 -translate-y-1/2 opacity-20 pointer-events-none transform scale-150">
+                    <span class="material-symbols-outlined text-[300px]" style="font-variation-settings: 'FILL' 1;">experiment</span>
+                </div>
+            </section>
+            @if (TempData["EnrollError"] != null)
+            {
+                <div class="mb-6 rounded-lg bg-error-container p-4 text-on-error-container font-bold">
+                    @TempData["EnrollError"]
+                </div>
+            }
+            @if (TempData["EnrollSuccess"] != null)
+            {
+                <div class="mb-6 rounded-lg bg-secondary-container p-4 text-on-secondary-container font-bold">
+                    @TempData["EnrollSuccess"]
+                </div>
+            }
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+                <div class="lg:col-span-2 flex flex-col gap-gutter">
+                    <div class="bg-white p-8 rounded-lg card-border border-secondary-container/30 shadow-sm">
+                        <h3 class="font-headline-md text-headline-md mb-4 text-secondary flex items-center gap-2">
+                            <span class="material-symbols-outlined">menu_book</span>
+                            About the Course
+                        </h3>
+                        <div class="space-y-4 font-body-md text-on-surface-variant">
+                            <p>@course.Description</p>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                            <div class="bg-surface-container-low p-4 rounded-lg text-center">
+                                <span class="material-symbols-outlined text-primary mb-2">schedule</span>
+                                <p class="font-label-sm text-xs opacity-70">Chapters</p>
+                                <p class="font-bold">@Model.Chapters.Count()</p>
+                            </div>
+                            <div class="bg-surface-container-low p-4 rounded-lg text-center">
+                                <span class="material-symbols-outlined text-primary mb-2">bar_chart</span>
+                                <p class="font-label-sm text-xs opacity-70">Lessons</p>
+                                <p class="font-bold">@Model.TotalLessons</p>
+                            </div>
+                            <div class="bg-surface-container-low p-4 rounded-lg text-center">
+                                <span class="material-symbols-outlined text-primary mb-2">videocam</span>
+                                <p class="font-label-sm text-xs opacity-70">Type</p>
+                                <p class="font-bold">Theory</p>
+                            </div>
+                            <div class="bg-surface-container-low p-4 rounded-lg text-center">
+                                <span class="material-symbols-outlined text-primary mb-2">verified</span>
+                                <p class="font-label-sm text-xs opacity-70">Certificate</p>
+                                <p class="font-bold">Yes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg card-border border-primary-container/30 shadow-sm">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-headline-md text-headline-md text-primary flex items-center gap-2">
+                                <span class="material-symbols-outlined">list_alt</span>
+                                Learning Path
+                            </h3>
+                            <span class="bg-primary-container/10 text-primary px-3 py-1 rounded-full text-sm font-bold">@Model.TotalLessons Lessons</span>
+                        </div>
+                        <div class="space-y-4">
+                            @{
+                                var studentId = User.Identity?.IsAuthenticated == true ? int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0") : 0;
+                                var isEnrolled = course.CourseEnrollments?.Any(e => e.StudentId == studentId) == true;
+                                var index = 1;
+                                foreach (var lesson in lessons)
+                                {
+                                    var locked = !isEnrolled && lesson.IsPreview != true;
+                                    if (locked)
+                                    {
+                                        <div class="group opacity-75">
+                                            <div class="flex items-center gap-4 p-4 rounded-lg border-2 border-transparent">
+                                                <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant font-bold">@index.ToString("00")</div>
+                                                <div class="flex-1">
+                                                    <h4 class="font-bold text-on-surface-variant">@lesson.Title</h4>
+                                                    <p class="text-sm opacity-60">@lesson.ContentType</p>
+                                                </div>
+                                                <span class="material-symbols-outlined text-on-surface-variant">lock</span>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <a class="group block" asp-controller="Lessons" asp-action="Details" asp-route-id="@lesson.Id">
+                                            <div class="flex items-center gap-4 p-4 rounded-lg hover:bg-surface-container-low transition-colors border-2 border-transparent hover:border-surface-variant">
+                                                <div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold">@index.ToString("00")</div>
+                                                <div class="flex-1">
+                                                    <h4 class="font-bold">@lesson.Title</h4>
+                                                    <p class="text-sm opacity-60">@lesson.ContentType</p>
+                                                </div>
+                                                <span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">chevron_right</span>
+                                            </div>
+                                        </a>
+                                    }
+                                    index++;
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-1">
+                    <div class="sticky top-[104px] flex flex-col gap-gutter">
+                        <div class="bg-white rounded-lg overflow-hidden card-border border-primary-container shadow-lg">
+                            <div class="aspect-video relative bg-surface-container-highest flex items-center justify-center">
+                                <img class="w-full h-full object-cover" alt="Course preview" src="@(course.ThumbnailUrl ?? placeholderImage)" />
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-primary shadow-xl">
+                                        <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-6">
+                                <div class="flex items-baseline gap-2 mb-4">
+                                    <span class="text-3xl font-bold text-on-surface">FREE</span>
+                                    <span class="text-on-surface-variant line-through text-sm">Was $49.00</span>
+                                </div>
+                                @if (isEnrolled)
+                                {
+                                    var firstLesson = lessons.FirstOrDefault();
+                                    if (firstLesson != null)
+                                    {
+                                        <a class="squishy-btn w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-full font-bold mb-4 flex items-center justify-center gap-2 border-2 border-emerald-600 shadow-md text-center" asp-controller="Lessons" asp-action="Details" asp-route-id="@firstLesson.Id">
+                                            <span class="material-symbols-outlined">school</span>
+                                            Vào Học Ngay
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-secondary-container text-on-secondary-container py-4 rounded-full font-bold text-center mb-4">
+                                            Đã Đăng Ký Khóa Học
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <form method="post" asp-action="Enroll" asp-route-id="@course.Id">
+                                        @Html.AntiForgeryToken()
+                                        <button class="squishy-btn w-full bg-primary text-white py-4 rounded-full font-bold mb-4 flex items-center justify-center gap-2" type="submit">
+                                            <span class="material-symbols-outlined">person_add</span>
+                                            Enroll for Free
+                                        </button>
+                                    </form>
+                                }
+                                <p class="text-center text-xs text-on-surface-variant font-medium">Limited time magic academy scholarship</p>
+                                <div class="mt-8 pt-6 border-t border-surface-variant space-y-3">
+                                    <p class="font-bold text-sm">This course includes:</p>
+                                    <div class="flex items-center gap-3 text-sm text-on-surface-variant">
+                                        <span class="material-symbols-outlined text-primary text-lg">science</span>
+                                        <span>@Model.TotalLessons Theory Lessons</span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-sm text-on-surface-variant">
+                                        <span class="material-symbols-outlined text-primary text-lg">download</span>
+                                        <span>Downloadable Handouts</span>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-sm text-on-surface-variant">
+                                        <span class="material-symbols-outlined text-primary text-lg">all_inclusive</span>
+                                        <span>Full Lifetime Access</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-tertiary-fixed text-on-tertiary-fixed p-6 rounded-lg card-border border-tertiary-container shadow-sm">
+                            <h4 class="font-bold mb-2 flex items-center gap-2">
+                                <span class="material-symbols-outlined">emoji_events</span>
+                                Reward Badge
+                            </h4>
+                            <p class="text-sm opacity-80 mb-4">Complete this course to unlock the "Master of Solutions" 3D badge for your profile!</p>
+                            <div class="flex justify-center py-4">
+                                <div class="w-24 h-24 bg-white/30 rounded-full flex items-center justify-center magical-float">
+                                    <span class="material-symbols-outlined text-6xl text-tertiary-container">rewarded_ads</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
