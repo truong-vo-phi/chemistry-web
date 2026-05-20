@@ -1,6 +1,10 @@
-﻿export const appRoutes = {
+export const appRoutes = {
   home: '/',
   interfaces: '/interfaces',
+  login: '/auth/login',
+  register: '/auth/register',
+  profile: '/profile',
+  changePassword: '/profile/change-password',
 
   studentDashboard: '/dashboard/student',
   teacherDashboard: '/dashboard/teacher',

@@ -1,4 +1,7 @@
-﻿import Link from 'next/link';
+import Link from 'next/link';
+
+import SiteFooter from '../components/layout/site-footer';
+import SiteHeader from '../components/layout/site-header';
 
 const chemistryDoodleImage =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuDp28mxKIHXIF6IZVtY5G_poZ7YTohMowFsesR3iD_9ADtgdXGFfhpy0sfx6Bft76QUfqkIn4ug46_pC2wJoix5bbhNKGvTXCmEcfnipwyzkvEGAdvprvU3fO7nuue3wkzN6aIjXJubwkA8IIKNKGBkKrZQ4O9cVJrSlPCqrR-NdD69KoiFzjR419FpCd8fmd9PV6KM6v-pbl0bEEbLuhQBvvX81FNVaBMyQxEljG_ldMulAjhVzP0271fMyLJFfRqz3Dx2etki_Ns';
@@ -6,84 +9,52 @@ const chemistryDoodleImage =
 const heroScientistImage =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuCqXDD2GeRKw7Ptxanso8Vnn4cH8PjIKwOzOGXCvo5NS6SEh4_UFMhabVmmJsPdsZ2G-J2m5sTdiC4tffNf1s7OoUKyzixqwdBIrcfGDT7EKoMTDrufOTTyhF33rGhao78MA2Yp2Qtcqe384nQkC1HB3BVbJncWT3XBTTyf388X8-JSLk5z3HbgM-fADdSnP8EWmMzGJEMNPMvBgSjUhMbUn_DEkaRSZcANaX2H5EPCHkdHwVt_mzGrf74kXXCBtvBJUX7dvpMYw7Q';
 
+const latestNews = [
+  {
+    title: 'Mở cửa phòng thí nghiệm ảo 2D phiên bản mới',
+    summary: 'Cập nhật bộ dụng cụ mô phỏng an toàn hơn cùng hướng dẫn từng bước cho học sinh mới.',
+    date: '20/05/2026',
+    href: '/science-news-blog',
+  },
+  {
+    title: 'Tuần lễ Hóa học Xanh dành cho học sinh THCS',
+    summary: 'Chuỗi hoạt động khám phá phản ứng thân thiện với môi trường và các mini game tương tác.',
+    date: '18/05/2026',
+    href: '/community',
+  },
+  {
+    title: 'Bảng tuần hoàn tương tác có thêm chế độ luyện thi',
+    summary: 'Bổ sung câu hỏi theo cấp độ và hệ thống gợi ý thông minh cho từng nhóm nguyên tố.',
+    date: '15/05/2026',
+    href: '/tools/periodic-table',
+  },
+];
+
+const featuredCourses = [
+  {
+    title: 'Hóa Học Cơ Bản Qua Thí Nghiệm Ảo',
+    level: 'Cơ bản',
+    lessons: 18,
+    href: '/courses',
+  },
+  {
+    title: 'Khám Phá Phản Ứng Oxi Hóa - Khử',
+    level: 'Trung cấp',
+    lessons: 14,
+    href: '/learning/pathway',
+  },
+  {
+    title: 'Bí Mật Bảng Tuần Hoàn Theo Nhóm Chất',
+    level: 'Nâng cao',
+    lessons: 22,
+    href: '/periodic-table',
+  },
+];
+
 export default function HomePage() {
   return (
-    <>
-      <div className="relative z-50 mx-auto w-full max-w-[1296px] px-margin-mobile md:px-margin-desktop">
-        <header className="mx-auto mt-4 flex w-full max-w-container-max items-center justify-between rounded-lg border-2 border-surface-variant bg-surface px-gutter py-unit shadow-sm">
-          <Link
-            href="/"
-            className="flex cursor-pointer items-center gap-2 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
-          >
-            <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary-fixed-variant bg-primary-container shadow-[2px_2px_0px_0px_rgba(0,67,149,0.3)]">
-              <span
-                className="material-symbols-outlined text-on-primary-container"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                science
-              </span>
-            </div>
-            <span className="font-headline-md text-headline-md font-bold tracking-tight text-primary">
-              ChemLab 3D
-            </span>
-          </Link>
-
-          <div className="ml-8 hidden flex-1 items-center justify-start gap-8 md:flex">
-            <div className="group relative w-64">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant transition-colors group-focus-within:text-primary">
-                search
-              </span>
-              <input
-                className="w-full rounded-full border-2 border-surface-variant bg-surface-container-lowest py-2 pl-10 pr-4 font-body-md text-body-md text-on-surface shadow-sm transition-all focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary-fixed/30"
-                placeholder="Tìm kiếm bài học..."
-                type="text"
-              />
-            </div>
-            <nav className="flex items-center gap-6">
-              <Link
-                className="font-body-md text-body-md font-medium text-on-surface-variant transition-transform duration-200 hover:scale-[1.02] hover:text-primary active:scale-[0.98]"
-                href="/learning-pathway"
-              >
-                Khám phá
-              </Link>
-              <Link
-                className="font-body-md text-body-md font-medium text-on-surface-variant transition-transform duration-200 hover:scale-[1.02] hover:text-primary active:scale-[0.98]"
-                href="/periodic-table"
-              >
-                Bảng Tuần Hoàn
-              </Link>
-              <Link
-                className="font-body-md text-body-md font-medium text-on-surface-variant transition-transform duration-200 hover:scale-[1.02] hover:text-primary active:scale-[0.98]"
-                href="/interfaces"
-              >
-                Giao diện
-              </Link>
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Link
-              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-on-surface-variant transition-colors hover:bg-surface-container-high hover:scale-[1.02] active:scale-[0.98]"
-              href="/learning-community"
-            >
-              <span className="material-symbols-outlined">notifications</span>
-            </Link>
-            <Link
-              className="hidden items-center gap-2 rounded-full border-2 border-on-primary-fixed-variant bg-primary px-6 py-3 font-label-sm text-label-sm text-on-primary shadow-[0px_4px_0px_0px_rgba(0,67,149,0.3)] transition-all hover:-translate-y-0.5 hover:shadow-[0px_6px_0px_0px_rgba(0,67,149,0.3)] active:translate-y-1 active:shadow-none md:flex"
-              href="/launch-3d-lab"
-            >
-              <span className="material-symbols-outlined">rocket_launch</span>
-              Launch Lab
-            </Link>
-            <Link
-              className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-tertiary-fixed-dim bg-tertiary-container transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
-              href="/profile-achievements"
-            >
-              <span className="material-symbols-outlined text-on-tertiary-container">person</span>
-            </Link>
-          </div>
-        </header>
-      </div>
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader />
 
       <main className="relative mx-auto flex w-full max-w-container-max flex-1 flex-col gap-24 px-margin-mobile py-12 md:px-margin-desktop">
         <img
@@ -211,6 +182,70 @@ export default function HomePage() {
           </div>
         </section>
 
+        <section className="relative z-10 rounded-2xl border-2 border-outline-variant bg-surface-container-low p-6 md:p-8">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="font-headline-md text-headline-md text-on-surface">Tin tức mới nhất</h2>
+            <Link
+              href="/science-news-blog"
+              className="inline-flex items-center gap-2 rounded-full border-2 border-primary px-4 py-2 font-label-sm text-label-sm text-primary transition-all hover:-translate-y-0.5 hover:bg-primary hover:text-on-primary"
+            >
+              Xem tất cả
+              <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {latestNews.map((news) => (
+              <Link
+                key={news.title}
+                href={news.href}
+                className="group rounded-xl border-2 border-surface-variant bg-surface-container-lowest p-5 transition-all hover:-translate-y-1 hover:border-primary-fixed-dim"
+              >
+                <p className="mb-2 font-label-sm text-label-sm text-secondary">{news.date}</p>
+                <h3 className="mb-3 font-headline-md text-[20px] text-on-surface transition-colors group-hover:text-primary">
+                  {news.title}
+                </h3>
+                <p className="font-body-md text-body-md text-on-surface-variant">{news.summary}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="relative z-10">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="font-headline-md text-headline-md text-on-surface">Khóa học nổi bật</h2>
+            <Link
+              href="/courses"
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-label-sm text-label-sm text-on-primary shadow-[0px_4px_0px_0px_rgba(0,67,149,0.3)] transition-all hover:-translate-y-0.5"
+            >
+              Khám phá khóa học
+              <span className="material-symbols-outlined text-[18px]">school</span>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 gap-gutter md:grid-cols-3">
+            {featuredCourses.map((course) => (
+              <Link
+                key={course.title}
+                href={course.href}
+                className="group flex flex-col gap-4 rounded-xl border-2 border-surface-variant bg-surface-container-lowest p-6 transition-all hover:-translate-y-1 hover:shadow-md"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-primary-fixed px-3 py-1 font-label-sm text-label-sm text-primary">
+                    {course.level}
+                  </span>
+                  <span className="font-label-sm text-label-sm text-on-surface-variant">{course.lessons} bài học</span>
+                </div>
+                <h3 className="font-headline-md text-[22px] text-on-surface transition-colors group-hover:text-primary">
+                  {course.title}
+                </h3>
+                <div className="mt-auto inline-flex items-center gap-2 font-label-sm text-label-sm text-primary">
+                  Vào học ngay
+                  <span className="material-symbols-outlined text-[18px]">north_east</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <section className="relative z-10 flex flex-col items-center gap-6 overflow-hidden rounded-[2rem] border-2 border-surface-variant bg-surface-container py-12">
           <img
             alt=""
@@ -242,40 +277,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="relative z-10 mt-auto w-full rounded-t-xl border-t-2 border-surface-variant bg-surface-container">
-        <div className="mx-auto flex w-full max-w-container-max flex-col items-center justify-between gap-margin-mobile px-margin-mobile py-gutter transition-all duration-200 md:flex-row md:px-margin-desktop">
-          <div className="flex flex-col items-center gap-2 md:items-start">
-            <span className="font-headline-md text-headline-md font-bold tracking-tight text-primary">ChemLab 3D</span>
-            <span className="font-body-md text-body-md text-secondary">© 2024 ChemLab 3D: Playful Academy</span>
-          </div>
-          <nav className="flex flex-wrap justify-center gap-6">
-            <Link
-              className="font-label-sm text-label-sm text-on-surface-variant transition-colors hover:text-primary hover:underline decoration-2 underline-offset-4"
-              href="/lesson-interface"
-            >
-              Laboratory Safety
-            </Link>
-            <Link
-              className="font-label-sm text-label-sm text-on-surface-variant transition-colors hover:text-primary hover:underline decoration-2 underline-offset-4"
-              href="/theory-course-library"
-            >
-              Curriculum
-            </Link>
-            <Link
-              className="font-label-sm text-label-sm text-on-surface-variant transition-colors hover:text-primary hover:underline decoration-2 underline-offset-4"
-              href="/launch-3d-lab"
-            >
-              Join the Lab
-            </Link>
-            <Link
-              className="font-label-sm text-label-sm text-on-surface-variant transition-colors hover:text-primary hover:underline decoration-2 underline-offset-4"
-              href="/settings-customization"
-            >
-              Privacy Policy
-            </Link>
-          </nav>
-        </div>
-      </footer>
-    </>
+      <SiteFooter />
+    </div>
   );
 }
