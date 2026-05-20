@@ -10,6 +10,7 @@
     <title>Course Creation - ChemLab 3D</title>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="~/css/academy.css" asp-append-version="true" />
     <script id="tailwind-config">
         tailwind.config = {
           darkMode: "class",
@@ -127,8 +128,8 @@
         }
     </style>
 </head>
-<body class="bg-surface text-on-surface font-body-md text-body-md antialiased min-h-screen">
-    <header class="fixed top-0 left-0 w-full h-20 bg-surface/90 backdrop-blur-md z-40 border-b-2 border-primary/10 flex justify-between items-center px-margin-mobile md:px-margin-desktop shadow-sm">
+<body class="academy-shell bg-surface text-on-surface font-body-md text-body-md antialiased min-h-screen">
+    <header class="academy-topbar fixed top-0 left-0 w-full h-20 bg-surface/90 backdrop-blur-md z-40 border-b-2 border-primary/10 flex justify-between items-center px-margin-mobile md:px-margin-desktop shadow-sm">
         <div class="flex items-center gap-4">
             <a class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container border-2 border-outline-variant hover:bg-surface-variant transition-colors btn-outline-squishy" asp-action="Index">
                 <span class="material-symbols-outlined text-on-surface-variant">arrow_back</span>
@@ -139,18 +140,18 @@
             </div>
         </div>
         <div class="hidden md:flex items-center gap-4">
-            <button form="course-form" class="bg-surface-container-lowest text-on-surface border-2 border-outline-variant rounded-full px-6 py-3 font-label-sm text-label-sm flex items-center gap-2 hover:bg-surface-variant transition-colors btn-outline-squishy" type="submit">
+            <button class="squishy-button button-cancel bg-surface-container-lowest text-on-surface border-2 border-outline-variant rounded-full px-6 py-3 font-label-sm text-label-sm flex items-center gap-2 hover:bg-surface-variant transition-colors" onclick="submitCourseForm('draft')" type="button">
                 <span class="material-symbols-outlined">save</span>
                 Save Draft
             </button>
-            <button form="course-form" class="bg-primary text-on-primary border-2 border-primary-fixed-dim rounded-full px-6 py-3 font-label-sm text-label-sm flex items-center gap-2 hover:brightness-110 transition-all btn-primary-squishy" type="submit">
+            <button class="squishy-button button-confirm bg-primary text-on-primary border-2 border-primary-fixed-dim rounded-full px-6 py-3 font-label-sm text-label-sm flex items-center gap-2 hover:brightness-110 transition-all" onclick="submitCourseForm('published')" type="button">
                 <span class="material-symbols-outlined icon-fill">rocket_launch</span>
                 Publish Experiment
             </button>
         </div>
     </header>
     <main class="pt-28 pb-12 px-margin-mobile md:px-margin-desktop flex justify-center">
-        <form id="course-form" asp-action="Create" method="post" class="w-full max-w-container-max grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+        <form id="course-form" asp-action="Create" method="post" class="glass-form w-full max-w-container-max grid grid-cols-1 lg:grid-cols-12 gap-gutter">
             <div class="lg:col-span-8 space-y-gutter">
                 <div class="bg-surface-container-lowest rounded-lg border-2 border-outline-variant shadow-[0_4px_0_rgba(114,119,133,0.1)] p-6 md:p-8 relative overflow-hidden">
                     <div class="absolute -top-10 -right-10 w-32 h-32 bg-primary-fixed rounded-full opacity-50 blur-2xl"></div>
@@ -232,24 +233,39 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-secondary-container rounded-lg border-2 border-secondary shadow-[0_4px_0_#005236] p-6 text-on-secondary-container">
+                <div class="bg-surface-container-lowest rounded-lg border-2 border-outline-variant shadow-[0_4px_0_rgba(114,119,133,0.1)] p-6 text-on-surface">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="font-label-sm text-label-sm font-bold">Current Status</h3>
-                        <span class="bg-surface text-secondary border-2 border-secondary rounded-full px-3 py-1 text-[12px] font-bold">DRAFT</span>
+                        <span class="bg-secondary-container text-on-secondary-container border-2 border-secondary rounded-full px-3 py-1 text-[12px] font-bold">DRAFT</span>
                     </div>
                     <p class="font-body-md text-sm mb-4">This experiment is hidden from students until you publish it.</p>
                     <div class="md:hidden flex flex-col gap-3 mt-6">
-                        <button class="w-full bg-primary text-on-primary border-2 border-primary-fixed-dim rounded-full px-6 py-3 font-label-sm text-label-sm flex justify-center items-center gap-2 btn-primary-squishy" type="submit">
+                        <button class="squishy-button button-cancel w-full bg-surface-container-lowest text-on-surface border-2 border-outline-variant rounded-full px-6 py-3 font-label-sm text-label-sm flex justify-center items-center gap-2" onclick="submitCourseForm('draft')" type="button">
+                            <span class="material-symbols-outlined">save</span>
+                            Save Draft
+                        </button>
+                        <button class="squishy-button button-confirm w-full bg-primary text-on-primary border-2 border-primary-fixed-dim rounded-full px-6 py-3 font-label-sm text-label-sm flex justify-center items-center gap-2" onclick="submitCourseForm('published')" type="button">
                             <span class="material-symbols-outlined icon-fill">rocket_launch</span>
                             Publish
-                        </button>
-                        <button class="w-full bg-surface-container-lowest text-on-surface border-2 border-outline-variant rounded-full px-6 py-3 font-label-sm text-label-sm flex justify-center items-center gap-2 btn-outline-squishy" type="submit">
-                            Save Draft
                         </button>
                     </div>
                 </div>
             </div>
         </form>
     </main>
+
+    <script>
+        function submitCourseForm(status) {
+            const statusSelect = document.getElementById('Status');
+            if (statusSelect) {
+                statusSelect.value = status;
+            }
+
+            const form = document.getElementById('course-form');
+            if (form) {
+                form.requestSubmit();
+            }
+        }
+    </script>
 </body>
 </html>

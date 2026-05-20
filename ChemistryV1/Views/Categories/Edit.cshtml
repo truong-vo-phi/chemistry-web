@@ -9,6 +9,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Edit Category - @Model.Category.Name</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="~/css/academy.css" asp-append-version="true" />
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&amp;family=Quicksand:wght@500;600&amp;display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
     <script id="tailwind-config">
@@ -171,40 +172,8 @@
         }
     </style>
 </head>
-<body class="bg-surface font-body-md text-on-surface">
-    <aside class="h-screen w-64 fixed left-0 top-0 hidden md:flex flex-col bg-surface-container-low border-r border-outline-variant/30 p-gutter gap-unit z-50">
-        <div class="mb-gutter flex items-center gap-3">
-            <div class="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg transform rotate-3">
-                <span class="material-symbols-outlined text-on-primary text-3xl">school</span>
-            </div>
-            <div>
-                <h1 class="font-display-lg text-[20px] text-primary tracking-tight leading-none">Magical Academy</h1>
-                <p class="font-label-sm text-on-surface-variant opacity-70">Master Alchemist</p>
-            </div>
-        </div>
-        <nav class="flex-grow space-y-3">
-            <a class="flex items-center gap-3 p-4 text-on-surface-variant hover:bg-surface-container-high rounded-2xl transition-all hover:translate-x-1 font-label-sm" asp-controller="Home" asp-action="Index">
-                <span class="material-symbols-outlined">science</span> Laboratory
-            </a>
-            <a class="flex items-center gap-3 p-4 text-on-surface-variant hover:bg-surface-container-high rounded-2xl transition-all hover:translate-x-1 font-label-sm" asp-controller="TeacherCourses" asp-action="Index">
-                <span class="material-symbols-outlined">auto_stories</span> Spellbook
-            </a>
-            <a class="flex items-center gap-3 p-4 text-on-surface-variant hover:bg-surface-container-high rounded-2xl transition-all hover:translate-x-1 font-label-sm" asp-controller="Courses" asp-action="Library">
-                <span class="material-symbols-outlined">school</span> Academy
-            </a>
-            <a class="flex items-center gap-3 p-4 bg-secondary-container text-on-secondary-container rounded-2xl border border-secondary/20 font-label-sm" asp-controller="Categories" asp-action="Index">
-                <span class="material-symbols-outlined">menu_book</span> Categories
-            </a>
-        </nav>
-        <div class="pt-gutter border-t border-outline-variant/30 space-y-2">
-            <a class="flex items-center gap-3 p-4 text-on-surface-variant hover:bg-surface-container-high rounded-2xl transition-all font-label-sm" href="#">
-                <span class="material-symbols-outlined">help</span> Support
-            </a>
-            <a class="flex items-center gap-3 p-4 text-on-surface-variant hover:bg-surface-container-high rounded-2xl transition-all font-label-sm" href="#">
-                <span class="material-symbols-outlined">logout</span> Log Out
-            </a>
-        </div>
-    </aside>
+<body class="academy-shell bg-surface font-body-md text-on-surface">
+    <partial name="_AcademySidebar" />
 
     <header class="w-full sticky top-0 z-40 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/20 h-20 md:pl-64">
         <div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop h-full">
@@ -231,7 +200,7 @@
 
     <main class="md:pl-64 pb-24 md:pb-12">
         <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-gutter">
-            <form asp-action="Edit" method="post">
+            <form asp-action="Edit" asp-route-id="@Model.Category.Id" method="post">
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="Category.Id" />
                 <input type="hidden" id="category-icon" name="Category.Icon" value="@Model.Category.Icon" />
@@ -239,7 +208,7 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
                     <div class="lg:col-span-5 space-y-gutter">
-                        <section class="glass-morphism rounded-3xl p-gutter border border-white/40 overflow-hidden relative">
+                        <section class="glass-form glass-morphism rounded-3xl p-gutter border border-white/40 overflow-hidden relative">
                             <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
                             <h3 class="font-headline-md text-on-surface mb-8 flex items-center gap-2">
                                 <span class="material-symbols-outlined text-primary">edit_note</span>
@@ -254,17 +223,17 @@
 
                                 <div class="space-y-3">
                                     <label class="font-label-sm text-on-surface-variant ml-2 uppercase tracking-widest text-[10px]">Slug</label>
-                                    <input class="w-full h-14 bg-white/50 border border-outline-variant/40 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-2xl px-6 font-body-md text-on-surface transition-all shadow-inner" type="text" id="cat-slug" asp-for="Category.Slug" required />
+                                    <input class="w-full h-14 bg-white/50 border border-outline-variant/40 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-2xl px-6 font-body-md text-on-surface transition-all shadow-inner cursor-not-allowed" type="text" id="cat-slug" asp-for="Category.Slug" readonly required />
                                     <span class="text-error text-xs">@Html.ValidationMessageFor(m => m.Category.Slug)</span>
                                 </div>
 
                                 <div class="space-y-3">
                                     <label class="font-label-sm text-on-surface-variant ml-2 uppercase tracking-widest text-[10px]">Assigned Icon</label>
-                                    <div class="grid grid-cols-4 gap-4 p-5 bg-surface-container-low/40 rounded-2xl border border-outline-variant/20 backdrop-blur-sm">
+                                    <div id="category-icon-grid" class="grid grid-cols-4 gap-4 p-5 bg-surface-container-low/40 rounded-2xl border border-outline-variant/20 backdrop-blur-sm">
                                         @foreach (var icon in Model.AvailableIcons)
                                         {
-                                            <button type="button" class="flex flex-col items-center justify-center p-3 rounded-xl border border-transparent transition-all group active:scale-95 @(Model.Category.Icon == icon ? "icon-aura-active" : "bg-white/40 hover:bg-white hover:shadow-md text-on-surface-variant")" onclick="setIcon('@icon', this)">
-                                                <span class="material-symbols-outlined text-[32px]">@icon</span>
+                                            <button type="button" class="flex flex-col items-center justify-center p-3 rounded-xl border border-transparent overflow-hidden transition-all group active:scale-95 @(Model.Category.Icon == icon ? "icon-aura-active" : "bg-white/40 hover:bg-white hover:shadow-md text-on-surface-variant")" onclick="setIcon('@icon', this)">
+                                                <span class="material-symbols-outlined block leading-none text-[28px]">@icon</span>
                                             </button>
                                         }
                                     </div>
@@ -276,11 +245,11 @@
                                 </div>
 
                                 <div class="flex flex-col gap-4 pt-4">
-                                    <button type="submit" class="squishy-btn primary-glow h-16 w-full bg-primary text-on-primary rounded-2xl font-label-sm flex items-center justify-center gap-3 shadow-[0_4px_12px_rgba(0,88,190,0.3)] border-b-4 border-black/20">
+                                    <button type="submit" class="squishy-button button-confirm primary-glow h-16 w-full text-on-primary rounded-2xl font-label-sm flex items-center justify-center gap-3">
                                         <span class="material-symbols-outlined">save</span>
                                         Save Changes
                                     </button>
-                                    <a class="squishy-btn red-glass h-16 w-full text-error rounded-2xl font-label-sm flex items-center justify-center gap-3 border border-error/30 hover:bg-error/10 transition-all active:translate-y-1" asp-action="Delete" asp-route-id="@Model.Category.Id">
+                                    <a class="squishy-button button-cancel red-glass h-16 w-full text-error rounded-2xl font-label-sm flex items-center justify-center gap-3" asp-action="Delete" asp-route-id="@Model.Category.Id">
                                         <span class="material-symbols-outlined">delete</span>
                                         Delete Category
                                     </a>
@@ -388,7 +357,8 @@
         }
 
         function setIcon(icon, btn) {
-            document.querySelectorAll('.grid button').forEach(b => {
+            const iconGrid = document.getElementById('category-icon-grid');
+            iconGrid.querySelectorAll('button').forEach(b => {
                 b.classList.remove('icon-aura-active');
                 b.classList.add('bg-white/40', 'text-on-surface-variant');
                 b.classList.remove('bg-primary', 'text-on-primary');
@@ -415,6 +385,11 @@
             
             document.getElementById('cat-slug').value = str;
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const nameInput = document.getElementById('Category_Name');
+            generateSlug(nameInput ? nameInput.value : '');
+        });
     </script>
 </body>
 </html>
