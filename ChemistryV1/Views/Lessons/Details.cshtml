@@ -2,6 +2,15 @@
 @{
     Layout = null;
     var chapters = Model.Chapters.OrderBy(c => c.OrderIndex).ToList();
+
+    // ----TV2----
+    var currentUserId = User.Identity?.IsAuthenticated == true 
+        ? Convert.ToInt32(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value) 
+        : 0;
+    var currentUserName = User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ?? "Guest";
+    var currentUserAvatar = User.FindFirst("AvatarUrl")?.Value ?? "https://via.placeholder.com/150";
+    var currentUserRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Student";
+    // ----TV2----
 }
 <!DOCTYPE html>
 <html class="h-full" lang="en">
@@ -211,6 +220,166 @@
                     </div>
                 }
             </div>
+
+            <!-- ----TV2---- Class Discussion Section -->
+            @{
+                // Định nghĩa hàm đệ quy để hiển thị cây bình luận
+                async Task RenderComment(Comment comment, int depth)
+                {
+                    var isAuthor = comment.UserId == currentUserId;
+                    var authorName = comment.User?.FullName ?? comment.User?.Username ?? "Ẩn danh";
+                    var authorAvatar = comment.User?.AvatarUrl ?? "https://via.placeholder.com/150";
+                    var authorRole = comment.User?.Role ?? "Student";
+                    var timeAgo = comment.CreatedAt.HasValue ? GetTimeAgo(comment.CreatedAt.Value) : "";
+                    var indentClass = depth > 0 ? (depth <= 3 ? "ml-4 md:ml-8 border-l border-primary/20 pl-3 md:pl-4 mt-3" : "border-l border-primary/20 pl-3 md:pl-4 mt-3") : "mt-6 border-b border-surface-variant/50 pb-6";
+
+                    <div class="flex gap-3 md:gap-4 @indentClass" id="comment-@comment.Id">
+                        <img alt="@authorName" class="w-10 h-10 rounded-full border-2 @(authorRole == "Teacher" || authorRole == "Admin" ? "border-primary" : "border-secondary-container") object-cover shrink-0 shadow-sm" src="@authorAvatar"/>
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="font-label-sm text-label-sm font-bold text-on-surface font-semibold">@authorName</span>
+                                @if (authorRole == "Teacher" || authorRole == "Admin")
+                                {
+                                    <span class="bg-primary/10 text-primary text-[10px] px-2 py-0.5 rounded-full font-bold">Giáo viên</span>
+                                }
+                                <span class="font-body-md text-[12px] text-on-surface-variant">@timeAgo</span>
+                            </div>
+                            
+                            <!-- Comment Content -->
+                            <div id="comment-content-@comment.Id" class="font-body-md text-body-md text-on-surface mb-2 whitespace-pre-line">@comment.Content</div>
+
+                            <!-- Comment Edit Form (Hidden by default) -->
+                            <form id="edit-form-@comment.Id" class="hidden my-2" asp-controller="Lessons" asp-action="EditComment" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="commentId" value="@comment.Id" />
+                                <textarea class="w-full bg-surface-container border-2 border-outline-variant rounded-xl p-3 font-body-md text-body-md focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all resize-none" name="content" rows="2" required>@comment.Content</textarea>
+                                <div class="flex gap-2 justify-end mt-1">
+                                    <button type="button" class="px-4 py-1 border border-outline-variant hover:bg-surface-variant text-xs rounded-full font-bold transition-all" onclick="toggleEditForm(@comment.Id)">Hủy</button>
+                                    <button type="submit" class="bg-primary text-on-primary text-xs rounded-full px-4 py-1 border border-surface-tint shadow-sm hover:brightness-110 transition-all font-bold">Lưu</button>
+                                </div>
+                            </form>
+
+                            <div class="flex gap-4 items-center">
+                                @if (User.Identity?.IsAuthenticated == true)
+                                {
+                                    <button class="flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors text-xs font-label-sm" onclick="showReplyForm(@comment.Id)">
+                                        <span class="material-symbols-outlined text-[16px]">reply</span> Phản hồi
+                                    </button>
+                                    
+                                    @if (isAuthor)
+                                    {
+                                        <button class="flex items-center gap-1 text-on-surface-variant hover:text-secondary transition-colors text-xs font-label-sm" onclick="toggleEditForm(@comment.Id)">
+                                            <span class="material-symbols-outlined text-[16px]">edit</span> Sửa
+                                        </button>
+                                        <form asp-controller="Lessons" asp-action="DeleteComment" method="post" class="inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bình luận này?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="commentId" value="@comment.Id" />
+                                            <button type="submit" class="flex items-center gap-1 text-on-surface-variant hover:text-error transition-colors text-xs font-label-sm">
+                                                <span class="material-symbols-outlined text-[16px]">delete</span> Xóa
+                                            </button>
+                                        </form>
+                                    }
+                                    else if (User.IsInRole("Teacher") || User.IsInRole("Admin"))
+                                    {
+                                        <form asp-controller="Lessons" asp-action="DeleteComment" method="post" class="inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa bình luận của học sinh này?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="commentId" value="@comment.Id" />
+                                            <button type="submit" class="flex items-center gap-1 text-on-surface-variant hover:text-error transition-colors text-xs font-label-sm">
+                                                <span class="material-symbols-outlined text-[16px]">delete</span> Xóa (GV)
+                                            </button>
+                                        </form>
+                                    }
+                                }
+                            </div>
+
+                            <!-- Reply Form (Hidden by default) -->
+                            <form id="reply-form-@comment.Id" class="hidden mt-4 pl-4 border-l-2 border-primary/20" asp-controller="Lessons" asp-action="AddComment" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="lessonId" value="@Model.Lesson.Id" />
+                                <input type="hidden" name="parentId" value="@comment.Id" />
+                                <div class="flex gap-3">
+                                    <img alt="Your Avatar" class="w-8 h-8 rounded-full border border-primary-container object-cover shrink-0 shadow-sm" src="@currentUserAvatar" />
+                                    <div class="flex-grow">
+                                        <textarea class="w-full bg-surface-container border-2 border-outline-variant rounded-xl p-3 font-body-md text-body-md focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant resize-none" name="content" placeholder="Trả lời bình luận của @authorName..." rows="2" required></textarea>
+                                        <div class="flex gap-2 justify-end mt-2">
+                                            <button type="button" class="px-4 py-1.5 border border-outline-variant hover:bg-surface-variant text-xs rounded-full font-bold transition-all" onclick="hideReplyForm(@comment.Id)">Hủy</button>
+                                            <button type="submit" class="bg-primary text-on-primary text-xs rounded-full px-5 py-1.5 border border-surface-tint shadow-sm hover:brightness-110 transition-all font-bold">Gửi</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                            
+                            <!-- Hiển thị đệ quy các bình luận con -->
+                            @{
+                                var childComments = Model.Lesson.Comments.Where(c => c.ParentId == comment.Id).OrderBy(c => c.CreatedAt).ToList();
+                                foreach (var child in childComments)
+                                {
+                                    await RenderComment(child, depth + 1);
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+
+                var topLevelComments = Model.Lesson.Comments
+                    .Where(c => c.ParentId == null)
+                    .OrderBy(c => c.CreatedAt)
+                    .ToList();
+            }
+
+            <section class="bg-surface rounded-xl border-2 border-outline-variant shadow-sm p-6 mb-8 mt-6">
+                <h2 class="font-headline-md text-headline-md text-primary mb-6 flex items-center gap-2">
+                    <span class="material-symbols-outlined font-bold text-[24px]">forum</span> Thảo luận lớp học (@Model.Lesson.Comments.Count)
+                </h2>
+
+                @if (TempData["CommentError"] != null)
+                {
+                    <div class="bg-error-container text-on-error-container p-4 rounded-xl mb-4 border border-error/20 flex items-center gap-2">
+                        <span class="material-symbols-outlined">error</span>
+                        <span class="font-body-md text-sm">@TempData["CommentError"]</span>
+                    </div>
+                }
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <!-- Top-level Input Area -->
+                    <form asp-controller="Lessons" asp-action="AddComment" method="post" class="flex gap-4 mb-8">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="lessonId" value="@Model.Lesson.Id" />
+                        <img alt="Your Avatar" class="w-12 h-12 rounded-full border-2 border-primary-container object-cover shrink-0 shadow-sm" src="@currentUserAvatar"/>
+                        <div class="flex-grow">
+                            <textarea class="w-full bg-surface-container border-2 border-outline-variant rounded-xl p-4 font-body-md text-body-md focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant resize-none" name="content" placeholder="Đặt câu hỏi hoặc chia sẻ ý kiến của bạn..." rows="3" required></textarea>
+                            <div class="flex justify-end mt-2">
+                                <button type="submit" class="bg-primary text-on-primary font-label-sm text-label-sm rounded-full px-6 py-2 border-2 border-surface-tint shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:shadow-[0_6px_16px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-none transition-all font-bold">Gửi bình luận</button>
+                            </div>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <div class="flex flex-col items-center justify-center p-8 bg-surface-container rounded-xl border-2 border-dashed border-outline-variant mb-8">
+                        <span class="material-symbols-outlined text-primary text-4xl mb-2">lock</span>
+                        <p class="font-body-md text-on-surface-variant mb-4">Bạn cần đăng nhập để tham gia thảo luận lớp học.</p>
+                        <a href="/Account/Login?returnUrl=@Context.Request.Path" class="px-6 py-2 bg-primary text-on-primary rounded-full font-bold shadow-md hover:brightness-110 active:translate-y-0.5 transition-all">Đăng nhập ngay</a>
+                    </div>
+                }
+
+                <!-- Comments List -->
+                <div class="space-y-6">
+                    @if (!topLevelComments.Any())
+                    {
+                        <p class="font-body-md text-on-surface-variant text-center py-6">Chưa có thảo luận nào. Hãy là người đầu tiên đặt câu hỏi!</p>
+                    }
+                    else
+                    {
+                        foreach (var comment in topLevelComments)
+                        {
+                            await RenderComment(comment, 0);
+                        }
+                    }
+                </div>
+            </section>
+            <!-- ----TV2---- -->
         </div>
         <div class="bg-surface-container-lowest border-t-2 border-surface-variant p-4 md:p-6 sticky bottom-0 z-10 w-full">
             <div class="max-w-container-max mx-auto flex justify-between items-center gap-4">
@@ -225,5 +394,73 @@
             </div>
         </div>
     </main>
+
+    <!-- ----TV2---- Discussion functions and javascript -->
+    @functions {
+        public static string GetTimeAgo(DateTime dateTime)
+        {
+            var timeSpan = DateTime.Now - dateTime;
+            if (timeSpan <= TimeSpan.FromSeconds(60))
+            {
+                return "Vừa xong";
+            }
+            if (timeSpan <= TimeSpan.FromMinutes(60))
+            {
+                return timeSpan.Minutes > 1 ? $"{timeSpan.Minutes} phút trước" : "1 phút trước";
+            }
+            if (timeSpan <= TimeSpan.FromHours(24))
+            {
+                return timeSpan.Hours > 1 ? $"{timeSpan.Hours} giờ trước" : "1 giờ trước";
+            }
+            if (timeSpan <= TimeSpan.FromDays(30))
+            {
+                return timeSpan.Days > 1 ? $"{timeSpan.Days} ngày trước" : "Hôm qua";
+            }
+            if (timeSpan <= TimeSpan.FromDays(365))
+            {
+                return dateTime.ToString("dd/MM");
+            }
+            return dateTime.ToString("dd/MM/yyyy");
+        }
+    }
+
+    <script>
+        function showReplyForm(commentId) {
+            // Ẩn tất cả các form reply khác trước khi mở form hiện tại để tránh rối giao diện
+            document.querySelectorAll('[id^="reply-form-"]').forEach(el => el.classList.add('hidden'));
+            
+            const form = document.getElementById(`reply-form-${commentId}`);
+            if (form) {
+                form.classList.remove('hidden');
+                const textarea = form.querySelector('textarea');
+                if (textarea) textarea.focus();
+            }
+        }
+
+        function hideReplyForm(commentId) {
+            const form = document.getElementById(`reply-form-${commentId}`);
+            if (form) {
+                form.classList.add('hidden');
+            }
+        }
+
+        function toggleEditForm(commentId) {
+            const form = document.getElementById(`edit-form-${commentId}`);
+            const contentDiv = document.getElementById(`comment-content-${commentId}`);
+            
+            if (form && contentDiv) {
+                if (form.classList.contains('hidden')) {
+                    form.classList.remove('hidden');
+                    contentDiv.classList.add('hidden');
+                    const textarea = form.querySelector('textarea');
+                    if (textarea) textarea.focus();
+                } else {
+                    form.classList.add('hidden');
+                    contentDiv.classList.remove('hidden');
+                }
+            }
+        }
+    </script>
+    <!-- ----TV2---- -->
 </body>
 </html>
