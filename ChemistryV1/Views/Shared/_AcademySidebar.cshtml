@@ -1,7 +1,7 @@
 @{
     var controller = (ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty).ToLowerInvariant();
     var isDashboard = controller == "dashboard";
-    var isTeacherCourses = controller == "teachercourses";
+    var isTeacherCourses = controller == "teachercourses" || controller == "lessons" || controller == "chapters";
     var isCourses = controller == "courses";
     var isCategories = controller == "categories";
 }
