@@ -10,6 +10,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>ChemLab 3D - Category Management</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="~/css/academy.css" asp-append-version="true" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&amp;family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
     <script id="tailwind-config">
@@ -123,8 +124,8 @@
         }
     </style>
 </head>
-<body class="bg-surface text-on-surface font-body-md min-h-screen antialiased overflow-x-hidden">
-    <aside class="hidden md:flex h-full w-64 fixed left-0 top-0 rounded-r-lg border-r-2 border-secondary-container bg-surface-container-low shadow-md flex-col py-6 z-50">
+<body class="academy-shell bg-surface text-on-surface font-body-md min-h-screen antialiased overflow-x-hidden">
+    <aside class="academy-sidebar hidden md:flex h-full w-64 fixed left-0 top-0 rounded-r-lg border-r-2 border-secondary-container bg-surface-container-low shadow-md flex-col py-6 z-50">
         <div class="px-6 mb-8 flex flex-col gap-1">
             <span class="font-headline-md text-headline-md font-bold text-primary">ChemLab 3D</span>
             <div class="flex items-center gap-3 mt-4">
@@ -168,22 +169,32 @@
             </a>
         </div>
     </aside>
-    <header class="hidden md:flex fixed top-0 right-0 w-[calc(100%-256px)] h-16 bg-surface/80 backdrop-blur-md border-b-2 border-primary/10 shadow-sm justify-between items-center px-margin-desktop z-40">
+        <partial name="_AcademySidebar" />
+        <partial name="_AcademySidebar" />
+    <header class="academy-topbar hidden md:flex fixed top-0 right-0 w-[calc(100%-256px)] h-16 bg-surface/80 backdrop-blur-md border-b-2 border-primary/10 shadow-sm justify-between items-center px-margin-desktop z-40">
         <div class="flex-1 flex justify-between items-center gap-4">
-            <form method="get" class="flex items-center gap-2 bg-surface-container-lowest border-2 border-outline-variant rounded-full px-4 py-2 w-80">
-                <span class="material-symbols-outlined text-outline text-sm">search</span>
-                <input class="bg-transparent border-none focus:ring-0 text-sm w-full" name="search" placeholder="Search categories..." type="text" value="@Model.Search" />
+            <form method="get" class="flex items-center gap-4 flex-1 max-w-2xl">
+                <div class="relative w-full max-w-md">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                    <input class="w-full bg-surface-container-lowest border-2 border-outline-variant rounded-full pl-12 pr-4 py-2 text-body-md font-body-md outline-none transition-all focus:border-primary" name="search" placeholder="Search academy..." type="text" value="@Model.Search" />
+                </div>
             </form>
             <div class="flex items-center gap-4">
-                <button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors focus-within:ring-2 focus-within:ring-primary/20">
-                    <span class="material-symbols-outlined">notifications</span>
-                </button>
-                <button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-variant transition-colors focus-within:ring-2 focus-within:ring-primary/20">
-                    <span class="material-symbols-outlined">history</span>
-                </button>
-                <div class="w-10 h-10 rounded-full border-2 border-primary bg-primary-container flex items-center justify-center text-on-primary-container overflow-hidden">
-                    <span class="material-symbols-outlined">person</span>
-                </div>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="flex items-center gap-3">
+                        <img alt="User profile avatar" class="w-10 h-10 rounded-full border-2 border-primary object-cover" src="@User.FindFirst("AvatarUrl")?.Value" />
+                        <div class="text-left hidden lg:block">
+                            <p class="text-xs font-bold text-on-surface leading-tight">@User.Identity.Name</p>
+                            <p class="text-[9px] uppercase font-bold text-primary tracking-wider leading-none">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</p>
+                        </div>
+                        <a class="text-xs font-bold text-error hover:bg-error-container/20 px-3 py-1.5 rounded-full border border-error/20 transition-all ml-2" asp-controller="Account" asp-action="Logout">Đăng xuất</a>
+                    </div>
+                }
+                else
+                {
+                    <a class="bg-primary text-on-primary px-6 py-2 rounded-full font-bold squishy-button" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                }
             </div>
         </div>
     </header>
@@ -203,7 +214,7 @@
             @for (var i = 0; i < Model.Categories.Count; i++)
             {
                 var card = Model.Categories[i];
-                var icon = iconPool[i % iconPool.Length];
+                var icon = string.IsNullOrWhiteSpace(card.Category.Icon) ? iconPool[i % iconPool.Length] : card.Category.Icon;
                 <article class="bg-surface-container-lowest border-2 border-primary/30 rounded-xl p-6 relative flex flex-col gap-6 card-tactile shadow-primary/20">
                     <div class="flex justify-between items-start">
                         <div class="w-14 h-14 rounded-[1rem] bg-primary-container text-on-primary-container flex items-center justify-center border-2 border-primary border-b-4">
@@ -220,6 +231,7 @@
                     </div>
                     <div class="flex-1">
                         <h3 class="font-headline-md text-headline-md text-on-surface mb-1">@card.Category.Name</h3>
+                        <p class="font-label-sm text-label-sm text-on-surface-variant mb-3">@card.Category.Slug</p>
                         <p class="font-body-md text-body-md text-on-surface-variant">@card.Category.Description</p>
                     </div>
                     <div class="pt-4 border-t-2 border-surface-variant flex items-center gap-2">
@@ -227,7 +239,7 @@
                             <span class="material-symbols-outlined text-[16px]">menu_book</span>
                             @card.CourseCount Courses
                         </span>
-                        @if (card.IsActive)
+                        @if (card.Category.IsActive)
                         {
                             <span class="px-3 py-1 bg-secondary-container rounded-full font-label-sm text-label-sm text-on-secondary-container flex items-center gap-1 border border-secondary/20">
                                 <span class="material-symbols-outlined text-[16px]">check_circle</span>
@@ -238,7 +250,7 @@
                         {
                             <span class="px-3 py-1 bg-surface-variant rounded-full font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 border border-outline/20">
                                 <span class="material-symbols-outlined text-[16px]">build</span>
-                                Drafting
+                                Hidden
                             </span>
                         }
                     </div>

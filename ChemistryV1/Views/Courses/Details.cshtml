@@ -130,7 +130,7 @@
     </style>
 </head>
 <body class="text-on-background font-body-md overflow-x-hidden">
-    <header class="bg-background w-full top-0 sticky z-50 border-b-2 border-surface-variant shadow-sm">
+    <header class="bg-background w-full top-0 sticky z-50 border-b-2 border-surface-variant shadow-sm md:pl-64">
         <div class="flex justify-between items-center px-gutter py-4 w-full max-w-container-max mx-auto">
             <div class="flex items-center gap-4">
                 <span class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary">ChemLab 3D</span>
@@ -165,42 +165,8 @@
         </div>
     </header>
     <div class="flex flex-col md:flex-row max-w-container-max mx-auto min-h-screen">
-        <aside class="hidden md:flex flex-col h-screen w-64 bg-surface-container-low border-r-2 border-secondary-container p-unit gap-gutter sticky top-[80px]">
-            <div class="p-4 flex flex-col gap-2">
-                <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-white font-bold mb-2">CL</div>
-                <h2 class="font-headline-md text-headline-md text-primary">Academy Menu</h2>
-                <p class="font-label-sm text-label-sm text-on-surface-variant opacity-70">Magical Learning</p>
-            </div>
-            <nav class="flex flex-col gap-2 px-2">
-                @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Teacher")))
-                {
-                    <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-secondary-fixed-dim/20 rounded-lg transition-transform active:scale-95" asp-controller="Dashboard" asp-action="Index">
-                        <span class="material-symbols-outlined">science</span>
-                        <span class="font-label-sm">Laboratory</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-secondary-fixed-dim/20 rounded-lg transition-transform active:scale-95" asp-controller="TeacherCourses" asp-action="Index">
-                        <span class="material-symbols-outlined">auto_stories</span>
-                        <span class="font-label-sm">Spellbook</span>
-                    </a>
-                }
-                <a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-transform active:scale-95" asp-controller="Courses" asp-action="Library">
-                    <span class="material-symbols-outlined">school</span>
-                    <span class="font-label-sm">Academy</span>
-                </a>
-                @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Teacher")))
-                {
-                    <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-secondary-fixed-dim/20 rounded-lg transition-transform active:scale-95" asp-controller="Categories" asp-action="Index">
-                        <span class="material-symbols-outlined">menu_book</span>
-                        <span class="font-label-sm">Categories</span>
-                    </a>
-                }
-            </nav>
-            <div class="mt-auto border-t border-surface-variant pt-4 px-4 flex flex-col gap-2 mb-8">
-                <a class="flex items-center gap-3 text-on-surface-variant font-label-sm" href="#"><span class="material-symbols-outlined">settings</span> Settings</a>
-                <a class="flex items-center gap-3 text-on-surface-variant font-label-sm" href="#"><span class="material-symbols-outlined">help</span> Support</a>
-            </div>
-        </aside>
-        <main class="flex-1 px-margin-mobile md:px-margin-desktop py-gutter">
+        <partial name="_AcademySidebar" />
+        <main class="flex-1 min-w-0 md:ml-64 px-margin-mobile md:px-margin-desktop py-gutter overflow-x-hidden">
             <section class="relative overflow-hidden rounded-xl bg-primary-container text-on-primary-container p-8 md:p-12 mb-gutter shadow-md magical-float">
                 <div class="relative z-10 max-w-2xl">
                     <div class="inline-flex items-center gap-2 bg-secondary-container text-on-secondary-container px-4 py-1 rounded-full mb-6 font-label-sm">

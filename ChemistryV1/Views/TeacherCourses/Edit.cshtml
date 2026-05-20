@@ -10,6 +10,7 @@
     <title>Edit Course - ChemLab 3D</title>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="~/css/academy.css" asp-append-version="true" />
     <script id="tailwind-config">
         tailwind.config = {
           darkMode: "class",
@@ -120,8 +121,8 @@
         }
     </style>
 </head>
-<body class="bg-surface text-on-surface font-body-md text-body-md antialiased min-h-screen">
-    <header class="fixed top-0 left-0 w-full h-20 bg-surface/90 backdrop-blur-md z-40 border-b-2 border-primary/10 flex justify-between items-center px-margin-mobile md:px-margin-desktop shadow-sm">
+<body class="academy-shell bg-surface text-on-surface font-body-md text-body-md antialiased min-h-screen">
+    <header class="academy-topbar fixed top-0 left-0 w-full h-20 bg-surface/90 backdrop-blur-md z-40 border-b-2 border-primary/10 flex justify-between items-center px-margin-mobile md:px-margin-desktop shadow-sm">
         <div class="flex items-center gap-4">
             <a class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container border-2 border-outline-variant hover:bg-surface-variant transition-colors btn-outline-squishy" asp-action="Index">
                 <span class="material-symbols-outlined text-on-surface-variant">arrow_back</span>
@@ -132,14 +133,14 @@
             </div>
         </div>
         <div class="hidden md:flex items-center gap-4">
-            <button form="course-form" class="bg-primary text-on-primary border-2 border-primary-fixed-dim rounded-full px-6 py-3 font-label-sm text-label-sm flex items-center gap-2 hover:brightness-110 transition-all btn-primary-squishy" type="submit">
+            <button form="course-form" class="squishy-button button-confirm bg-primary text-on-primary border-2 border-primary-fixed-dim rounded-full px-6 py-3 font-label-sm text-label-sm flex items-center gap-2 hover:brightness-110 transition-all" type="submit">
                 <span class="material-symbols-outlined icon-fill">save</span>
                 Save Changes
             </button>
         </div>
     </header>
     <main class="pt-28 pb-12 px-margin-mobile md:px-margin-desktop flex justify-center">
-        <form id="course-form" asp-action="Edit" method="post" class="w-full max-w-container-max grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+        <form id="course-form" asp-action="Edit" method="post" class="glass-form w-full max-w-container-max grid grid-cols-1 lg:grid-cols-12 gap-gutter">
             <input type="hidden" asp-for="Id" />
             <div class="lg:col-span-8 space-y-gutter">
                 <div class="bg-surface-container-lowest rounded-lg border-2 border-outline-variant shadow-[0_4px_0_rgba(114,119,133,0.1)] p-6 md:p-8 relative overflow-hidden">

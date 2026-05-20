@@ -19,14 +19,29 @@ public class AccountController : Controller
     [HttpGet]
     public async Task<IActionResult> Login(string? returnUrl)
     {
-        // Auto-seed default accounts if the database is empty of users
-        await EnsureUsersSeededAsync();
-        await EnsureDatabaseSeededAsync();
+        try
+        {
+            // Auto-seed default accounts if the database is reachable but empty.
+            await EnsureUsersSeededAsync();
+            await EnsureDatabaseSeededAsync();
+        }
+        catch
+        {
+            // Keep the login page usable even if the database is unavailable.
+        }
 
-        var users = await _context.Users
-            .Where(u => u.IsActive == true)
-            .OrderBy(u => u.Role)
-            .ToListAsync();
+        var users = new List<User>();
+        try
+        {
+            users = await _context.Users
+                .Where(u => u.IsActive == true)
+                .OrderBy(u => u.Role)
+                .ToListAsync();
+        }
+        catch
+        {
+            // Ignore database lookup failure and render the manual login form.
+        }
 
         ViewBag.Users = users;
         ViewBag.ReturnUrl = returnUrl;
@@ -37,13 +52,46 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(string username, string password, string? returnUrl)
     {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Username == username && u.Password == password && u.IsActive == true);
+        User? user = null;
+
+        try
+        {
+            user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Username == username && u.Password == password && u.IsActive == true);
+        }
+        catch
+        {
+            ModelState.AddModelError("", "Hệ thống dữ liệu đang tạm thời không sẵn sàng. Vui lòng thử lại sau.");
+        }
 
         if (user == null)
         {
+            if (!ModelState.ErrorCount.Equals(0))
+            {
+                var usersOnError = new List<User>();
+                try
+                {
+                    usersOnError = await _context.Users.Where(u => u.IsActive == true).OrderBy(u => u.Role).ToListAsync();
+                }
+                catch
+                {
+                }
+
+                ViewBag.Users = usersOnError;
+                ViewBag.ReturnUrl = returnUrl;
+                return View();
+            }
+
             ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không đúng.");
-            var users = await _context.Users.Where(u => u.IsActive == true).OrderBy(u => u.Role).ToListAsync();
+            var users = new List<User>();
+            try
+            {
+                users = await _context.Users.Where(u => u.IsActive == true).OrderBy(u => u.Role).ToListAsync();
+            }
+            catch
+            {
+            }
+
             ViewBag.Users = users;
             ViewBag.ReturnUrl = returnUrl;
             return View();
@@ -62,7 +110,15 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> QuickLogin(int userId, string? returnUrl)
     {
-        var user = await _context.Users.FindAsync(userId);
+        User? user = null;
+        try
+        {
+            user = await _context.Users.FindAsync(userId);
+        }
+        catch
+        {
+            return RedirectToAction(nameof(Login));
+        }
         if (user == null || user.IsActive != true)
         {
             return RedirectToAction(nameof(Login));
@@ -118,8 +174,6 @@ public class AccountController : Controller
         }
         catch (Exception)
         {
-            // Table doesn't exist, recreate database schema cleanly
-            await _context.Database.EnsureDeletedAsync();
             await _context.Database.EnsureCreatedAsync();
         }
 
