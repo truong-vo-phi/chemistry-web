@@ -3,180 +3,80 @@
     Layout = null;
 }
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Delete Chapter - ChemLab 3D</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&amp;family=Quicksand:wght@500;600;700&amp;display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
-    <title>Delete Chapter Confirmation | ChemLab 3D</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <style>
-        body {
-            background-color: #fbf9f1;
-            font-family: "Quicksand", sans-serif;
-            overflow: hidden
-        }
-
-        .material-symbols-outlined {
-            font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24
-        }
-
-        .squishy-button {
-            transition: transform 0.2s, box-shadow 0.2s, filter 0.2s
-        }
-
-        .squishy-button:active {
-            transform: translatey(2px) scale(0.98);
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1) !important
-        }
-
-        .warning-glow {
-            filter: drop-shadow(0 0 15px rgba(186, 26, 26, 0.4));
-            animation: pulse-glow 2s ease-in-out infinite
-        }
-
-        @@keyframes pulse-glow {
-            0%, 100% {
-                filter: drop-shadow(0 0 10px rgba(186, 26, 26, 0.3));
-                transform: scale(1) translateY(0);
-            }
-            50% {
-                filter: drop-shadow(0 0 25px rgba(186, 26, 26, 0.6));
-                transform: scale(1.05) translateY(-5px);
-            }
-        }
-
-        .parchment-texture {
-            background-color: #fdfcf0;
-            box-shadow: inset 0 0 40px rgba(130, 81, 0, 0.05), 0 4px 15px rgba(0, 0, 0, 0.05)
-        }
-
-        .glass-modal {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.3)
-        }
-
-        .ember {
-            position: fixed;
-            pointer-events: none;
-            background: radial-gradient(circle, #ba1a1a 0%, transparent 70%);
-            border-radius: 50%;
-            opacity: 0;
-            z-index: 50;
-            animation: ember-float linear infinite
-        }
-
-        @@keyframes ember-float {
-            0% {
-                transform: translate(0, 0) scale(0);
-                opacity: 0;
-            }
-            20% {
-                opacity: 0.6;
-            }
-            80% {
-                opacity: 0.6;
-            }
-            100% {
-                transform: translate(var(--x), var(--y)) scale(1);
-                opacity: 0;
-            }
-        }
-
-        .button-confirm {
-            background: linear-gradient(135deg, #ba1a1a 0%, #700008 100%);
-            box-shadow: 0 4px 15px rgba(186, 26, 26, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3);
-            border: 1px solid #93000a
-        }
-
-        .button-cancel {
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            color: #424754
-        }
+        body { background: linear-gradient(180deg, #fbf9f1 0%, #f5f4ec 100%); overflow: hidden; font-family: 'Quicksand', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .squishy-button { transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, filter 0.18s ease; }
+        .squishy-button:active { transform: translateY(2px) scale(0.98); box-shadow: none !important; }
+        .glass-modal { background: rgba(255,255,255,0.74); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,0.48); }
+        .warning-orb { animation: float 5s ease-in-out infinite; }
+        @@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        .button-confirm { background: linear-gradient(135deg, #ba1a1a 0%, #93000a 100%); box-shadow: 0 10px 24px rgba(186,26,26,0.25), 0 4px 0 rgba(112,0,8,0.35); border: 1px solid #93000a; }
+        .button-cancel { background: #fffdf7; border: 1px solid rgba(114,119,133,0.25); color: #1b1c17; box-shadow: 0 4px 0 rgba(114,119,133,0.16); }
+        .paper-card { background: #fdfcf0; box-shadow: inset 0 0 40px rgba(130,81,0,0.05), 0 6px 18px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body class="bg-surface text-on-surface antialiased overflow-hidden">
-    <div class="fixed inset-0 pointer-events-none z-50" id="ember-container"></div>
+    <div class="fixed inset-0 pointer-events-none overflow-hidden">
+        <div class="absolute top-16 left-16 w-56 h-56 rounded-full bg-error/10 blur-3xl"></div>
+        <div class="absolute bottom-10 right-10 w-72 h-72 rounded-full bg-secondary-container/20 blur-3xl"></div>
+    </div>
 
-    <div class="fixed inset-0 z-40 bg-black/30 backdrop-blur-xl flex items-center justify-center p-margin-mobile md:p-margin-desktop overflow-hidden">
-        <div class="relative w-full max-w-[560px] glass-modal rounded-lg shadow-2xl border border-white/20 overflow-hidden">
-            <div class="h-1.5 w-full bg-gradient-to-r from-error via-tertiary to-error/50"></div>
-            <div class="p-8 flex flex-col items-center text-center">
-                <div class="relative w-28 h-28 mb-8 warning-glow flex items-center justify-center">
+    <div class="fixed inset-0 z-40 bg-black/20 backdrop-blur-xl flex items-center justify-center p-margin-mobile md:p-margin-desktop overflow-hidden">
+        <div class="relative w-full max-w-[620px] glass-modal rounded-[2rem] shadow-[0_30px_80px_rgba(0,0,0,0.18)] overflow-hidden">
+            <div class="h-2 w-full bg-gradient-to-r from-error via-tertiary to-error"></div>
+            <div class="p-8 md:p-10 flex flex-col items-center text-center">
+                <div class="relative w-24 h-24 mb-7 warning-orb flex items-center justify-center">
                     <div class="absolute inset-0 bg-error/10 rounded-full blur-2xl"></div>
-                    <div class="relative w-full h-full bg-error-container rounded-full border-4 border-error flex items-center justify-center shadow-[0_10px_20px_rgba(186,26,26,0.3)]">
-                        <span class="material-symbols-outlined text-[56px] text-error" style="font-variation-settings: 'FILL' 1;">warning</span>
+                    <div class="relative w-full h-full bg-error-container rounded-full border-4 border-error flex items-center justify-center shadow-[0_12px_24px_rgba(186,26,26,0.18)]">
+                        <span class="material-symbols-outlined text-[52px] text-error" style="font-variation-settings: 'FILL' 1;">warning</span>
                     </div>
                 </div>
 
-                <h2 class="font-headline-md text-3xl text-on-surface mb-3 tracking-tight">Vanish Chapter?</h2>
-                <p class="font-body-lg text-body-lg text-on-surface-variant max-w-sm mb-8 leading-relaxed">
-                    Are you certain you wish to vanish the <span class="font-bold text-error border-b-2 border-error/20 pb-0.5">@Model.Title</span> chapter?
+                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-error-container text-error text-xs font-bold tracking-[0.2em] uppercase border border-error/20 mb-4">
+                    <span class="material-symbols-outlined text-[14px]">delete_forever</span>
+                    Destructive action
+                </span>
+
+                <h2 class="font-headline-md text-3xl md:text-[2.2rem] text-on-surface mb-3 tracking-tight">Delete Chapter?</h2>
+                <p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl mb-8 leading-relaxed">
+                    You are about to remove <span class="font-bold text-error">@Model.Title</span> and all lessons inside it.
                 </p>
 
-                <div class="w-full parchment-texture rounded-lg p-6 flex items-start gap-4 mb-8 text-left border border-tertiary/20 relative overflow-hidden">
-                    <div class="relative mt-1">
-                        <span class="material-symbols-outlined text-tertiary text-2xl">history_edu</span>
-                    </div>
-                    <div class="relative">
-                        <p class="font-label-sm text-xs text-tertiary uppercase tracking-[0.2em] mb-1 font-bold">Consequence Warning</p>
-                        <p class="font-body-md text-body-md text-[#4b4537] leading-relaxed">
-                            This action will unbind all magical lessons within this chapter. This cannot be undone by simple alchemy.
-                        </p>
+                <div class="w-full paper-card rounded-2xl p-6 flex items-start gap-4 mb-8 text-left border border-tertiary/15 relative overflow-hidden">
+                    <div class="relative mt-1"><span class="material-symbols-outlined text-tertiary text-2xl">history_edu</span></div>
+                    <div>
+                        <p class="font-label-sm text-xs text-tertiary uppercase tracking-[0.2em] mb-1 font-bold">What will be removed</p>
+                        <p class="font-body-md text-body-md text-[#4b4537] leading-relaxed">All lesson cards, content links, and chapter ordering data tied to this chapter will be permanently deleted.</p>
                     </div>
                 </div>
 
-                <form class="w-full flex flex-col sm:flex-row gap-4 items-center justify-center pt-2" asp-action="Delete">
+                <form class="w-full flex flex-col sm:flex-row gap-4 items-center justify-center pt-2" asp-action="Delete" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="Id" />
-                    <a class="squishy-button button-cancel w-full sm:w-auto px-10 py-3.5 rounded-full font-label-sm text-label-sm transition-all hover:bg-white/60 text-center" asp-controller="TeacherCourses" asp-action="Content" asp-route-id="@Model.CourseId">
-                        Cancel
-                    </a>
+                    <a class="squishy-button button-cancel w-full sm:w-auto px-10 py-3.5 rounded-full font-label-sm text-label-sm transition-all text-center" asp-controller="TeacherCourses" asp-action="Content" asp-route-id="@Model.CourseId">Cancel</a>
                     <button type="submit" class="squishy-button button-confirm w-full sm:w-auto px-12 py-3.5 rounded-full text-white font-label-sm text-label-sm flex items-center justify-center gap-2 hover:brightness-110 active:brightness-90">
                         <span class="material-symbols-outlined text-[20px]">delete_forever</span>
-                        Confirm Vanishing
+                        Confirm Delete
                     </button>
                 </form>
             </div>
-            <div class="bg-black/5 px-8 py-3 flex justify-center gap-4">
-                <div class="flex items-center gap-2 opacity-50">
+
+            <div class="bg-black/5 px-8 py-3 flex justify-center gap-4 border-t border-black/5">
+                <div class="flex items-center gap-2 opacity-60">
                     <span class="material-symbols-outlined text-sm">verified_user</span>
-                    <span class="font-label-sm text-[10px] uppercase tracking-[0.25em] font-semibold">Academy Safety Protocol V4.2</span>
+                    <span class="font-label-sm text-[10px] uppercase tracking-[0.25em] font-semibold">Academy Safety Protocol</span>
                 </div>
             </div>
         </div>
     </div>
-
-    <script>
-        const container = document.getElementById('ember-container');
-        const colors = ['#ba1a1a', '#ffb95f', '#825100'];
-
-        function createEmber() {
-            const ember = document.createElement('div');
-            ember.className = 'ember';
-            const size = Math.random() * 4 + 2;
-            const duration = Math.random() * 3 + 4;
-            const startX = Math.random() * window.innerWidth;
-            const startY = window.innerHeight + 10;
-            ember.style.width = `${size}px`;
-            ember.style.height = `${size}px`;
-            ember.style.left = `${startX}px`;
-            ember.style.top = `${startY}px`;
-            ember.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random() * colors.length)]} 0%, transparent 70%)`;
-            const moveX = (Math.random() - 0.5) * 200;
-            const moveY = -(window.innerHeight + 100);
-            ember.style.setProperty('--x', `${moveX}px`);
-            ember.style.setProperty('--y', `${moveY}px`);
-            ember.style.animationDuration = `${duration}s`;
-            container.appendChild(ember);
-            setTimeout(() => ember.remove(), duration * 1000);
-        }
-        setInterval(createEmber, 300);
-    </script>
 </body>
 </html>
