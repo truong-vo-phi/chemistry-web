@@ -12,4 +12,7 @@ public class LessonEditorViewModel
     public IEnumerable<Chapter> Chapters { get; set; } = new List<Chapter>();
 
     public Lesson Lesson { get; set; } = new Lesson();
+
+    [ValidateNever]
+    public List<VirtualLab> AvailableVirtualLabs { get; set; } = new List<VirtualLab>();
 }

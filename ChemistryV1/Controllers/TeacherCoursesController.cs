@@ -214,11 +214,33 @@ public class TeacherCoursesController : Controller
             return NotFound();
         }
 
-        var courseCategories = _context.CourseCategories.Where(cc => cc.CourseId == id);
-        _context.CourseCategories.RemoveRange(courseCategories);
+        // 1. Break self-referencing FK in Comments to avoid constraint errors during deletion
+        await _context.Comments
+            .Where(c => c.Lesson.Chapter.CourseId == id)
+            .ExecuteUpdateAsync(s => s.SetProperty(c => c.ParentId, (int?)null));
 
-        _context.Courses.Remove(course);
-        await _context.SaveChangesAsync();
+        // 2. Delete all Lesson-dependent entities
+        await _context.Comments.Where(c => c.Lesson.Chapter.CourseId == id).ExecuteDeleteAsync();
+        await _context.UserLessonProgresses.Where(p => p.Lesson.Chapter.CourseId == id).ExecuteDeleteAsync();
+        await _context.LessonSubmissions.Where(s => s.Lesson.Chapter.CourseId == id).ExecuteDeleteAsync();
+        
+        // 3. Delete Lessons and Chapters
+        await _context.Lessons.Where(l => l.Chapter.CourseId == id).ExecuteDeleteAsync();
+        await _context.Chapters.Where(c => c.CourseId == id).ExecuteDeleteAsync();
+
+        // 4. Delete Quiz/Revision-dependent entities
+        await _context.QuizDetailedAnswers.Where(q => q.Question.CourseId == id).ExecuteDeleteAsync();
+        await _context.QuizResults.Where(q => q.Revision.CourseId == id).ExecuteDeleteAsync();
+        await _context.Questions.Where(q => q.CourseId == id).ExecuteDeleteAsync();
+        await _context.Revisions.Where(r => r.CourseId == id).ExecuteDeleteAsync();
+
+        // 5. Delete Course-dependent entities
+        await _context.CourseEnrollments.Where(e => e.CourseId == id).ExecuteDeleteAsync();
+        await _context.Reviews.Where(r => r.CourseId == id).ExecuteDeleteAsync();
+        await _context.CourseCategories.Where(c => c.CourseId == id).ExecuteDeleteAsync();
+
+        // 6. Finally delete the Course
+        await _context.Courses.Where(c => c.Id == id).ExecuteDeleteAsync();
 
         return RedirectToAction(nameof(Index));
     }

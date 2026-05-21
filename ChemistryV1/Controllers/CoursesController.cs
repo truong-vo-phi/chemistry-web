@@ -3,6 +3,7 @@ using ChemistryV1.Models;
 using ChemistryV1.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ChemistryV1.Controllers;
 
@@ -68,6 +69,10 @@ public class CoursesController : Controller
             .Include(c => c.Chapters)
                 .ThenInclude(ch => ch.Lessons)
             .Include(c => c.CourseEnrollments)
+
+            .Include(c => c.Reviews)
+                .ThenInclude(r => r.User)
+
             .FirstOrDefaultAsync(c => c.Id == id);
 
         if (course == null)
@@ -143,4 +148,107 @@ public class CoursesController : Controller
         }
         return RedirectToAction(nameof(Details), new { id });
     }
+
+
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddReview(int courseId, int rating, string content)
+    {
+        if (rating < 1 || rating > 5)
+        {
+            TempData["ReviewError"] = "Đánh giá sao phải từ 1 đến 5.";
+            return RedirectToAction(nameof(Details), new { id = courseId });
+        }
+
+        var course = await _context.Courses.FindAsync(courseId);
+        if (course == null)
+        {
+            return NotFound();
+        }
+
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim))
+        {
+            return Challenge();
+        }
+
+        var userId = Convert.ToInt32(userIdClaim);
+
+        var isEnrolled = await _context.CourseEnrollments.AnyAsync(ce => ce.CourseId == courseId && ce.StudentId == userId);
+        bool canReview = isEnrolled || User.IsInRole("Teacher") || User.IsInRole("Admin");
+        if (!canReview)
+        {
+            TempData["ReviewError"] = "Bạn cần tham gia khóa học này để có thể gửi đánh giá.";
+            return RedirectToAction(nameof(Details), new { id = courseId });
+        }
+
+        var existingReview = await _context.Reviews.FirstOrDefaultAsync(r => r.CourseId == courseId && r.UserId == userId);
+        if (existingReview != null)
+        {
+            existingReview.Rating = rating;
+            existingReview.Content = content?.Trim();
+            existingReview.CreatedAt = DateTime.Now;
+            _context.Reviews.Update(existingReview);
+            TempData["ReviewSuccess"] = "Đã cập nhật đánh giá của bạn thành công!";
+
+        }
+        else
+        {
+            var review = new Review
+            {
+                CourseId = courseId,
+                UserId = userId,
+                Rating = rating,
+
+                Content = content?.Trim(),
+                CreatedAt = DateTime.Now
+            };
+            _context.Reviews.Add(review);
+            TempData["ReviewSuccess"] = "Cảm ơn bạn đã đánh giá khóa học!";
+
+        }
+
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Details), new { id = courseId });
+    }
+
+    [HttpPost]
+
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteReview(int id)
+    {
+        var review = await _context.Reviews.FindAsync(id);
+
+        if (review == null)
+        {
+            return NotFound();
+        }
+
+
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim))
+        {
+            return Challenge();
+        }
+
+        var userId = Convert.ToInt32(userIdClaim);
+
+        bool canDelete = review.UserId == userId || User.IsInRole("Teacher") || User.IsInRole("Admin");
+        if (!canDelete)
+
+        {
+            return Forbid();
+        }
+
+
+        int courseId = review.CourseId ?? 0;
+        _context.Reviews.Remove(review);
+        await _context.SaveChangesAsync();
+
+        TempData["ReviewSuccess"] = "Đã xóa đánh giá thành công.";
+        return RedirectToAction(nameof(Details), new { id = courseId });
+    }
+
 }

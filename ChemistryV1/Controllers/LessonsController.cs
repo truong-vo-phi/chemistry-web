@@ -25,9 +25,16 @@ public class LessonsController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Details(int id)
     {
+        
         var lesson = await _context.Lessons
             .Include(l => l.Chapter)
+
+            .Include(l => l.VirtualLab)
+
+            .Include(l => l.Comments)
+                .ThenInclude(c => c.User)
             .FirstOrDefaultAsync(l => l.Id == id);
+       
 
         if (lesson == null || lesson.ChapterId == null)
         {
@@ -171,6 +178,8 @@ public class LessonsController : Controller
         dbLesson.DocumentContent = viewModel.Lesson.DocumentContent;
         dbLesson.IsPreview = viewModel.Lesson.IsPreview;
         dbLesson.OrderIndex = viewModel.Lesson.OrderIndex;
+        dbLesson.CommentsEnabled = viewModel.Lesson.CommentsEnabled;
+        dbLesson.VirtualLabId = viewModel.Lesson.VirtualLabId;
 
         if (uploadedVideo != null) dbLesson.VideoUrl = uploadedVideo;
         else if (!string.IsNullOrWhiteSpace(viewModel.Lesson.VideoUrl)) dbLesson.VideoUrl = viewModel.Lesson.VideoUrl;
@@ -233,12 +242,150 @@ public class LessonsController : Controller
             return NotFound();
         }
 
-        _context.Lessons.Remove(lesson);
-        await _context.SaveChangesAsync();
+        // Break self-referencing FK in Comments
+        await _context.Comments
+            .Where(c => c.LessonId == id)
+            .ExecuteUpdateAsync(s => s.SetProperty(c => c.ParentId, (int?)null));
+
+        // Delete all dependent entities
+        await _context.Comments.Where(c => c.LessonId == id).ExecuteDeleteAsync();
+        await _context.UserLessonProgresses.Where(p => p.LessonId == id).ExecuteDeleteAsync();
+        await _context.LessonSubmissions.Where(s => s.LessonId == id).ExecuteDeleteAsync();
+
+        // Finally delete the Lesson
+        await _context.Lessons.Where(l => l.Id == id).ExecuteDeleteAsync();
 
         var chapter = await _context.Chapters.FindAsync(lesson.ChapterId);
         return RedirectToAction("Content", "TeacherCourses", new { id = chapter?.CourseId });
     }
+
+    // ----TV2----
+    [HttpPost]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddComment(int lessonId, int? parentId, string content)
+    {
+        if (User.Identity?.IsAuthenticated != true)
+        {
+            return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Details", "Lessons", new { id = lessonId }) });
+        }
+
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            TempData["CommentError"] = "Nội dung thảo luận không được để trống.";
+            return RedirectToAction("Details", new { id = lessonId });
+        }
+
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim))
+        {
+            return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Details", "Lessons", new { id = lessonId }) });
+        }
+
+        var comment = new Comment
+        {
+            LessonId = lessonId,
+            ParentId = parentId,
+            UserId = Convert.ToInt32(userIdClaim),
+            Content = content.Trim(),
+            CreatedAt = DateTime.Now
+        };
+
+        _context.Comments.Add(comment);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Details", new { id = lessonId });
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditComment(int commentId, string content)
+    {
+        var comment = await _context.Comments.FindAsync(commentId);
+        if (comment == null)
+        {
+            return NotFound();
+        }
+
+        if (User.Identity?.IsAuthenticated != true)
+        {
+            return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Details", "Lessons", new { id = comment.LessonId }) });
+        }
+
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || comment.UserId != Convert.ToInt32(userIdClaim))
+        {
+            return Forbid();
+        }
+
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            TempData["CommentError"] = "Nội dung thảo luận không được để trống.";
+            return RedirectToAction("Details", new { id = comment.LessonId });
+        }
+
+        comment.Content = content.Trim();
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Details", new { id = comment.LessonId });
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteComment(int commentId)
+    {
+        var comment = await _context.Comments
+            .Include(c => c.InverseParent)
+            .FirstOrDefaultAsync(c => c.Id == commentId);
+
+        if (comment == null)
+        {
+            return NotFound();
+        }
+
+        if (User.Identity?.IsAuthenticated != true)
+        {
+            return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Details", "Lessons", new { id = comment.LessonId }) });
+        }
+
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim))
+        {
+            return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Details", "Lessons", new { id = comment.LessonId }) });
+        }
+
+        var userId = Convert.ToInt32(userIdClaim);
+        var isAuthor = comment.UserId == userId;
+        var isTeacherOrAdmin = User.IsInRole("Teacher") || User.IsInRole("Admin");
+
+        if (!isAuthor && !isTeacherOrAdmin)
+        {
+            return Forbid();
+        }
+
+        // Xóa đệ quy tất cả bình luận con để tránh lỗi Foreign Key Constraint
+        await DeleteCommentAndRepliesAsync(comment);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Details", new { id = comment.LessonId });
+    }
+
+    private async Task DeleteCommentAndRepliesAsync(Comment comment)
+    {
+        var replies = await _context.Comments
+            .Where(c => c.ParentId == comment.Id)
+            .ToListAsync();
+
+        foreach (var reply in replies)
+        {
+            await DeleteCommentAndRepliesAsync(reply);
+        }
+
+        _context.Comments.Remove(comment);
+    }
+    // ----TV2----
 
     private async Task<LessonEditorViewModel?> BuildLessonEditorViewModel(int chapterId, Lesson? lesson)
     {
@@ -258,11 +405,16 @@ public class LessonsController : Controller
             return null;
         }
 
+        
+        var virtualLabs = await _context.VirtualLabs.ToListAsync();
+
+        
         return new LessonEditorViewModel
         {
             Course = course,
             Chapters = course.Chapters.OrderBy(ch => ch.OrderIndex).ToList(),
-            Lesson = lesson ?? new Lesson { ChapterId = chapterId }
+            Lesson = lesson ?? new Lesson { ChapterId = chapterId },
+            AvailableVirtualLabs = virtualLabs 
         };
     }
 }

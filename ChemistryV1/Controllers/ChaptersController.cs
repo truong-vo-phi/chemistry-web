@@ -97,11 +97,19 @@ public class ChaptersController : Controller
             return NotFound();
         }
 
-        var lessons = _context.Lessons.Where(l => l.ChapterId == id);
-        _context.Lessons.RemoveRange(lessons);
+        // 1. Break self-referencing FK in Comments
+        await _context.Comments
+            .Where(c => c.Lesson.ChapterId == id)
+            .ExecuteUpdateAsync(s => s.SetProperty(c => c.ParentId, (int?)null));
 
-        _context.Chapters.Remove(chapter);
-        await _context.SaveChangesAsync();
+        // 2. Delete all Lesson-dependent entities
+        await _context.Comments.Where(c => c.Lesson.ChapterId == id).ExecuteDeleteAsync();
+        await _context.UserLessonProgresses.Where(p => p.Lesson.ChapterId == id).ExecuteDeleteAsync();
+        await _context.LessonSubmissions.Where(s => s.Lesson.ChapterId == id).ExecuteDeleteAsync();
+        
+        // 3. Delete Lessons and Chapter
+        await _context.Lessons.Where(l => l.ChapterId == id).ExecuteDeleteAsync();
+        await _context.Chapters.Where(c => c.Id == id).ExecuteDeleteAsync();
 
         return RedirectToAction("Content", "TeacherCourses", new { id = chapter.CourseId });
     }

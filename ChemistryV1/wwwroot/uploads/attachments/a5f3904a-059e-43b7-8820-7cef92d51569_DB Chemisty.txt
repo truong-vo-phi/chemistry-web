@@ -1,0 +1,159 @@
+// DATABASE VERSION 2 - Tối ưu cho Web thực tế
+
+Table Users {
+  id integer [primary key]
+  username varchar [unique]
+  password varchar
+  full_name varchar
+  email varchar
+  avatar_url text // Thêm ảnh đại diện
+  role varchar // 'HS', 'Teacher', 'Admin'
+  school_id integer 
+  is_active boolean [default: true]
+  created_at timestamp
+}
+
+Table Schools {
+  id integer [primary key]
+  name varchar
+  address text
+}
+
+Table Courses {
+  id integer [primary key]
+  title varchar
+  slug varchar [unique] // Dùng cho URL web (ví dụ: /khoa-hoc/toan-lop-10)
+  description text
+  thumbnail_url text
+  teacher_id integer [ref: > Users.id]
+  status varchar [default: 'draft'] // 'draft', 'published', 'archived'
+  created_at timestamp
+}
+
+// Thêm Chương để quản lý bài học tốt hơn
+Table Chapters {
+  id integer [primary key]
+  course_id integer [ref: > Courses.id]
+  title varchar
+  order_index integer // Thứ tự chương
+}
+
+Table Lessons {
+  id integer [primary key]
+  chapter_id integer [ref: > Chapters.id]
+  title varchar
+  content_type varchar // 'Video', 'Document', 'Practice'
+  video_url text
+  document_content text
+  order_index integer // Thứ tự bài học
+  created_at timestamp
+}
+
+// QUAN TRỌNG: Theo dõi học sinh đã hoàn thành bài nào
+Table UserLessonProgress {
+  user_id integer [ref: > Users.id]
+  lesson_id integer [ref: > Lessons.id]
+  is_completed boolean [default: false]
+  completed_at timestamp
+  primary key (user_id, lesson_id)
+}
+
+Table CourseEnrollments {
+  course_id integer [ref: > Courses.id]
+  student_id integer [ref: > Users.id]
+  enrolled_at timestamp
+  primary key (course_id, student_id)
+}
+
+Table Reviews {
+  id integer [primary key]
+  course_id integer [ref: > Courses.id]
+  user_id integer [ref: > Users.id]
+  content text
+  rating integer
+  created_at timestamp
+}
+
+Table Revisions {
+  id integer [primary key]
+  course_id integer [ref: > Courses.id]
+  title varchar
+  time_limit integer // Thời gian làm bài (phút)
+  created_at timestamp
+}
+
+Table Questions {
+  id integer [primary key]
+  revision_id integer [ref: > Revisions.id]
+  content text
+  options json // Lưu các lựa chọn A, B, C, D dưới dạng JSON
+  correct_answer text
+}
+
+Table QuizResults {
+  id integer [primary key]
+  revision_id integer [ref: > Revisions.id]
+  student_id integer [ref: > Users.id]
+  score float
+  total_correct integer
+  completed_at timestamp
+}
+
+Table News {
+  id integer [primary key]
+  title varchar
+  slug varchar
+  content text
+  thumbnail_url text
+  author_id integer [ref: > Users.id]
+  status varchar [default: 'published']
+  created_at timestamp
+}
+
+Table Classes {
+  id integer [primary key]
+  class_name varchar
+  school_id integer [ref: > Schools.id]
+  teacher_id integer [ref: > Users.id]
+  created_at timestamp
+}
+
+Table ClassMembers {
+  class_id integer [ref: > Classes.id]
+  student_id integer [ref: > Users.id]
+  primary key (class_id, student_id)
+}
+
+Ref: Users.school_id > Schools.id
+
+//
+// 1. Nhóm Quản lý Người dùng (Users & Schools)
+// Users: Lưu toàn bộ thông tin tài khoản. Quan trọng nhất là cột role để bạn phân quyền: nếu là Admin thì thấy trang quản trị, Teacher thì thấy trang tạo khóa học, HS thì thấy trang học tập.
+// Schools: Lưu danh sách các trường học. Việc liên kết Users.school_id giúp bạn lọc được học sinh/giáo viên theo từng trường (đúng như yêu cầu "biên chế trường nào" trong sơ đồ của bạn).
+// 2. Nhóm Cấu trúc Nội dung (Courses, Chapters, Lessons)
+// Đây là "xương sống" của nội dung học tập, được chia làm 3 cấp:
+
+// Courses (Khóa học): Cấp cao nhất. Có thêm slug để làm đường dẫn URL đẹp và status để ẩn/hiện khóa học.
+// Chapters (Chương): Cấp trung gian. Giúp gom nhóm các bài học (ví dụ: Chương 1: Đại số, Chương 2: Hình học). Cột order_index dùng để sắp xếp thứ tự chương 1, 2, 3...
+// Lessons (Bài học): Cấp nhỏ nhất. Chứa nội dung thực tế (Video, Tài liệu hoặc Bài tập). Bạn có thể phân loại bằng content_type.
+// 3. Nhóm Theo dõi Học tập (CourseEnrollments & UserLessonProgress)
+// Đây là phần logic để web vận hành thông minh:
+
+// CourseEnrollments: Lưu danh sách học sinh nào đã đăng ký vào khóa học nào. Khi học sinh bấm "Tham gia khóa học", một bản ghi sẽ được tạo ở đây.
+// UserLessonProgress: Bảng này cực kỳ quan trọng. Nó đánh dấu bài học nào học sinh đã hoàn thành (is_completed). Khi học sinh quay lại web, bạn dựa vào đây để hiển thị thông báo "Bạn đã hoàn thành 50% khóa học".
+// 4. Nhóm Đánh giá & Kiểm tra (Revisions, Questions, QuizResults)
+// Dành cho chức năng "Ôn tập" trong sơ đồ:
+
+// Revisions: Một khóa học có thể có nhiều bài ôn tập (kiểm tra 15p, kiểm tra cuối chương). Có time_limit để đếm ngược thời gian làm bài.
+// Questions: Lưu các câu hỏi trắc nghiệm. Cột options lưu dạng JSON (ví dụ: {"A": "Hà Nội", "B": "Sài Gòn"...}) giúp bạn dễ dàng hiển thị danh sách đáp án lên web.
+// QuizResults: Lưu kết quả sau khi HS làm bài. Nó giúp giáo viên (Teacher) biết được điểm số để chấm bài hoặc báo cáo.
+// 5. Nhóm Quản lý Lớp học & Tin tức (Classes & News)
+// Classes: Dành cho việc quản lý hành chính. Một giáo viên có thể quản lý một lớp học cố định, và lớp học đó bao gồm nhiều học sinh (ClassMembers).
+// News: Bảng này dành riêng cho Admin để đăng các thông báo, tin tức sự kiện lên trang chủ.
+
+// Tóm tắt luồng dữ liệu chính:
+// Admin tạo Users và Schools.
+// Teacher tạo Courses -> Chapters -> Lessons và Revisions.
+// HS (Guest đăng ký xong) sẽ chọn Courses -> Enroll.
+// HS xem Lessons (hệ thống lưu vào UserLessonProgress) và làm Revisions (hệ thống lưu vào QuizResults).
+// Teacher/Admin xem báo cáo từ các bảng Results và Progress.
