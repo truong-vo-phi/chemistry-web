@@ -3,6 +3,7 @@ using ChemistryV1.Models;
 using ChemistryV1.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ChemistryV1.Controllers;
 
@@ -68,10 +69,10 @@ public class CoursesController : Controller
             .Include(c => c.Chapters)
                 .ThenInclude(ch => ch.Lessons)
             .Include(c => c.CourseEnrollments)
-            // ----TV2----
+
             .Include(c => c.Reviews)
                 .ThenInclude(r => r.User)
-            // ----TV2----
+
             .FirstOrDefaultAsync(c => c.Id == id);
 
         if (course == null)
@@ -148,45 +149,49 @@ public class CoursesController : Controller
         return RedirectToAction(nameof(Details), new { id });
     }
 
-    // ----TV2----
+
     [HttpPost]
+    [Authorize]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddOrUpdateReview(int courseId, int rating, string content)
+    public async Task<IActionResult> AddReview(int courseId, int rating, string content)
     {
-        if (User.Identity?.IsAuthenticated != true)
+        if (rating < 1 || rating > 5)
         {
-            return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Details", "Courses", new { id = courseId }) });
+            TempData["ReviewError"] = "Đánh giá sao phải từ 1 đến 5.";
+            return RedirectToAction(nameof(Details), new { id = courseId });
+        }
+
+        var course = await _context.Courses.FindAsync(courseId);
+        if (course == null)
+        {
+            return NotFound();
         }
 
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+        if (string.IsNullOrEmpty(userIdClaim))
         {
-            TempData["ReviewError"] = "Không thể xác định thông tin tài khoản.";
+            return Challenge();
+        }
+
+        var userId = Convert.ToInt32(userIdClaim);
+
+        var isEnrolled = await _context.CourseEnrollments.AnyAsync(ce => ce.CourseId == courseId && ce.StudentId == userId);
+        bool canReview = isEnrolled || User.IsInRole("Teacher") || User.IsInRole("Admin");
+        if (!canReview)
+        {
+            TempData["ReviewError"] = "Bạn cần tham gia khóa học này để có thể gửi đánh giá.";
             return RedirectToAction(nameof(Details), new { id = courseId });
         }
 
-        if (rating < 1 || rating > 5)
-        {
-            TempData["ReviewError"] = "Điểm đánh giá phải từ 1 đến 5 sao.";
-            return RedirectToAction(nameof(Details), new { id = courseId });
-        }
-
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            TempData["ReviewError"] = "Nội dung nhận xét không được để trống.";
-            return RedirectToAction(nameof(Details), new { id = courseId });
-        }
-
-        var existingReview = await _context.Reviews
-            .FirstOrDefaultAsync(r => r.CourseId == courseId && r.UserId == userId);
-
+        var existingReview = await _context.Reviews.FirstOrDefaultAsync(r => r.CourseId == courseId && r.UserId == userId);
         if (existingReview != null)
         {
             existingReview.Rating = rating;
-            existingReview.Content = content.Trim();
+            existingReview.Content = content?.Trim();
             existingReview.CreatedAt = DateTime.Now;
             _context.Reviews.Update(existingReview);
-            TempData["ReviewSuccess"] = "Cập nhật đánh giá thành công!";
+            TempData["ReviewSuccess"] = "Đã cập nhật đánh giá của bạn thành công!";
+
         }
         else
         {
@@ -195,11 +200,13 @@ public class CoursesController : Controller
                 CourseId = courseId,
                 UserId = userId,
                 Rating = rating,
-                Content = content.Trim(),
+
+                Content = content?.Trim(),
                 CreatedAt = DateTime.Now
             };
             _context.Reviews.Add(review);
-            TempData["ReviewSuccess"] = "Đăng ký nhận xét và đánh giá khóa học thành công!";
+            TempData["ReviewSuccess"] = "Cảm ơn bạn đã đánh giá khóa học!";
+
         }
 
         await _context.SaveChangesAsync();
@@ -207,41 +214,41 @@ public class CoursesController : Controller
     }
 
     [HttpPost]
+
+    [Authorize]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteReview(int reviewId)
+    public async Task<IActionResult> DeleteReview(int id)
     {
-        var review = await _context.Reviews.FindAsync(reviewId);
+        var review = await _context.Reviews.FindAsync(id);
+
         if (review == null)
         {
             return NotFound();
         }
 
-        var courseId = review.CourseId;
-
-        if (User.Identity?.IsAuthenticated != true)
-        {
-            return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Details", "Courses", new { id = courseId }) });
-        }
 
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+        if (string.IsNullOrEmpty(userIdClaim))
+        {
+            return Challenge();
+        }
+
+        var userId = Convert.ToInt32(userIdClaim);
+
+        bool canDelete = review.UserId == userId || User.IsInRole("Teacher") || User.IsInRole("Admin");
+        if (!canDelete)
+
         {
             return Forbid();
         }
 
-        var isAuthor = review.UserId == userId;
-        var isTeacherOrAdmin = User.IsInRole("Teacher") || User.IsInRole("Admin");
 
-        if (!isAuthor && !isTeacherOrAdmin)
-        {
-            return Forbid();
-        }
-
+        int courseId = review.CourseId ?? 0;
         _context.Reviews.Remove(review);
         await _context.SaveChangesAsync();
-        TempData["ReviewSuccess"] = "Xóa đánh giá thành công!";
 
+        TempData["ReviewSuccess"] = "Đã xóa đánh giá thành công.";
         return RedirectToAction(nameof(Details), new { id = courseId });
     }
-    // ----TV2----
+
 }

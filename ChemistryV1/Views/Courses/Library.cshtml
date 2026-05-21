@@ -8,8 +8,9 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Course Library | ChemLab 3D</title>
+    <title>Course Library | ChemLab 2D</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="~/css/academy.css" asp-append-version="true" />
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&amp;family=Quicksand:wght@500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
     <script id="tailwind-config">
         tailwind.config = {
@@ -124,52 +125,11 @@
         }
     </style>
 </head>
-<body class="bg-background text-on-surface">
+<body class="academy-shell bg-background text-on-surface">
     <div class="flex min-h-screen">
-        <aside class="hidden md:flex flex-col h-screen w-64 rounded-r-lg bg-surface-container-low border-r-2 border-secondary-container shadow-md sticky top-0 p-unit gap-gutter">
-            <div class="flex items-center gap-3 px-2 py-4">
-                <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white">
-                    <span class="material-symbols-outlined">science</span>
-                </div>
-                <div>
-                    <h1 class="font-headline-md text-headline-md text-primary leading-tight">ChemLab 3D</h1>
-                    <p class="text-xs font-label-sm text-on-surface-variant opacity-70">Magical Academy</p>
-                </div>
-            </div>
-            <nav class="flex-1 flex flex-col gap-2">
-                @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Teacher")))
-                {
-                    <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20 transition-colors rounded-lg font-label-sm text-label-sm" asp-controller="Dashboard" asp-action="Index">
-                        <span class="material-symbols-outlined">science</span> Laboratory
-                    </a>
-                    <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20 transition-colors rounded-lg font-label-sm text-label-sm" asp-controller="TeacherCourses" asp-action="Index">
-                        <span class="material-symbols-outlined">auto_stories</span> Spellbook
-                    </a>
-                }
-                <a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold font-label-sm text-label-sm" asp-controller="Courses" asp-action="Library">
-                    <span class="material-symbols-outlined">school</span> Academy
-                </a>
-                @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Teacher")))
-                {
-                    <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20 transition-colors rounded-lg font-label-sm text-label-sm" asp-controller="Categories" asp-action="Index">
-                        <span class="material-symbols-outlined">menu_book</span> Categories
-                    </a>
-                }
-            </nav>
-            <div class="mt-auto border-t border-surface-variant pt-4 flex flex-col gap-2">
-                <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20 transition-colors rounded-lg font-label-sm text-label-sm" href="#">
-                    <span class="material-symbols-outlined">settings</span> Settings
-                </a>
-                <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20 transition-colors rounded-lg font-label-sm text-label-sm" href="#">
-                    <span class="material-symbols-outlined">help</span> Support
-                </a>
-                <button class="squishy-button w-full mt-4 bg-primary text-white py-3 rounded-full font-bold text-label-sm flex items-center justify-center gap-2 border-2 border-primary-container">
-                    Enter Lab <span class="material-symbols-outlined">rocket_launch</span>
-                </button>
-            </div>
-        </aside>
-        <main class="flex-1 flex flex-col">
-            <header class="w-full top-0 sticky z-30 bg-background border-b-2 border-surface-variant shadow-sm flex justify-between items-center px-gutter py-4 w-full max-w-container-max mx-auto">
+        <partial name="_AcademySidebar" />
+        <main class="flex-1 flex flex-col min-w-0 md:ml-64 overflow-x-hidden">
+            <header class="academy-topbar w-full top-0 sticky z-30 bg-background border-b-2 border-surface-variant shadow-sm flex justify-between items-center px-gutter py-4 w-full max-w-container-max mx-auto">
                 <form method="get" asp-action="Library" class="flex items-center gap-4 flex-1">
                     <input type="hidden" name="categoryId" value="@Model.CategoryId" />
                     <input type="hidden" name="teacherId" value="@Model.TeacherId" />
@@ -196,7 +156,7 @@
                     }
                 </div>
             </header>
-            <div class="p-gutter max-w-container-max mx-auto w-full">
+            <div class="p-gutter max-w-container-max mx-auto w-full min-w-0">
                 <div class="mb-8">
                     <h2 class="font-display-lg text-display-lg text-primary mb-2">Library of Elements</h2>
                     <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Discover the secrets of the universe through our interactive theory courses. Each lesson is a step closer to becoming a Master Alchemist.</p>
@@ -234,7 +194,7 @@
                             </div>
                         </div>
                     </aside>
-                    <div class="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <div class="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 min-w-0">
                         @foreach (var course in Model.Courses)
                         {
                             var categoryName = course.CourseCategories.FirstOrDefault()?.Category?.Name ?? "Uncategorized";
@@ -263,7 +223,7 @@
                 </div>
             </div>
             <footer class="mt-auto py-8 px-gutter border-t border-surface-variant text-center">
-                <p class="mt-4 text-label-sm font-label-sm text-on-surface-variant opacity-60">© 2026 ChemLab 3D Magical Academy. All elements are property of the alchemical council.</p>
+                <p class="mt-4 text-label-sm font-label-sm text-on-surface-variant opacity-60">© 2026 ChemLab 2D Magical Academy. All elements are property of the alchemical council.</p>
             </footer>
         </main>
     </div>

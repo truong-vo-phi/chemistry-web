@@ -147,7 +147,7 @@
     </style>
 </head>
 <body class="text-on-background font-body-md overflow-x-hidden">
-    <header class="bg-background w-full top-0 sticky z-50 border-b-2 border-surface-variant shadow-sm">
+    <header class="bg-background w-full top-0 sticky z-50 border-b-2 border-surface-variant shadow-sm md:pl-64">
         <div class="flex justify-between items-center px-gutter py-4 w-full max-w-container-max mx-auto">
             <div class="flex items-center gap-4">
                 <span class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary">ChemLab 3D</span>
@@ -182,42 +182,8 @@
         </div>
     </header>
     <div class="flex flex-col md:flex-row max-w-container-max mx-auto min-h-screen">
-        <aside class="hidden md:flex flex-col h-screen w-64 bg-surface-container-low border-r-2 border-secondary-container p-unit gap-gutter sticky top-[80px]">
-            <div class="p-4 flex flex-col gap-2">
-                <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-white font-bold mb-2">CL</div>
-                <h2 class="font-headline-md text-headline-md text-primary">Academy Menu</h2>
-                <p class="font-label-sm text-label-sm text-on-surface-variant opacity-70">Magical Learning</p>
-            </div>
-            <nav class="flex flex-col gap-2 px-2">
-                @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Teacher")))
-                {
-                    <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-secondary-fixed-dim/20 rounded-lg transition-transform active:scale-95" asp-controller="Dashboard" asp-action="Index">
-                        <span class="material-symbols-outlined">science</span>
-                        <span class="font-label-sm">Laboratory</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-secondary-fixed-dim/20 rounded-lg transition-transform active:scale-95" asp-controller="TeacherCourses" asp-action="Index">
-                        <span class="material-symbols-outlined">auto_stories</span>
-                        <span class="font-label-sm">Spellbook</span>
-                    </a>
-                }
-                <a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-transform active:scale-95" asp-controller="Courses" asp-action="Library">
-                    <span class="material-symbols-outlined">school</span>
-                    <span class="font-label-sm">Academy</span>
-                </a>
-                @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Teacher")))
-                {
-                    <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-secondary-fixed-dim/20 rounded-lg transition-transform active:scale-95" asp-controller="Categories" asp-action="Index">
-                        <span class="material-symbols-outlined">menu_book</span>
-                        <span class="font-label-sm">Categories</span>
-                    </a>
-                }
-            </nav>
-            <div class="mt-auto border-t border-surface-variant pt-4 px-4 flex flex-col gap-2 mb-8">
-                <a class="flex items-center gap-3 text-on-surface-variant font-label-sm" href="#"><span class="material-symbols-outlined">settings</span> Settings</a>
-                <a class="flex items-center gap-3 text-on-surface-variant font-label-sm" href="#"><span class="material-symbols-outlined">help</span> Support</a>
-            </div>
-        </aside>
-        <main class="flex-1 px-margin-mobile md:px-margin-desktop py-gutter">
+        <partial name="_AcademySidebar" />
+        <main class="flex-1 min-w-0 md:ml-64 px-margin-mobile md:px-margin-desktop py-gutter overflow-x-hidden">
             <section class="relative overflow-hidden rounded-xl bg-primary-container text-on-primary-container p-8 md:p-12 mb-gutter shadow-md magical-float">
                 <div class="relative z-10 max-w-2xl">
                     <div class="inline-flex items-center gap-2 bg-secondary-container text-on-secondary-container px-4 py-1 rounded-full mb-6 font-label-sm">
@@ -340,329 +306,241 @@
                         </div>
                     </div>
 
-                    <!-- ----TV2---- Course Reviews & Ratings Section -->
-                    <div class="bg-white p-8 rounded-lg card-border border-primary-container/30 shadow-sm mt-8">
-                        <div class="flex flex-col gap-6 mb-8">
-                            <h3 class="font-headline-md text-headline-md text-primary flex items-center gap-2 m-0">
-                                <span class="material-symbols-outlined font-bold text-[28px]">star</span>
-                                Đánh giá & Nhận xét (@totalReviews)
-                            </h3>
-                            
-                            @if (TempData["ReviewError"] != null)
-                            {
-                                <div class="bg-error-container text-on-error-container p-4 rounded-xl border border-error/20 flex items-center gap-2">
-                                    <span class="material-symbols-outlined">error</span>
-                                    <span class="font-body-md text-sm">@TempData["ReviewError"]</span>
-                                </div>
-                            }
-                            @if (TempData["ReviewSuccess"] != null)
-                            {
-                                <div class="bg-secondary-container text-on-secondary-container p-4 rounded-xl border border-secondary/20 flex items-center gap-2">
-                                    <span class="material-symbols-outlined">check_circle</span>
-                                    <span class="font-body-md text-sm">@TempData["ReviewSuccess"]</span>
-                                </div>
-                            }
 
-                            <!-- Stats Overview Grid -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-surface-container-low p-6 rounded-2xl border border-surface-variant/30">
-                                <!-- Left Big Score -->
-                                <div class="flex flex-col items-center justify-center text-center md:border-r border-surface-variant/50 pr-0 md:pr-6">
-                                    <span class="text-5xl font-extrabold text-primary">@averageRating</span>
-                                    <div class="flex items-center gap-1 my-2 text-amber-500">
-                                        @for (int i = 1; i <= 5; i++)
-                                        {
-                                            if (i <= Math.Round(averageRating))
-                                            {
-                                                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="material-symbols-outlined">star</span>
-                                            }
-                                        }
-                                    </div>
-                                    <span class="text-xs font-semibold text-on-surface-variant opacity-75">Điểm trung bình khóa học</span>
-                                </div>
-                                
-                                <!-- Middle Progress bars -->
-                                @{
-                                    var ratingCounts = new int[6];
-                                    foreach (var r in reviews)
+                    <!-- ================= COURSE REVIEWS SECTION ================= -->
+                    <div class="bg-white p-8 rounded-lg card-border border-primary-container/30 shadow-sm flex flex-col gap-6">
+                        <div class="flex justify-between items-center border-b border-surface-variant pb-4">
+                            <h3 class="font-headline-md text-headline-md text-primary flex items-center gap-2 font-bold m-0">
+                                <span class="material-symbols-outlined">star_rate</span>
+                                Đánh Giá Khóa Học
+                            </h3>
+                        </div>
+
+                        <!-- Feedback Alerts -->
+                        @if (TempData["ReviewError"] != null)
+                        {
+                            <div class="p-4 bg-error-container/20 border border-error/20 text-error font-bold text-sm rounded-xl flex items-center gap-2">
+                                <span class="material-symbols-outlined">error</span>
+                                @TempData["ReviewError"]
+                            </div>
+                        }
+                        @if (TempData["ReviewSuccess"] != null)
+                        {
+                            <div class="p-4 bg-secondary-container/20 border border-secondary/20 text-on-secondary-container font-bold text-sm rounded-xl flex items-center gap-2">
+                                <span class="material-symbols-outlined">check_circle</span>
+                                @TempData["ReviewSuccess"]
+                            </div>
+                        }
+
+                        @{
+                            var reviewsList = course.Reviews?.OrderByDescending(r => r.CreatedAt).ToList() ?? new List<Review>();
+                            var avgRating = reviewsList.Any() ? Math.Round(reviewsList.Average(r => r.Rating ?? 0.0), 1) : 0.0;
+                            var totalRev = reviewsList.Count;
+                        }
+
+                        <!-- Rating Breakdown Panel -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 rounded-2xl bg-surface/30 border border-outline-variant/20 items-center">
+                            <!-- Numeric Summary Column -->
+                            <div class="flex flex-col items-center justify-center text-center md:border-r border-outline-variant/30 py-2">
+                                <h2 class="text-5xl font-extrabold text-on-surface tracking-tight">@avgRating.ToString("0.0")</h2>
+                                <div class="flex items-center gap-0.5 text-amber-400 mt-2 mb-1">
+                                    @for (int i = 1; i <= 5; i++)
                                     {
-                                        if (r.Rating.HasValue && r.Rating.Value >= 1 && r.Rating.Value <= 5)
-                                        {
-                                            ratingCounts[r.Rating.Value]++;
-                                        }
+                                        var fill = i <= Math.Round(avgRating) ? 1 : 0;
+                                        <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' @fill;">star</span>
                                     }
-                                    var percent5 = totalReviews > 0 ? (ratingCounts[5] * 100 / totalReviews) : 0;
-                                    var percent4 = totalReviews > 0 ? (ratingCounts[4] * 100 / totalReviews) : 0;
-                                    var percent3 = totalReviews > 0 ? (ratingCounts[3] * 100 / totalReviews) : 0;
-                                    var percent2 = totalReviews > 0 ? (ratingCounts[2] * 100 / totalReviews) : 0;
-                                    var percent1 = totalReviews > 0 ? (ratingCounts[1] * 100 / totalReviews) : 0;
-                                }
-                                <div class="col-span-2 flex flex-col gap-2 justify-center pl-0 md:pl-2">
-                                    <!-- Row 5 star -->
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-xs font-bold text-on-surface w-10 text-right">5 sao</span>
-                                        <div class="flex-grow h-2.5 bg-surface-container rounded-full overflow-hidden">
-                                            <div class="h-full bg-amber-500 rounded-full" style="width: @(percent5)%"></div>
-                                        </div>
-                                        <span class="text-xs font-semibold text-on-surface-variant w-8">@percent5%</span>
-                                    </div>
-                                    <!-- Row 4 star -->
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-xs font-bold text-on-surface w-10 text-right">4 sao</span>
-                                        <div class="flex-grow h-2.5 bg-surface-container rounded-full overflow-hidden">
-                                            <div class="h-full bg-amber-500 rounded-full" style="width: @(percent4)%"></div>
-                                        </div>
-                                        <span class="text-xs font-semibold text-on-surface-variant w-8">@percent4%</span>
-                                    </div>
-                                    <!-- Row 3 star -->
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-xs font-bold text-on-surface w-10 text-right">3 sao</span>
-                                        <div class="flex-grow h-2.5 bg-surface-container rounded-full overflow-hidden">
-                                            <div class="h-full bg-amber-500 rounded-full" style="width: @(percent3)%"></div>
-                                        </div>
-                                        <span class="text-xs font-semibold text-on-surface-variant w-8">@percent3%</span>
-                                    </div>
-                                    <!-- Row 2 star -->
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-xs font-bold text-on-surface w-10 text-right">2 sao</span>
-                                        <div class="flex-grow h-2.5 bg-surface-container rounded-full overflow-hidden">
-                                            <div class="h-full bg-amber-500 rounded-full" style="width: @(percent2)%"></div>
-                                        </div>
-                                        <span class="text-xs font-semibold text-on-surface-variant w-8">@percent2%</span>
-                                    </div>
-                                    <!-- Row 1 star -->
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-xs font-bold text-on-surface w-10 text-right">1 sao</span>
-                                        <div class="flex-grow h-2.5 bg-surface-container rounded-full overflow-hidden">
-                                            <div class="h-full bg-amber-500 rounded-full" style="width: @(percent1)%"></div>
-                                        </div>
-                                        <span class="text-xs font-semibold text-on-surface-variant w-8">@percent1%</span>
-                                    </div>
                                 </div>
+                                <span class="text-xs text-outline font-bold uppercase tracking-wider">@totalRev Đánh giá</span>
+                            </div>
+
+                            <!-- Star Bar Column -->
+                            <div class="md:col-span-2 flex flex-col gap-2">
+                                @for (int star = 5; star >= 1; star--)
+                                {
+                                    var count = reviewsList.Count(r => r.Rating == star);
+                                    var percent = totalRev > 0 ? (count * 100) / totalRev : 0;
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-xs font-bold text-on-surface w-4 text-center">@star</span>
+                                        <span class="material-symbols-outlined text-[16px] text-amber-400" style="font-variation-settings: 'FILL' 1;">star</span>
+                                        <div class="flex-1 h-2.5 bg-surface-container rounded-full overflow-hidden border border-outline-variant/10 shadow-inner">
+                                            <div class="h-full bg-gradient-to-r from-amber-400 to-amber-300 rounded-full transition-all duration-500" style="width: @(percent)%"></div>
+                                        </div>
+                                        <span class="text-xs font-bold text-outline w-8 text-right">@count</span>
+                                    </div>
+                                }
                             </div>
                         </div>
 
+                        <!-- Review Composer Form -->
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            if (isEnrolled)
+                            <!-- Only allow review if enrolled, teacher, or admin -->
+                            if (isEnrolled || User.IsInRole("Teacher") || User.IsInRole("Admin"))
                             {
-                                if (userReview == null)
-                                {
-                                    <!-- Student Form to Add a Review -->
-                                    <form asp-controller="Courses" asp-action="AddOrUpdateReview" method="post" class="bg-surface-container-low p-6 rounded-2xl border-2 border-dashed border-primary/20 mb-8">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="courseId" value="@course.Id" />
-                                        <input type="hidden" name="rating" id="review-rating-value" value="5" />
-                                        
-                                        <h4 class="font-bold text-primary mb-2 text-sm flex items-center gap-1.5">
-                                            <span class="material-symbols-outlined text-lg">rate_review</span>
-                                            Gửi nhận xét & đánh giá của bạn
-                                        </h4>
-                                        <p class="text-xs text-on-surface-variant mb-4">Chia sẻ trải nghiệm học tập của bạn để giúp các học viên khác lựa chọn khóa học.</p>
-                                        
-                                        <!-- Interactive Star selector -->
-                                        <div class="flex items-center gap-2 mb-4">
-                                            <span class="text-xs font-bold text-on-surface">Chọn số sao:</span>
-                                            <div class="flex items-center gap-1 text-amber-500" id="star-selector-container">
-                                                @for (int i = 1; i <= 5; i++)
-                                                {
-                                                    <button type="button" class="star-btn cursor-pointer transition-transform hover:scale-125 focus:outline-none" data-value="@i">
-                                                        <span class="material-symbols-outlined" style="font-size: 32px; font-variation-settings: 'FILL' 1;">star</span>
-                                                    </button>
-                                                }
-                                            </div>
-                                            <span class="text-sm font-bold text-amber-500 ml-2" id="star-selector-label">Tuyệt vời (5/5)</span>
+                                var userExistingReview = reviewsList.FirstOrDefault(r => r.UserId == studentId);
+                                <form asp-controller="Courses" asp-action="AddReview" method="post" class="p-5 bg-surface/30 rounded-2xl border border-outline-variant/30 flex flex-col gap-4">
+                                    <input type="hidden" name="courseId" value="@Model.Course.Id" />
+                                    
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider block">Chọn số sao đánh giá</label>
+                                        <div class="flex items-center gap-1.5 cursor-pointer text-outline" id="star-selector">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                var fill = userExistingReview != null && i <= userExistingReview.Rating ? 1 : (i == 5 && userExistingReview == null ? 1 : 0);
+                                                var activeColor = fill == 1 ? "text-amber-400" : "text-outline";
+                                                <span class="material-symbols-outlined text-[32px] star-btn @activeColor" data-star="@i" style="font-variation-settings: 'FILL' @fill;">star</span>
+                                            }
                                         </div>
-                                        
-                                        <textarea class="w-full bg-white border-2 border-outline-variant rounded-xl p-4 font-body-md text-body-md focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/60 resize-none" name="content" placeholder="Khóa học này thế nào? Giảng viên giảng dạy có dễ hiểu không?..." rows="3" required></textarea>
-                                        
-                                        <div class="flex justify-end mt-3">
-                                            <button type="submit" class="bg-primary text-on-primary font-label-sm text-label-sm rounded-full px-6 py-2.5 border-2 border-surface-tint shadow-md hover:brightness-110 active:translate-y-0.5 transition-all font-bold squishy-btn">
-                                                Gửi đánh giá
-                                            </button>
-                                        </div>
-                                    </form>
-                                }
+                                        <input type="hidden" name="rating" id="rating-input" value="@(userExistingReview?.Rating ?? 5)" />
+                                    </div>
+
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider block">Cảm nghĩ của bạn về khóa học</label>
+                                        <textarea name="content" rows="3" class="w-full bg-surface-container-lowest border border-outline-variant/40 focus:border-primary/50 focus:ring-0 rounded-xl text-sm p-4 font-medium outline-none resize-none transition-all" placeholder="Hãy viết những cảm nghĩ trực quan và bổ ích giúp giáo viên cải thiện khóa học tốt hơn...">@(userExistingReview?.Content)</textarea>
+                                    </div>
+
+                                    <button type="submit" class="px-6 py-2.5 bg-primary text-on-primary font-label-sm rounded-full border-2 border-primary-container hover:brightness-110 transition-all squishy-btn text-sm shadow-[0_4px_0_0_rgba(0,88,190,0.3)] self-end flex items-center gap-2 font-bold">
+                                        <span class="material-symbols-outlined text-[18px]">publish</span>
+                                        @(userExistingReview != null ? "Cập nhật đánh giá" : "Gửi đánh giá")
+                                    </button>
+                                </form>
                             }
                             else
                             {
-                                <!-- Student is not enrolled -->
-                                <div class="bg-surface-container-low p-6 rounded-2xl border-2 border-dashed border-outline-variant text-center mb-8 flex flex-col items-center justify-center">
-                                    <span class="material-symbols-outlined text-primary text-3xl mb-2">lock</span>
-                                    <h4 class="font-bold text-sm text-on-surface mb-1">Chưa thể đánh giá khóa học</h4>
-                                    <p class="text-xs text-on-surface-variant max-w-md">Bạn cần đăng ký khóa học này để có thể gửi đánh giá và nhận xét.</p>
+                                <div class="p-6 bg-surface-container/30 border border-dashed border-outline-variant/40 rounded-2xl text-center">
+                                    <span class="material-symbols-outlined text-outline text-3xl mb-2">school</span>
+                                    <p class="text-sm text-on-surface-variant font-medium">Bạn cần đăng ký ghi danh tham gia khóa học này để có thể đánh giá và xếp hạng.</p>
+
                                 </div>
                             }
                         }
                         else
                         {
-                            <!-- Not logged in -->
-                            <div class="bg-surface-container-low p-6 rounded-2xl border-2 border-dashed border-outline-variant text-center mb-8 flex flex-col items-center justify-center">
-                                <span class="material-symbols-outlined text-primary text-3xl mb-2">vpn_key</span>
-                                <h4 class="font-bold text-sm text-on-surface mb-1">Đăng nhập để đánh giá</h4>
-                                <p class="text-xs text-on-surface-variant mb-3">Vui lòng đăng nhập tài khoản học viên để viết nhận xét cho khóa học này.</p>
-                                <a href="/Account/Login?returnUrl=@Context.Request.Path" class="bg-primary text-on-primary text-xs rounded-full px-5 py-2 font-bold hover:brightness-110 active:translate-y-0.5 transition-all">Đăng nhập ngay</a>
+                            <div class="p-6 bg-surface-container/30 border border-dashed border-outline-variant/40 rounded-2xl text-center">
+                                <span class="material-symbols-outlined text-outline text-3xl mb-2">login</span>
+                                <p class="text-sm text-on-surface-variant font-medium mb-3">Vui lòng đăng nhập tài khoản để có thể đánh giá khóa học này.</p>
+                                <a class="px-5 py-2 bg-primary text-on-primary font-label-sm rounded-full border-2 border-primary-container hover:brightness-110 transition-all squishy-btn text-sm inline-flex items-center gap-2 font-bold" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path">
+                                    <span class="material-symbols-outlined text-[18px]">login</span> Đăng nhập
+                                </a>
                             </div>
                         }
 
-                        <!-- Review list -->
-                        <div class="space-y-6">
-                            @if (userReview != null)
+                        <!-- Reviews Listing -->
+                        <div class="space-y-4">
+                            @if (!reviewsList.Any())
                             {
-                                <!-- Highlighted User Review at the top -->
-                                <div class="bg-primary/5 p-6 rounded-2xl border-2 border-primary/30 relative">
-                                    <span class="absolute top-4 right-4 bg-primary text-on-primary text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Đánh giá của bạn</span>
-                                    <div class="flex gap-4">
-                                        <img alt="@currentUserName" class="w-12 h-12 rounded-full border-2 border-primary object-cover shrink-0 shadow-sm" src="@currentUserAvatar" />
-                                        <div class="flex-grow">
-                                            <div class="flex items-center gap-2 mb-1">
-                                                <span class="font-bold text-on-surface text-sm">@currentUserName</span>
-                                                <span class="text-xs text-on-surface-variant">@(userReview.CreatedAt.HasValue ? GetTimeAgo(userReview.CreatedAt.Value) : "")</span>
-                                            </div>
-                                            
-                                            <!-- Star rating -->
-                                            <div class="flex items-center gap-1 text-amber-500 mb-2">
-                                                @for (int i = 1; i <= 5; i++)
-                                                {
-                                                    if (i <= (userReview.Rating ?? 0))
-                                                    {
-                                                        <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="material-symbols-outlined text-sm">star</span>
-                                                    }
-                                                }
-                                                <span class="text-xs font-bold text-amber-500 ml-1">(@userReview.Rating/5)</span>
-                                            </div>
-                                            
-                                            <!-- Review Content -->
-                                            <p class="font-body-md text-sm text-on-surface m-0 whitespace-pre-line" id="my-review-content">@userReview.Content</p>
-
-                                            <!-- Edit Review Form (Hidden by default) -->
-                                            <form id="edit-review-form" class="hidden mt-4 bg-white p-4 rounded-xl border border-outline-variant" asp-controller="Courses" asp-action="AddOrUpdateReview" method="post">
-                                                @Html.AntiForgeryToken()
-                                                <input type="hidden" name="courseId" value="@course.Id" />
-                                                <input type="hidden" name="rating" id="edit-review-rating-value" value="@userReview.Rating" />
-                                                
-                                                <div class="flex items-center gap-2 mb-3">
-                                                    <span class="text-xs font-bold text-on-surface">Đánh giá lại:</span>
-                                                    <div class="flex items-center gap-1 text-amber-500" id="edit-star-selector-container">
-                                                        @for (int i = 1; i <= 5; i++)
-                                                        {
-                                                            var isFilled = i <= (userReview.Rating ?? 0);
-                                                            <button type="button" class="edit-star-btn cursor-pointer transition-transform hover:scale-125 focus:outline-none" data-value="@i">
-                                                                <span class="material-symbols-outlined" style="font-size: 26px; font-variation-settings: 'FILL' @(isFilled ? "1" : "0");">star</span>
-                                                            </button>
-                                                        }
-                                                    </div>
-                                                    <span class="text-xs font-bold text-amber-500 ml-2" id="edit-star-selector-label">
-                                                        @{
-                                                            var labels = new[] { "", "Rất tệ", "Tệ", "Bình thường", "Tốt", "Tuyệt vời" };
-                                                            var lbl = userReview.Rating.HasValue && userReview.Rating.Value >= 1 && userReview.Rating.Value <= 5 ? labels[userReview.Rating.Value] : "Tuyệt vời";
-                                                            @($"{lbl} ({userReview.Rating}/5)")
-                                                        }
-                                                    </span>
-                                                </div>
-                                                
-                                                <textarea class="w-full bg-surface-container border-2 border-outline-variant rounded-xl p-3 font-body-md text-body-md focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all resize-none" name="content" rows="3" required>@userReview.Content</textarea>
-                                                
-                                                <div class="flex gap-2 justify-end mt-2">
-                                                    <button type="button" class="px-4 py-1.5 border border-outline-variant hover:bg-surface-variant text-xs rounded-full font-bold transition-all" onclick="toggleEditReviewForm()">Hủy</button>
-                                                    <button type="submit" class="bg-primary text-on-primary text-xs rounded-full px-5 py-1.5 border border-surface-tint shadow-sm hover:brightness-110 transition-all font-bold">Lưu thay đổi</button>
-                                                </div>
-                                            </form>
-
-                                            <!-- Action Buttons -->
-                                            <div class="flex items-center gap-3 mt-3">
-                                                <button class="flex items-center gap-1 text-on-surface-variant hover:text-secondary transition-colors text-xs font-label-sm" onclick="toggleEditReviewForm()">
-                                                    <span class="material-symbols-outlined text-[16px]">edit</span> Chỉnh sửa
-                                                </button>
-                                                <form asp-controller="Courses" asp-action="DeleteReview" method="post" class="inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa nhận xét và đánh giá của mình?');">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="reviewId" value="@userReview.Id" />
-                                                    <button type="submit" class="flex items-center gap-1 text-on-surface-variant hover:text-error transition-colors text-xs font-label-sm">
-                                                        <span class="material-symbols-outlined text-[16px]">delete</span> Xóa
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="text-center py-10 text-outline font-medium">
+                                    <span class="material-symbols-outlined text-4xl block mb-2 opacity-50">rate_review</span>
+                                    Khóa học chưa có đánh giá nào. Hãy ghi danh và gửi nhận xét đầu tiên của bạn!
                                 </div>
-                            }
-
-                            <!-- List of other student reviews -->
-                            @{
-                                var otherReviews = reviews.Where(r => r.UserId != currentUserId).ToList();
-                            }
-
-                            @if (!otherReviews.Any() && userReview == null)
-                            {
-                                <p class="font-body-md text-on-surface-variant text-center py-8 m-0 opacity-70">Khóa học này chưa có nhận xét nào. Hãy là người đầu tiên cảm nhận!</p>
                             }
                             else
                             {
-                                foreach (var item in otherReviews)
-                                {
-                                    var itemAuthorName = item.User?.FullName ?? item.User?.Username ?? "Học viên ẩn danh";
-                                    var itemAuthorAvatar = item.User?.AvatarUrl ?? "https://via.placeholder.com/150";
-                                    var itemAuthorRole = item.User?.Role ?? "Student";
-                                    var itemTimeAgo = item.CreatedAt.HasValue ? GetTimeAgo(item.CreatedAt.Value) : "";
+                                <div class="flex flex-col gap-4">
+                                    @foreach (var review in reviewsList)
+                                    {
+                                        var isOwnReview = studentId > 0 && review.UserId == studentId;
+                                        var canDeleteReview = isOwnReview || User.IsInRole("Teacher") || User.IsInRole("Admin");
+                                        var reviewerRole = review.User?.Role ?? "Student";
+                                        
+                                        var reviewerBadgeClass = "bg-primary-fixed text-primary border-primary/20";
+                                        var reviewerBadgeText = "🧪 Học sinh";
+                                        
+                                        if (reviewerRole.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            reviewerBadgeClass = "bg-error-container/80 text-error border-error/20 font-bold";
+                                            reviewerBadgeText = "👑 Admin";
+                                        }
+                                        else if (reviewerRole.Equals("Teacher", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            reviewerBadgeClass = "bg-secondary-container/80 text-on-secondary-container border-secondary/20 font-bold";
+                                            reviewerBadgeText = "🎓 Giáo viên";
+                                        }
 
-                                    <div class="flex gap-4 border-b border-surface-variant/30 pb-6" id="review-@item.Id">
-                                        <img alt="@itemAuthorName" class="w-12 h-12 rounded-full border border-surface-variant object-cover shrink-0 shadow-sm" src="@itemAuthorAvatar" />
-                                        <div class="flex-grow">
-                                            <div class="flex items-center justify-between gap-2">
-                                                <div class="flex items-center gap-2 mb-1">
-                                                    <span class="font-bold text-on-surface text-sm">@itemAuthorName</span>
-                                                    @if (itemAuthorRole == "Teacher" || itemAuthorRole == "Admin")
-                                                    {
-                                                        <span class="bg-primary/10 text-primary text-[9px] px-2 py-0.5 rounded-full font-bold">Giảng viên</span>
-                                                    }
-                                                    <span class="text-xs text-on-surface-variant opacity-75">@itemTimeAgo</span>
+                                        <div class="flex gap-4 p-4 rounded-xl bg-surface/20 border border-outline-variant/30 shadow-xs relative">
+                                            <!-- Reviewer Avatar -->
+                                            <div class="flex-shrink-0">
+                                                <img src="@(review.User?.AvatarUrl ?? "https://api.dicebear.com/7.x/adventurer/svg?seed=" + review.User?.Username)" 
+                                                     class="w-10 h-10 rounded-full object-cover border border-outline-variant/30 shadow-xs" 
+                                                     alt="Avatar" />
+                                            </div>
+
+                                            <!-- Review Body -->
+                                            <div class="flex-1 flex flex-col gap-1 min-w-0">
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <span class="font-headline-md text-sm text-on-surface font-bold">
+                                                        @(review.User?.FullName ?? review.User?.Username ?? "Người dùng")
+                                                    </span>
+
+                                                    <span class="px-2 py-0.5 rounded-full text-[10px] border flex items-center gap-0.5 @reviewerBadgeClass">
+                                                        @reviewerBadgeText
+                                                    </span>
+
+                                                    <span class="text-xs text-outline font-medium flex items-center gap-1">
+                                                        <span class="material-symbols-outlined text-[14px]">schedule</span>
+                                                        @(review.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "vừa xong")
+                                                    </span>
                                                 </div>
-                                                
-                                                <!-- Teacher/Admin moderation delete button -->
-                                                @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Teacher") || User.IsInRole("Admin")))
+
+                                                <!-- Review rating stars -->
+                                                <div class="flex items-center gap-0.5 text-amber-400 my-0.5">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        var starFill = i <= review.Rating ? 1 : 0;
+                                                        <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' @starFill;">star</span>
+                                                    }
+                                                </div>
+
+                                                <!-- Review Text -->
+                                                <p class="text-body-md text-on-surface-variant text-sm font-medium leading-relaxed break-words whitespace-pre-line m-0">
+                                                    @(string.IsNullOrWhiteSpace(review.Content) ? "(Không có nhận xét viết tay)" : review.Content)
+                                                </p>
+
+                                                @if (canDeleteReview)
                                                 {
-                                                    <form asp-controller="Courses" asp-action="DeleteReview" method="post" class="inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa nhận xét của học viên này?');">
-                                                        @Html.AntiForgeryToken()
-                                                        <input type="hidden" name="reviewId" value="@item.Id" />
-                                                        <button type="submit" class="flex items-center gap-1 text-on-surface-variant hover:text-error transition-colors text-xs font-label-sm border border-error/20 px-2 py-1 rounded-full hover:bg-error-container/20">
-                                                            <span class="material-symbols-outlined text-[14px]">delete</span> Xóa (GV)
+                                                    <form asp-controller="Courses" asp-action="DeleteReview" asp-route-id="@review.Id" method="post" class="mt-2" onsubmit="return confirm('Bạn có chắc chắn muốn xóa nhận xét và đánh giá này?')">
+                                                        <button type="submit" class="text-xs font-bold text-error/80 hover:text-error transition-colors flex items-center gap-1">
+                                                            <span class="material-symbols-outlined text-[15px]">delete</span> Xóa đánh giá
+
                                                         </button>
                                                     </form>
                                                 }
                                             </div>
-                                            
-                                            <!-- Star rating -->
-                                            <div class="flex items-center gap-1 text-amber-500 mb-2">
-                                                @for (int i = 1; i <= 5; i++)
-                                                {
-                                                    if (i <= (item.Rating ?? 0))
-                                                    {
-                                                        <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">star</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="material-symbols-outlined text-xs">star</span>
-                                                    }
-                                                }
-                                                <span class="text-xs font-bold text-amber-500 ml-1">(@item.Rating/5)</span>
-                                            </div>
-                                            
-                                            <!-- Content -->
-                                            <p class="font-body-md text-sm text-on-surface m-0 whitespace-pre-line">@item.Content</p>
+
                                         </div>
-                                    </div>
-                                }
+                                    }
+                                </div>
                             }
                         </div>
                     </div>
-                    <!-- ----TV2---- -->
+
+                    <!-- Interactive Star Selector Script -->
+                    <script>
+                        document.addEventListener("DOMContentLoaded", () => {
+                            const stars = document.querySelectorAll(".star-btn");
+                            const ratingInput = document.getElementById("rating-input");
+                            if (stars.length && ratingInput) {
+                                stars.forEach(star => {
+                                    star.addEventListener("click", () => {
+                                        const rating = parseInt(star.getAttribute("data-star"));
+                                        ratingInput.value = rating;
+                                        
+                                        stars.forEach((s, idx) => {
+                                            if (idx < rating) {
+                                                s.style.fontVariationSettings = "'FILL' 1";
+                                                s.classList.remove("text-outline");
+                                                s.classList.add("text-amber-400");
+                                            } else {
+                                                s.style.fontVariationSettings = "'FILL' 0";
+                                                s.classList.remove("text-amber-400");
+                                                s.classList.add("text-outline");
+                                            }
+                                        });
+                                    });
+                                });
+                            }
+                        });
+                    </script>
 
                 </div>
                 <div class="lg:col-span-1">

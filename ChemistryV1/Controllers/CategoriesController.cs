@@ -1,4 +1,7 @@
 using System;
+using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
 using ChemistryV1.Models;
 using ChemistryV1.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -51,7 +54,7 @@ public class CategoriesController : Controller
                     {
                         Category = category,
                         CourseCount = courseCount,
-                        IsActive = courseCount > 0
+                        IsActive = category.IsActive
                     };
                 })
                 .ToList()
@@ -76,6 +79,8 @@ public class CategoriesController : Controller
     public async Task<IActionResult> Create(CategoryCreateEditViewModel viewModel)
     {
         var category = viewModel.Category;
+        category.Slug = NormalizeSlug(category.Name, category.Slug);
+
         if (await _context.Categories.AnyAsync(c => c.Slug == category.Slug))
         {
             ModelState.AddModelError("Category.Slug", "Slug already exists.");
@@ -123,6 +128,8 @@ public class CategoriesController : Controller
         {
             return NotFound();
         }
+
+        category.Slug = NormalizeSlug(category.Name, category.Slug);
 
         if (await _context.Categories.AnyAsync(c => c.Slug == category.Slug && c.Id != id))
         {
@@ -179,5 +186,30 @@ public class CategoriesController : Controller
         await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
+    }
+
+    private static string NormalizeSlug(string? name, string? fallbackSlug)
+    {
+        var baseText = string.IsNullOrWhiteSpace(name) ? fallbackSlug : name;
+        if (string.IsNullOrWhiteSpace(baseText))
+        {
+            return Guid.NewGuid().ToString("N");
+        }
+
+        var normalized = baseText.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormD);
+        var builder = new StringBuilder();
+
+        foreach (var character in normalized)
+        {
+            if (CharUnicodeInfo.GetUnicodeCategory(character) != UnicodeCategory.NonSpacingMark)
+            {
+                builder.Append(character);
+            }
+        }
+
+        var cleaned = Regex.Replace(builder.ToString(), @"[^a-z0-9\s-]", "");
+        cleaned = Regex.Replace(cleaned, @"\s+", "-");
+        cleaned = Regex.Replace(cleaned, @"-+", "-");
+        return cleaned.Trim('-');
     }
 }

@@ -9,6 +9,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>@Model.PageTitle - ChemLab 3D</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="~/css/academy.css" asp-append-version="true" />
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&amp;family=Quicksand:wght@500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
     <script id="tailwind-config">
         tailwind.config = {
@@ -99,11 +100,11 @@
     </script>
     <style>
         .premium-glass {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 8px 32px 0 rgba(0, 88, 190, 0.05);
+            background: rgba(255, 255, 255, 0.68);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 0 12px 36px 0 rgba(0, 88, 190, 0.06);
         }
 
         .squishy-button {
@@ -115,10 +116,10 @@
         }
 
         .icon-aura-active {
-            background: radial-gradient(circle, #d8e2ff 0%, #fbf9f1 100%);
+            background: linear-gradient(180deg, #d8e2ff 0%, #eef3ff 100%);
             border: 2px solid #0058be;
-            box-shadow: 0 10px 20px -5px rgba(0, 88, 190, 0.3), inset 0 -4px 0 0 rgba(0, 88, 190, 0.2);
-            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -6px rgba(0, 88, 190, 0.22), inset 0 -4px 0 0 rgba(0, 88, 190, 0.12);
+            transform: translateY(-2px);
         }
 
         .floating-element {
@@ -154,7 +155,7 @@
         }
     </style>
 </head>
-<body class="bg-background text-on-background font-body-md min-h-screen relative overflow-x-hidden">
+<body class="academy-shell bg-background text-on-background font-body-md min-h-screen relative overflow-x-hidden">
     <div class="fixed inset-0 pointer-events-none z-0">
         <div class="absolute top-20 left-[10%] opacity-20 floating-element text-primary">
             <span class="material-symbols-outlined text-[64px]">hub</span>
@@ -167,50 +168,12 @@
         </div>
     </div>
 
-    <aside class="h-screen w-64 fixed left-0 top-0 hidden md:flex flex-col bg-surface-container-low dark:bg-inverse-surface border-r-2 border-outline-variant dark:border-outline shadow-md z-40 p-gutter gap-unit">
-        <div class="mb-gutter flex items-center gap-3">
-            <div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-lg">
-                <span class="material-symbols-outlined text-on-primary">school</span>
-            </div>
-            <div>
-                <h2 class="font-display-lg text-headline-md text-primary leading-tight refined-heading">Academy</h2>
-                <p class="font-label-sm text-label-sm text-on-surface-variant">Master Alchemist</p>
-            </div>
-        </div>
-        <nav class="flex flex-col gap-2">
-            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-xl hover:translate-x-1 transition-transform duration-200" asp-controller="Home" asp-action="Index">
-                <span class="material-symbols-outlined">science</span>
-                <span class="font-label-sm text-label-sm">Laboratory</span>
-            </a>
-            <a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-xl shadow-md border-2 border-secondary" asp-controller="TeacherCourses" asp-action="Index">
-                <span class="material-symbols-outlined">auto_stories</span>
-                <span class="font-label-sm text-label-sm">Spellbook</span>
-            </a>
-            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-xl hover:translate-x-1 transition-transform duration-200" asp-controller="Courses" asp-action="Library">
-                <span class="material-symbols-outlined">school</span>
-                <span class="font-label-sm text-label-sm">Academy</span>
-            </a>
-            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-xl hover:translate-x-1 transition-transform duration-200" asp-controller="Categories" asp-action="Index">
-                <span class="material-symbols-outlined">menu_book</span>
-                <span class="font-label-sm text-label-sm">Categories</span>
-            </a>
-        </nav>
-        <div class="mt-auto flex flex-col gap-2 pt-4 border-t border-outline-variant">
-            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-xl" href="#">
-                <span class="material-symbols-outlined">help</span>
-                <span class="font-label-sm text-label-sm">Support</span>
-            </a>
-            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-xl" href="#">
-                <span class="material-symbols-outlined">logout</span>
-                <span class="font-label-sm text-label-sm">Log Out</span>
-            </a>
-        </div>
-    </aside>
+    <partial name="_AcademySidebar" />
 
-    <header class="w-full sticky top-0 z-50 bg-surface/70 dark:bg-surface-dim/70 backdrop-blur-xl border-b border-white/40 shadow-sm flex justify-between items-center px-margin-mobile md:pl-[calc(16rem+48px)] md:pr-margin-desktop h-20">
+    <header class="w-full sticky top-0 z-50 bg-surface/78 dark:bg-surface-dim/78 backdrop-blur-xl border-b border-white/40 shadow-sm flex justify-between items-center px-margin-mobile md:pl-[calc(16rem+48px)] md:pr-margin-desktop h-20">
         <h1 class="font-display-lg text-display-lg-mobile text-primary dark:text-inverse-primary refined-heading md:text-headline-md lg:text-display-lg">ChemLab 3D</h1>
         <div class="flex items-center gap-4">
-            <div class="hidden md:flex bg-white/40 backdrop-blur-md rounded-full px-4 py-2 border border-white/60 items-center gap-2">
+            <div class="hidden md:flex bg-white/50 backdrop-blur-md rounded-full px-4 py-2 border border-white/60 items-center gap-2 shadow-sm">
                 <span class="material-symbols-outlined text-on-surface-variant">search</span>
                 <input class="bg-transparent border-none focus:ring-0 text-body-md w-48" placeholder="Search potions..." type="text" />
             </div>
@@ -238,7 +201,7 @@
                 <p class="text-body-lg text-on-surface-variant max-w-xl">Define a fresh scientific domain for your students to explore within the magical curriculum.</p>
             </div>
 
-            <div class="premium-glass rounded-xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
+            <div class="glass-form premium-glass rounded-[2rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
                 <div class="absolute -top-24 -right-24 w-64 h-64 bg-primary-container/20 rounded-full blur-[80px]"></div>
                 <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-secondary-container/20 rounded-full blur-[80px]"></div>
                 
@@ -252,7 +215,7 @@
                             <span class="material-symbols-outlined text-lg">label</span>
                             CATEGORY NAME
                         </label>
-                        <input class="w-full rounded-full border-2 border-outline-variant/50 bg-white/40 px-8 py-5 text-body-lg font-semibold focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-outline-variant" id="cat-name" name="Category.Name" value="@Model.Category.Name" placeholder="e.g. Quantum Alchemy" type="text" oninput="generateSlug(this.value)" required />
+                        <input class="w-full rounded-full border-2 border-outline-variant/50 bg-white/60 px-8 py-5 text-body-lg font-semibold focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-outline-variant shadow-sm" id="cat-name" name="Category.Name" value="@Model.Category.Name" placeholder="e.g. Quantum Alchemy" type="text" oninput="generateSlug(this.value)" required />
                         <span class="text-error text-xs">@Html.ValidationMessageFor(m => m.Category.Name)</span>
                     </div>
 
@@ -261,7 +224,7 @@
                             <span class="material-symbols-outlined text-lg">link</span>
                             SLUG
                         </label>
-                        <input class="w-full rounded-full border-2 border-outline-variant/50 bg-white/40 px-8 py-5 text-body-md font-semibold focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-outline-variant" id="cat-slug" name="Category.Slug" value="@Model.Category.Slug" placeholder="quantum-alchemy" type="text" required />
+                        <input class="w-full rounded-full border-2 border-outline-variant/50 bg-white/60 px-8 py-5 text-body-md font-semibold focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none placeholder:text-outline-variant cursor-not-allowed shadow-sm" id="cat-slug" name="Category.Slug" value="@Model.Category.Slug" placeholder="quantum-alchemy" type="text" readonly required />
                         <span class="text-error text-xs">@Html.ValidationMessageFor(m => m.Category.Slug)</span>
                     </div>
 
@@ -270,11 +233,11 @@
                             <span class="material-symbols-outlined text-lg">grid_view</span>
                             SYMBOLIC ICON
                         </label>
-                        <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-5">
+                        <div id="category-icon-grid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
                             @foreach (var icon in Model.AvailableIcons)
                             {
-                                <button class="@(Model.Category.Icon == icon ? "icon-aura-active" : "bg-white/40 border-2 border-outline-variant/30") w-16 h-16 rounded-2xl flex items-center justify-center hover:border-primary-container hover:bg-white/60 transition-all squishy-button group" type="button" onclick="setIcon('@icon', this)">
-                                    <span class="material-symbols-outlined @(Model.Category.Icon == icon ? "text-primary" : "text-on-surface-variant/70 group-hover:text-primary") text-3xl">@icon</span>
+                                <button class="@(Model.Category.Icon == icon ? "icon-aura-active" : "bg-white/55 border-2 border-outline-variant/30") w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center hover:border-primary-container hover:bg-white/80 transition-all squishy-button group" type="button" onclick="setIcon('@icon', this)">
+                                    <span class="material-symbols-outlined block leading-none @(Model.Category.Icon == icon ? "text-primary" : "text-on-surface-variant/70 group-hover:text-primary") text-[28px]">@icon</span>
                                 </button>
                             }
                         </div>
@@ -285,12 +248,12 @@
                             <span class="material-symbols-outlined text-lg">description</span>
                             DESCRIPTION
                         </label>
-                        <textarea class="w-full rounded-2xl border-2 border-outline-variant/50 bg-white/40 px-8 py-5 text-body-md focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none resize-none placeholder:text-outline-variant" id="cat-desc" name="Category.Description" placeholder="Briefly describe the mystical secrets hidden within this category..." rows="5">@Model.Category.Description</textarea>
+                        <textarea class="w-full rounded-2xl border-2 border-outline-variant/50 bg-white/60 px-8 py-5 text-body-md focus:border-primary focus:ring-8 focus:ring-primary/5 transition-all outline-none resize-none placeholder:text-outline-variant shadow-sm" id="cat-desc" name="Category.Description" placeholder="Briefly describe the mystical secrets hidden within this category..." rows="5">@Model.Category.Description</textarea>
                     </div>
 
-                    <div class="flex flex-col md:flex-row gap-gutter md:items-center justify-between p-6 bg-white/60 rounded-2xl border border-white/80 shadow-inner">
+                    <div class="flex flex-col md:flex-row gap-gutter md:items-center justify-between p-6 bg-white/65 rounded-2xl border border-white/70 shadow-inner">
                         <div class="flex items-center gap-4">
-                            <div class="p-4 bg-secondary-container/30 rounded-2xl shadow-sm">
+                            <div class="p-4 bg-secondary-container/30 rounded-2xl shadow-sm border border-secondary/15">
                                 <span class="material-symbols-outlined text-secondary">visibility</span>
                             </div>
                             <div>
@@ -307,10 +270,10 @@
                     </div>
 
                     <div class="flex flex-col sm:flex-row items-center gap-6 pt-6">
-                        <a class="w-full sm:w-auto px-10 py-5 rounded-full border-2 border-primary/40 text-primary font-bold squishy-button hover:bg-primary/5 hover:border-primary transition-all text-center" asp-action="Index">
+                        <a class="squishy-button button-cancel w-full sm:w-auto px-10 py-5 rounded-full font-bold transition-all text-center hover:bg-white/80" asp-action="Index">
                             CANCEL
                         </a>
-                        <button class="w-full sm:w-auto px-12 py-5 rounded-full bg-primary text-white font-bold shadow-xl shadow-primary/30 border border-primary-container squishy-button hover:brightness-110 transition-all" type="submit">
+                        <button class="squishy-button button-confirm w-full sm:w-auto px-12 py-5 rounded-full text-white font-bold transition-all hover:brightness-110" type="submit">
                             CREATE CATEGORY
                         </button>
                     </div>
@@ -345,16 +308,19 @@
         }
 
         function setIcon(icon, btn) {
-            document.querySelectorAll('.grid button').forEach(b => {
+            const iconGrid = document.getElementById('category-icon-grid');
+            iconGrid.querySelectorAll('button').forEach(b => {
                 b.classList.remove('icon-aura-active');
                 b.classList.add('bg-white/40', 'border-outline-variant/30');
-                b.querySelector('span').classList.remove('text-primary');
-                b.querySelector('span').classList.add('text-on-surface-variant/70');
+                const glyph = b.querySelector('span');
+                glyph.classList.remove('text-primary');
+                glyph.classList.add('text-on-surface-variant/70');
             });
             btn.classList.add('icon-aura-active');
             btn.classList.remove('bg-white/40', 'border-outline-variant/30');
-            btn.querySelector('span').classList.add('text-primary');
-            btn.querySelector('span').classList.remove('text-on-surface-variant/70');
+            const activeGlyph = btn.querySelector('span');
+            activeGlyph.classList.add('text-primary');
+            activeGlyph.classList.remove('text-on-surface-variant/70');
             document.getElementById('category-icon').value = icon;
         }
 
@@ -375,6 +341,10 @@
             
             document.getElementById('cat-slug').value = str;
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            generateSlug(document.getElementById('cat-name').value || '');
+        });
     </script>
 </body>
 </html>
