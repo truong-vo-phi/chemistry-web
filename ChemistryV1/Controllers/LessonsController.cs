@@ -27,6 +27,9 @@ public class LessonsController : Controller
     {
         var lesson = await _context.Lessons
             .Include(l => l.Chapter)
+            .Include(l => l.VirtualLab)
+            .Include(l => l.Comments)
+                .ThenInclude(c => c.User)
             .FirstOrDefaultAsync(l => l.Id == id);
 
         if (lesson == null || lesson.ChapterId == null)
@@ -171,6 +174,8 @@ public class LessonsController : Controller
         dbLesson.DocumentContent = viewModel.Lesson.DocumentContent;
         dbLesson.IsPreview = viewModel.Lesson.IsPreview;
         dbLesson.OrderIndex = viewModel.Lesson.OrderIndex;
+        dbLesson.CommentsEnabled = viewModel.Lesson.CommentsEnabled;
+        dbLesson.VirtualLabId = viewModel.Lesson.VirtualLabId;
 
         if (uploadedVideo != null) dbLesson.VideoUrl = uploadedVideo;
         else if (!string.IsNullOrWhiteSpace(viewModel.Lesson.VideoUrl)) dbLesson.VideoUrl = viewModel.Lesson.VideoUrl;
@@ -233,8 +238,18 @@ public class LessonsController : Controller
             return NotFound();
         }
 
-        _context.Lessons.Remove(lesson);
-        await _context.SaveChangesAsync();
+        // Break self-referencing FK in Comments
+        await _context.Comments
+            .Where(c => c.LessonId == id)
+            .ExecuteUpdateAsync(s => s.SetProperty(c => c.ParentId, (int?)null));
+
+        // Delete all dependent entities
+        await _context.Comments.Where(c => c.LessonId == id).ExecuteDeleteAsync();
+        await _context.UserLessonProgresses.Where(p => p.LessonId == id).ExecuteDeleteAsync();
+        await _context.LessonSubmissions.Where(s => s.LessonId == id).ExecuteDeleteAsync();
+
+        // Finally delete the Lesson
+        await _context.Lessons.Where(l => l.Id == id).ExecuteDeleteAsync();
 
         var chapter = await _context.Chapters.FindAsync(lesson.ChapterId);
         return RedirectToAction("Content", "TeacherCourses", new { id = chapter?.CourseId });
@@ -258,11 +273,16 @@ public class LessonsController : Controller
             return null;
         }
 
+        
+        var virtualLabs = await _context.VirtualLabs.ToListAsync();
+
+        
         return new LessonEditorViewModel
         {
             Course = course,
             Chapters = course.Chapters.OrderBy(ch => ch.OrderIndex).ToList(),
-            Lesson = lesson ?? new Lesson { ChapterId = chapterId }
+            Lesson = lesson ?? new Lesson { ChapterId = chapterId },
+            AvailableVirtualLabs = virtualLabs 
         };
     }
 }

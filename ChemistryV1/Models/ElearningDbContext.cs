@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,6 +30,8 @@ public partial class ElearningDbContext : DbContext
     public virtual DbSet<CourseEnrollment> CourseEnrollments { get; set; }
 
     public virtual DbSet<Lesson> Lessons { get; set; }
+
+    public virtual DbSet<VirtualLab> VirtualLabs { get; set; } = null!;
 
     public virtual DbSet<LessonSubmission> LessonSubmissions { get; set; }
 
@@ -73,6 +75,7 @@ public partial class ElearningDbContext : DbContext
             entity.HasOne(d => d.Course).WithMany(p => p.Chapters)
                 .HasForeignKey(d => d.CourseId)
                 .HasConstraintName("FK_Chapters_Courses");
+
         });
 
         modelBuilder.Entity<Category>(entity =>
@@ -262,6 +265,9 @@ public partial class ElearningDbContext : DbContext
             entity.Property(e => e.IsPreview)
                 .HasDefaultValue(false)
                 .HasColumnName("is_preview");
+            entity.Property(e => e.CommentsEnabled)
+                .HasDefaultValue(true)
+                .HasColumnName("comments_enabled");
             entity.Property(e => e.OrderIndex).HasColumnName("order_index");
             entity.Property(e => e.Title)
                 .HasMaxLength(255)
@@ -277,6 +283,15 @@ public partial class ElearningDbContext : DbContext
             entity.HasOne(d => d.Chapter).WithMany(p => p.Lessons)
                 .HasForeignKey(d => d.ChapterId)
                 .HasConstraintName("FK_Lessons_Chapters");
+
+            entity.Property(e => e.VirtualLabId)
+                .HasColumnName("virtual_lab_id");
+            
+            entity.HasOne(d => d.VirtualLab)
+                  .WithMany(p => p.Lessons)
+                  .HasForeignKey(d => d.VirtualLabId)
+                  .OnDelete(DeleteBehavior.SetNull)          
+                  .HasConstraintName("FK_Lessons_VirtualLabs");
         });
 
         modelBuilder.Entity<LessonSubmission>(entity =>
@@ -548,7 +563,22 @@ public partial class ElearningDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UserLessonProgress_Users");
         });
-
+        modelBuilder.Entity<VirtualLab>(entity =>
+        {
+            entity.ToTable("VirtualLabs");   
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title)
+                  .IsRequired()
+                  .HasMaxLength(255);
+            entity.Property(e => e.Url)
+                  .IsRequired()
+                  .HasMaxLength(500);
+            
+            entity.Property(e => e.CreatedAt)
+                  .HasColumnName("created_at")
+                  .HasColumnType("datetime2")
+                  .HasDefaultValueSql("GETDATE()");   
+        });
         OnModelCreatingPartial(modelBuilder);
     }
 

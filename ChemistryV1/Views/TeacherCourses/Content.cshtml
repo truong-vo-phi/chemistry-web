@@ -165,8 +165,11 @@
                                     @chapter.OrderIndex
                                 </div>
                                 <h4 class="font-label-sm text-label-sm flex-1">@chapter.Title</h4>
-                                <a class="text-outline hover:text-primary" asp-controller="Chapters" asp-action="Edit" asp-route-id="@chapter.Id">
+                                <a class="text-outline hover:text-primary" asp-controller="Chapters" asp-action="Edit" asp-route-id="@chapter.Id" title="Edit Chapter">
                                     <span class="material-symbols-outlined text-[18px]">edit</span>
+                                </a>
+                                <a class="text-outline hover:text-error ml-1" asp-controller="Chapters" asp-action="Delete" asp-route-id="@chapter.Id" title="Delete Chapter">
+                                    <span class="material-symbols-outlined text-[18px]">delete</span>
                                 </a>
                             </div>
                             <div class="ml-10 flex flex-col gap-2">

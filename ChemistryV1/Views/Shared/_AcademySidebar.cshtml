@@ -12,7 +12,7 @@
             <span class="material-symbols-outlined">science</span>
         </div>
         <div>
-            <h1 class="font-headline-md text-headline-md text-primary leading-tight">ChemLab 3D</h1>
+            <h1 class="font-headline-md text-headline-md text-primary leading-tight">ChemLab 2D</h1>
             <p class="text-xs font-label-sm text-on-surface-variant opacity-70">Magical Academy</p>
         </div>
     </div>
@@ -32,7 +32,25 @@
             <span class="material-symbols-outlined">school</span> Academy
         </a>
 
-        @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Teacher")))
+        <!-- Các danh mục bổ sung cho thư viện đầy đặn hơn (Dummy Links) -->
+        <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" href="#">
+            <span class="material-symbols-outlined">biotech</span> Virtual Labs 2D
+        </a>
+        @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Student")))
+        {
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" href="#">
+                <span class="material-symbols-outlined">local_library</span> Achievements
+            </a>
+
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" href="#">
+                <span class="material-symbols-outlined">quiz</span> Practice questions
+            </a>
+        }
+        <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" href="#">
+            <span class="material-symbols-outlined">groups</span> Alchemical Guild
+        </a>
+
+        @if (User.Identity?.IsAuthenticated == true &&  User.IsInRole("Admin"))
         {
             <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isCategories ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="Categories" asp-action="Index">
                 <span class="material-symbols-outlined">menu_book</span> Categories
