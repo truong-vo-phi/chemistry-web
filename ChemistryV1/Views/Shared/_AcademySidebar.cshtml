@@ -20,21 +20,21 @@
     <nav class="flex-1 flex flex-col gap-2">
         @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Teacher")))
         {
-            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isDashboard ? "academy-nav-active font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="Dashboard" asp-action="Index">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isDashboard ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="Dashboard" asp-action="Index">
                 <span class="material-symbols-outlined">science</span> Laboratory
             </a>
-            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isTeacherCourses ? "academy-nav-active font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="TeacherCourses" asp-action="Index">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isTeacherCourses ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="TeacherCourses" asp-action="Index">
                 <span class="material-symbols-outlined">auto_stories</span> Spellbook
             </a>
         }
 
-        <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isCourses ? "academy-nav-active font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="Courses" asp-action="Library">
+        <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isCourses ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="Courses" asp-action="Library">
             <span class="material-symbols-outlined">school</span> Academy
         </a>
 
         @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Teacher")))
         {
-            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isCategories ? "academy-nav-active font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="Categories" asp-action="Index">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isCategories ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="Categories" asp-action="Index">
                 <span class="material-symbols-outlined">menu_book</span> Categories
             </a>
         }

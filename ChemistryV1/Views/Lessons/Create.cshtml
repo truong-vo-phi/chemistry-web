@@ -19,53 +19,53 @@
             theme: {
                 extend: {
                     colors: {
-                        background: "#f8fafc",
-                        "inverse-primary": "#adc6ff",
-                        secondary: "#006c49",
-                        "secondary-container": "#6cf8bb",
-                        "surface-dim": "#cbd5e1",
-                        "on-surface-variant": "#424754",
-                        "tertiary-fixed-dim": "#ffb95f",
-                        "outline-variant": "#e2e8f0",
-                        primary: "#0058be",
-                        "on-tertiary-fixed-variant": "#653e00",
-                        "surface-tint": "#005ac2",
-                        "on-primary": "#ffffff",
-                        "on-tertiary-fixed": "#2a1700",
-                        outline: "#727785",
-                        "surface-variant": "#f1f5f9",
-                        "on-primary-container": "#fefcff",
-                        "surface-container-high": "#e2e8f0",
-                        "on-secondary-container": "#00714d",
-                        "on-background": "#1b1c17",
-                        "surface-container-lowest": "#ffffff",
-                        "on-tertiary": "#ffffff",
-                        "error-container": "#ffdad6",
-                        "inverse-on-surface": "#f8fafc",
-                        error: "#ba1a1a",
-                        "surface-container": "#f1f5f9",
-                        "on-primary-fixed": "#001a42",
-                        "surface-container-low": "#f8fafc",
-                        "on-tertiary-container": "#fffbff",
-                        "on-error-container": "#93000a",
-                        "inverse-surface": "#30312c",
-                        "on-secondary": "#ffffff",
-                        "primary-fixed": "#d8e2ff",
-                        "on-surface": "#1b1c17",
-                        "on-secondary-fixed": "#002113",
-                        "primary-fixed-dim": "#adc6ff",
-                        "surface-container-highest": "#cbd5e1",
-                        "secondary-fixed-dim": "#4edea3",
+                        "surface-variant": "#e4e3db",
+                        surface: "#fbf9f1",
                         tertiary: "#825100",
-                        "surface-bright": "#ffffff",
-                        "primary-container": "#2170e4",
-                        "on-primary-fixed-variant": "#004395",
-                        "secondary-fixed": "#6ffbbe",
-                        "tertiary-fixed": "#ffddb8",
+                        "surface-container-high": "#eae8e0",
+                        "on-background": "#1b1c17",
+                        "inverse-on-surface": "#f3f1e9",
+                        "surface-tint": "#005ac2",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1b1c17",
+                        "on-error": "#ffffff",
                         "tertiary-container": "#a36700",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#f0eee6",
+                        "secondary-container": "#6cf8bb",
+                        "on-secondary-container": "#00714d",
+                        secondary: "#006c49",
+                        "inverse-surface": "#30312c",
+                        "primary-fixed-dim": "#adc6ff",
+                        "on-primary-container": "#fefcff",
+                        "surface-dim": "#dcdad2",
+                        "on-secondary-fixed": "#002113",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-primary-fixed-variant": "#004395",
+                        "primary-fixed": "#d8e2ff",
+                        "surface-bright": "#fbf9f1",
+                        primary: "#0058be",
+                        "on-surface-variant": "#424754",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-primary-fixed": "#001a42",
+                        "inverse-primary": "#adc6ff",
                         "on-secondary-fixed-variant": "#005236",
-                        surface: "#ffffff",
-                        "on-error": "#ffffff"
+                        "surface-container-low": "#f5f4ec",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#2170e4",
+                        background: "#fbf9f1",
+                        "secondary-fixed-dim": "#4edea3",
+                        outline: "#727785",
+                        "on-tertiary-fixed": "#2a1700",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-tertiary-container": "#fffbff",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#c2c6d6",
+                        "tertiary-fixed": "#ffddb8",
+                        "surface-container-highest": "#e4e3db",
+                        "on-tertiary": "#ffffff",
+                        error: "#ba1a1a"
                     },
                     borderRadius: {
                         DEFAULT: "1rem",
@@ -101,11 +101,11 @@
         }
     </script>
     <style>
-        body { background-color: #f8fafc; overflow: hidden; }
+        body { background-color: #fbf9f1; overflow: hidden; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #dcdad2; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #c2c6d6; }
     </style>
 </head>
 <body class="font-body-md text-on-surface bg-background flex h-screen overflow-hidden">
@@ -130,7 +130,7 @@
             <aside class="w-80 flex-shrink-0 bg-surface-container-low border-r border-outline-variant flex flex-col">
                 <div class="p-5 border-b border-outline-variant flex justify-between items-center bg-surface-bright">
                     <h3 class="font-bold text-on-surface">Curriculum</h3>
-                    <a class="p-1.5 bg-secondary text-on-secondary rounded-full hover:brightness-110 transition-all shadow-sm" asp-controller="Chapters" asp-action="Create" asp-route-courseId="@Model.Course.Id">
+                    <a class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center border-2 border-secondary shadow-[0_2px_0_0_rgba(0,108,73,0.3)] hover:brightness-105 transition-all" asp-controller="Chapters" asp-action="Create" asp-route-courseId="@Model.Course.Id">
                         <span class="material-symbols-outlined">add</span>
                     </a>
                 </div>
@@ -161,7 +161,7 @@
                     }
                 </div>
             </aside>
-            <main class="flex-1 bg-white overflow-y-auto custom-scrollbar p-10 flex flex-col items-center">
+            <main class="flex-1 bg-surface/50 overflow-y-auto custom-scrollbar p-10 flex flex-col items-center">
                 <form id="lesson-form" asp-action="Create" method="post" enctype="multipart/form-data" class="w-full max-w-4xl space-y-8">
                     <input type="hidden" asp-for="Lesson.ChapterId" />
                     @if (!ViewData.ModelState.IsValid)
@@ -185,7 +185,7 @@
                         <div class="group relative bg-surface-container-low rounded-2xl border-2 border-dashed border-outline-variant p-6 flex flex-col items-center justify-center min-h-[200px] hover:border-primary/50 transition-all">
                             <span class="material-symbols-outlined text-4xl text-outline mb-2">video_library</span>
                             <h4 class="font-bold text-on-surface-variant">Add Lecture Video</h4>
-                            <input asp-for="Lesson.VideoUrl" class="mt-4 w-full bg-white border border-outline-variant rounded-full text-sm font-bold px-4 py-2" placeholder="Video URL (https://...)" />
+                            <input asp-for="Lesson.VideoUrl" class="mt-4 w-full bg-surface-container-lowest border border-outline-variant rounded-full text-sm font-bold px-4 py-2" placeholder="Video URL (https://...)" />
                             <div class="mt-3 text-xs text-outline font-bold">OR UPLOAD FILE</div>
                             <input type="file" name="videoFile" accept="video/*" class="mt-2 text-xs font-bold text-on-surface-variant bg-surface-container-high rounded-full border border-outline-variant/30 px-4 py-2" />
                         </div>
