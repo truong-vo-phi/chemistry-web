@@ -27,7 +27,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>@course.Title | ChemLab 3D</title>
+    <title>@course.Title | ChemLab</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&amp;family=Quicksand:wght@500;600;700&amp;display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
@@ -150,14 +150,14 @@
     <header class="bg-background w-full top-0 sticky z-50 border-b-2 border-surface-variant shadow-sm md:pl-64">
         <div class="flex justify-between items-center px-gutter py-4 w-full max-w-container-max mx-auto">
             <div class="flex items-center gap-4">
-                <span class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary">ChemLab 3D</span>
+                <span class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary">ChemLab</span>
             </div>
             <div class="hidden md:flex items-center gap-gutter">
                 <nav class="flex gap-6">
-                    @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Teacher")))
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
                     {
                         <a class="text-on-surface-variant hover:bg-surface-container-high transition-colors px-3 py-2 rounded-lg font-label-sm" asp-controller="Dashboard" asp-action="Index">Laboratory</a>
-                        <a class="text-on-surface-variant hover:bg-surface-container-high transition-colors px-3 py-2 rounded-lg font-label-sm" asp-controller="TeacherCourses" asp-action="Index">Spellbook</a>
+                        <a class="text-on-surface-variant hover:bg-surface-container-high transition-colors px-3 py-2 rounded-lg font-label-sm" asp-controller="TeacherCourses" asp-action="Index">Admin Courses</a>
                     }
                     <a class="text-primary font-bold font-label-sm" asp-controller="Courses" asp-action="Library">Academy</a>
                 </nav>
@@ -170,7 +170,10 @@
                                 <p class="text-xs font-bold text-on-surface leading-tight">@User.Identity.Name</p>
                                 <p class="text-[9px] uppercase font-bold text-primary tracking-wider leading-none">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</p>
                             </div>
-                            <a class="text-xs font-bold text-error hover:bg-error-container/20 px-3 py-1.5 rounded-full border border-error/20 transition-all ml-2" asp-controller="Account" asp-action="Logout">Đăng xuất</a>
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="ml-2">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="text-xs font-bold text-error hover:bg-error-container/20 px-3 py-1.5 rounded-full border border-error/20 transition-all">Đăng xuất</button>
+                            </form>
                         </div>
                     }
                     else
@@ -201,9 +204,9 @@
                             </button>
                         </form>
                         <div class="flex items-center gap-3">
-                            <img alt="Instructor avatar" class="w-12 h-12 rounded-full border-2 border-white shadow-sm" src="@(course.Teacher?.AvatarUrl ?? "https://via.placeholder.com/64")" />
+                            <img alt="Quản lý avatar" class="w-12 h-12 rounded-full border-2 border-white shadow-sm" src="@(course.Teacher?.AvatarUrl ?? "https://via.placeholder.com/64")" />
                             <div>
-                                <p class="font-label-sm leading-none">Instructor</p>
+                                <p class="font-label-sm leading-none">Quản lý</p>
                                 <p class="font-bold">@course.Teacher?.FullName</p>
                             </div>
                         </div>
@@ -374,8 +377,8 @@
                         <!-- Review Composer Form -->
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <!-- Only allow review if enrolled, teacher, or admin -->
-                            if (isEnrolled || User.IsInRole("Teacher") || User.IsInRole("Admin"))
+                            <!-- Only allow review if enrolled or admin -->
+                            if (isEnrolled || User.IsInRole("Admin"))
                             {
                                 var userExistingReview = reviewsList.FirstOrDefault(r => r.UserId == studentId);
                                 <form asp-controller="Courses" asp-action="AddReview" method="post" class="p-5 bg-surface/30 rounded-2xl border border-outline-variant/30 flex flex-col gap-4">
@@ -396,7 +399,7 @@
 
                                     <div class="flex flex-col gap-1.5">
                                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider block">Cảm nghĩ của bạn về khóa học</label>
-                                        <textarea name="content" rows="3" class="w-full bg-surface-container-lowest border border-outline-variant/40 focus:border-primary/50 focus:ring-0 rounded-xl text-sm p-4 font-medium outline-none resize-none transition-all" placeholder="Hãy viết những cảm nghĩ trực quan và bổ ích giúp giáo viên cải thiện khóa học tốt hơn...">@(userExistingReview?.Content)</textarea>
+                                        <textarea name="content" rows="3" class="w-full bg-surface-container-lowest border border-outline-variant/40 focus:border-primary/50 focus:ring-0 rounded-xl text-sm p-4 font-medium outline-none resize-none transition-all" placeholder="Hãy viết những cảm nghĩ trực quan và bổ ích giúp quản trị viên cải thiện khóa học tốt hơn...">@(userExistingReview?.Content)</textarea>
                                     </div>
 
                                     <button type="submit" class="px-6 py-2.5 bg-primary text-on-primary font-label-sm rounded-full border-2 border-primary-container hover:brightness-110 transition-all squishy-btn text-sm shadow-[0_4px_0_0_rgba(0,88,190,0.3)] self-end flex items-center gap-2 font-bold">
@@ -440,7 +443,7 @@
                                     @foreach (var review in reviewsList)
                                     {
                                         var isOwnReview = studentId > 0 && review.UserId == studentId;
-                                        var canDeleteReview = isOwnReview || User.IsInRole("Teacher") || User.IsInRole("Admin");
+                                        var canDeleteReview = isOwnReview || User.IsInRole("Admin");
                                         var reviewerRole = review.User?.Role ?? "Student";
                                         
                                         var reviewerBadgeClass = "bg-primary-fixed text-primary border-primary/20";
@@ -451,10 +454,10 @@
                                             reviewerBadgeClass = "bg-error-container/80 text-error border-error/20 font-bold";
                                             reviewerBadgeText = "👑 Admin";
                                         }
-                                        else if (reviewerRole.Equals("Teacher", StringComparison.OrdinalIgnoreCase))
+                                        else if (reviewerRole.Equals("Admin", StringComparison.OrdinalIgnoreCase))
                                         {
                                             reviewerBadgeClass = "bg-secondary-container/80 text-on-secondary-container border-secondary/20 font-bold";
-                                            reviewerBadgeText = "🎓 Giáo viên";
+                                            reviewerBadgeText = "🎓 Quản trị";
                                         }
 
                                         <div class="flex gap-4 p-4 rounded-xl bg-surface/20 border border-outline-variant/30 shadow-xs relative">

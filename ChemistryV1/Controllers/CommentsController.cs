@@ -119,8 +119,8 @@ public class CommentsController : Controller
 
         var userId = Convert.ToInt32(userIdClaim);
 
-        // Creator, Teacher, or Admin can delete
-        bool canDelete = comment.UserId == userId || User.IsInRole("Teacher") || User.IsInRole("Admin");
+        // Creator or Admin can delete
+        bool canDelete = comment.UserId == userId || User.IsInRole("Admin");
         if (!canDelete)
         {
             return Forbid();

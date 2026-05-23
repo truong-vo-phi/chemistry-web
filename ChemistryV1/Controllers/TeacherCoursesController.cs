@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ChemistryV1.Controllers;
 
-[Authorize(Roles = "Admin,Teacher")]
+[Authorize(Roles = "Admin")]
 public class TeacherCoursesController : Controller
 {
     private readonly ElearningDbContext _context;
@@ -47,7 +47,7 @@ public class TeacherCoursesController : Controller
             Search = search,
             TeacherId = teacherId,
             Teachers = await _context.Users
-                .Where(u => u.Role != null && u.Role.ToLower() == "teacher")
+                .Where(u => u.Role != null && u.Role.ToLower() == "admin")
                 .OrderBy(u => u.FullName)
                 .ToListAsync(),
             Courses = await query
@@ -65,7 +65,7 @@ public class TeacherCoursesController : Controller
             Status = "draft",
             Categories = await _context.Categories.OrderBy(c => c.Name).ToListAsync(),
             Teachers = await _context.Users
-                .Where(u => u.Role != null && u.Role.ToLower() == "teacher")
+                .Where(u => u.Role != null && u.Role.ToLower() == "admin")
                 .OrderBy(u => u.FullName)
                 .ToListAsync()
         };
@@ -88,7 +88,7 @@ public class TeacherCoursesController : Controller
         {
             viewModel.Categories = await _context.Categories.OrderBy(c => c.Name).ToListAsync();
             viewModel.Teachers = await _context.Users
-                .Where(u => u.Role != null && u.Role.ToLower() == "teacher")
+                .Where(u => u.Role != null && u.Role.ToLower() == "admin")
                 .OrderBy(u => u.FullName)
                 .ToListAsync();
             return View(viewModel);
@@ -136,7 +136,7 @@ public class TeacherCoursesController : Controller
             SelectedCategoryIds = course.CourseCategories.Select(cc => cc.CategoryId).ToList(),
             Categories = await _context.Categories.OrderBy(c => c.Name).ToListAsync(),
             Teachers = await _context.Users
-                .Where(u => u.Role != null && u.Role.ToLower() == "teacher")
+                .Where(u => u.Role != null && u.Role.ToLower() == "admin")
                 .OrderBy(u => u.FullName)
                 .ToListAsync()
         };
@@ -164,7 +164,7 @@ public class TeacherCoursesController : Controller
         {
             viewModel.Categories = await _context.Categories.OrderBy(c => c.Name).ToListAsync();
             viewModel.Teachers = await _context.Users
-                .Where(u => u.Role != null && u.Role.ToLower() == "teacher")
+                .Where(u => u.Role != null && u.Role.ToLower() == "admin")
                 .OrderBy(u => u.FullName)
                 .ToListAsync();
             return View(viewModel);
