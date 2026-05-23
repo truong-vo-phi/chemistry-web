@@ -49,7 +49,7 @@ public class CoursesController : Controller
             TeacherId = teacherId,
             Categories = await _context.Categories.OrderBy(c => c.Name).ToListAsync(),
             Teachers = await _context.Users
-                .Where(u => u.Role != null && u.Role.ToLower() == "teacher")
+                .Where(u => u.Role != null && u.Role.ToLower() == "admin")
                 .OrderBy(u => u.FullName)
                 .ToListAsync(),
             Courses = await coursesQuery
@@ -80,7 +80,7 @@ public class CoursesController : Controller
             return NotFound();
         }
 
-        if (course.Status?.ToLower() != "published" && !User.IsInRole("Admin") && !User.IsInRole("Teacher"))
+        if (course.Status?.ToLower() != "published" && !User.IsInRole("Admin"))
         {
             return NotFound();
         }
@@ -176,7 +176,7 @@ public class CoursesController : Controller
         var userId = Convert.ToInt32(userIdClaim);
 
         var isEnrolled = await _context.CourseEnrollments.AnyAsync(ce => ce.CourseId == courseId && ce.StudentId == userId);
-        bool canReview = isEnrolled || User.IsInRole("Teacher") || User.IsInRole("Admin");
+        bool canReview = isEnrolled || User.IsInRole("Admin");
         if (!canReview)
         {
             TempData["ReviewError"] = "Bạn cần tham gia khóa học này để có thể gửi đánh giá.";
@@ -235,7 +235,7 @@ public class CoursesController : Controller
 
         var userId = Convert.ToInt32(userIdClaim);
 
-        bool canDelete = review.UserId == userId || User.IsInRole("Teacher") || User.IsInRole("Admin");
+        bool canDelete = review.UserId == userId || User.IsInRole("Admin");
         if (!canDelete)
 
         {

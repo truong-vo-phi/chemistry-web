@@ -10,7 +10,7 @@ using System.IO;
 
 namespace ChemistryV1.Controllers;
 
-[Authorize(Roles = "Admin,Teacher")]
+[Authorize(Roles = "Admin")]
 public class LessonsController : Controller
 {
     private readonly ElearningDbContext _context;
@@ -51,7 +51,7 @@ public class LessonsController : Controller
             return NotFound();
         }
 
-        if (lesson.IsPreview != true && !User.IsInRole("Admin") && !User.IsInRole("Teacher"))
+        if (lesson.IsPreview != true && !User.IsInRole("Admin"))
         {
             if (User.Identity?.IsAuthenticated != true)
             {
@@ -358,7 +358,7 @@ public class LessonsController : Controller
 
         var userId = Convert.ToInt32(userIdClaim);
         var isAuthor = comment.UserId == userId;
-        var isTeacherOrAdmin = User.IsInRole("Teacher") || User.IsInRole("Admin");
+        var isTeacherOrAdmin = User.IsInRole("Admin");
 
         if (!isAuthor && !isTeacherOrAdmin)
         {

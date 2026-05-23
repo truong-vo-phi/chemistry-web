@@ -1,7 +1,7 @@
 @{
     var controller = (ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty).ToLowerInvariant();
     var isDashboard = controller == "dashboard";
-    var isTeacherCourses = controller == "teachercourses" || controller == "lessons" || controller == "chapters";
+    var isAdminCourses = controller == "teachercourses" || controller == "lessons" || controller == "chapters";
     var isCourses = controller == "courses";
     var isCategories = controller == "categories";
 }
@@ -12,19 +12,25 @@
             <span class="material-symbols-outlined">science</span>
         </div>
         <div>
-            <h1 class="font-headline-md text-headline-md text-primary leading-tight">ChemLab 2D</h1>
+            <h1 class="font-headline-md text-headline-md text-primary leading-tight">ChemLab</h1>
             <p class="text-xs font-label-sm text-on-surface-variant opacity-70">Magical Academy</p>
         </div>
     </div>
 
     <nav class="flex-1 flex flex-col gap-2">
-        @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Teacher")))
+        @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
         {
             <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isDashboard ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="Dashboard" asp-action="Index">
                 <span class="material-symbols-outlined">science</span> Laboratory
             </a>
-            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isTeacherCourses ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="TeacherCourses" asp-action="Index">
-                <span class="material-symbols-outlined">auto_stories</span> Spellbook
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" asp-controller="AdminUsers" asp-action="Index">
+                <span class="material-symbols-outlined">group</span> Users
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" asp-controller="AdminMissions" asp-action="Index">
+                <span class="material-symbols-outlined">assignment</span> Missions
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isAdminCourses ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="TeacherCourses" asp-action="Index">
+                <span class="material-symbols-outlined">auto_stories</span> Academy Panel
             </a>
         }
 

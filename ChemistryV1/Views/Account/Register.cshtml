@@ -1,0 +1,354 @@
+@model ChemistryV1.ViewModels.RegisterViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>ChemLab - Đăng Ký Học Viện</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&amp;family=Lexend:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#0058be",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#2170e4",
+                        "on-primary-container": "#fefcff",
+                        "secondary": "#006c49",
+                        "tertiary": "#825100",
+                        "background": "#fbf9f1",
+                        "on-background": "#1b1c17",
+                        "surface": "#fbf9f1",
+                        "on-surface": "#1b1c17",
+                        "surface-variant": "#e4e3db",
+                        "on-surface-variant": "#424754",
+                        "outline": "#727785",
+                        "outline-variant": "#c2c6d6",
+                        "surface-container-low": "#f5f4ec",
+                        "surface-container": "#f0eee6",
+                        "surface-container-high": "#eae8e0",
+                        "surface-container-highest": "#e4e3db"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "8px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "container-max": "1200px",
+                        "margin-desktop": "48px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Quicksand"],
+                        "body-lg": ["Quicksand"],
+                        "label-sm": ["Lexend"],
+                        "headline-md": ["Lexend"],
+                        "display-lg": ["Lexend"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "500"}],
+                        "label-sm": ["14px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .avatar-option {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+        
+        .avatar-radio:checked + label {
+            border-color: #0058be;
+            background-color: rgba(0, 88, 190, 0.05);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 88, 190, 0.25);
+        }
+
+        .glow-button {
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px -5px rgba(0, 88, 190, 0.3);
+        }
+        
+        .glow-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(0, 88, 190, 0.4);
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(0, 88, 190, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float-particle 15s linear infinite;
+        }
+
+        @@keyframes float-particle {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        }
+
+        .floating-char {
+            animation: float-char 6s ease-in-out infinite;
+        }
+
+        @@keyframes float-char {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .float-slow {
+            animation: float-slow 9s ease-in-out infinite;
+        }
+
+        @@keyframes float-slow {
+            0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+            50% { transform: translate3d(0, -14px, 0) rotate(3deg); }
+        }
+
+        .drift-left {
+            animation: drift-left 14s ease-in-out infinite;
+        }
+
+        @@keyframes drift-left {
+            0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+            50% { transform: translate3d(-16px, -8px, 0) rotate(-4deg); }
+        }
+
+        .drift-right {
+            animation: drift-right 16s ease-in-out infinite;
+        }
+
+        @@keyframes drift-right {
+            0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+            50% { transform: translate3d(16px, 10px, 0) rotate(5deg); }
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 9999px;
+            filter: blur(2px);
+            opacity: 0.18;
+        }
+
+        .chem-icon {
+            position: absolute;
+            color: rgba(0, 88, 190, 0.18);
+            font-size: 72px;
+            pointer-events: none;
+        }
+
+        .motion-ring {
+            position: absolute;
+            border-radius: 9999px;
+            border: 1px dashed rgba(0, 88, 190, 0.18);
+            pointer-events: none;
+        }
+
+        .orbit-one {
+            animation: orbit-one 24s linear infinite;
+        }
+
+        @@keyframes orbit-one {
+            0% { transform: rotate(0deg) translateX(0) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(0) rotate(-360deg); }
+        }
+
+        .orbit-two {
+            animation: orbit-two 34s linear infinite reverse;
+        }
+
+        @@keyframes orbit-two {
+            0% { transform: rotate(0deg) translateX(0) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(0) rotate(-360deg); }
+        }
+
+        .drift-diagonal {
+            animation: drift-diagonal 18s ease-in-out infinite;
+        }
+
+        @@keyframes drift-diagonal {
+            0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+            50% { transform: translate3d(18px, -12px, 0) rotate(6deg); }
+        }
+
+        .pulse-ring {
+            animation: pulse-ring 10s ease-in-out infinite;
+        }
+
+        @@keyframes pulse-ring {
+            0%, 100% { transform: scale(1); opacity: 0.14; }
+            50% { transform: scale(1.05); opacity: 0.22; }
+        }
+
+        .slow-drift {
+            animation: slow-drift 24s ease-in-out infinite;
+        }
+
+        @@keyframes slow-drift {
+            0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+            50% { transform: translate3d(-18px, 14px, 0) rotate(-7deg); }
+        }
+
+        .custom-checkbox:checked {
+            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+        }
+    </style>
+</head>
+<body class="bg-background min-h-screen flex items-center justify-center p-0.5 md:p-2 font-body-md text-on-background relative overflow-hidden">
+<!-- Background Elements -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden">
+<div class="absolute top-[-12%] left-[-12%] w-[42%] h-[42%] bg-primary/5 rounded-full blur-[120px] float-slow"></div>
+<div class="absolute bottom-[-12%] right-[-12%] w-[42%] h-[42%] bg-secondary/5 rounded-full blur-[120px] drift-right"></div>
+<div class="absolute top-[18%] right-[12%] w-56 h-56 rounded-full bg-tertiary/5 blur-[80px] drift-left"></div>
+<div class="motion-ring orbit-one" style="width: 30rem; height: 30rem; left: -10rem; top: 14%; opacity: 0.22;"></div>
+<div class="motion-ring orbit-two" style="width: 20rem; height: 20rem; right: -4rem; bottom: 12%; opacity: 0.18;"></div>
+<div class="motion-ring pulse-ring" style="width: 16rem; height: 16rem; left: 42%; top: 20%; opacity: 0.16;"></div>
+<div class="absolute left-[8%] top-[32%] orb w-3 h-3 bg-primary drift-right"></div>
+<div class="absolute left-[14%] top-[28%] orb w-2 h-2 bg-secondary float-slow"></div>
+<div class="absolute right-[18%] top-[16%] chem-icon floating-char">
+<span class="material-symbols-outlined">science</span>
+</div>
+<div class="absolute right-[6%] top-[42%] chem-icon drift-left" style="font-size: 64px; opacity: 0.14;">
+<span class="material-symbols-outlined">biotech</span>
+</div>
+<div class="absolute left-[6%] bottom-[18%] chem-icon drift-right" style="font-size: 58px; opacity: 0.12;">
+<span class="material-symbols-outlined">bubble_chart</span>
+</div>
+<div class="absolute right-[24%] bottom-[14%] orb w-4 h-4 bg-tertiary drift-left"></div>
+<div class="absolute left-[32%] top-[10%] orb w-5 h-5 bg-secondary/80 float-slow"></div>
+<div class="absolute left-[22%] bottom-[30%] chem-icon drift-diagonal" style="font-size: 60px; opacity: 0.12;">
+<span class="material-symbols-outlined">biotech</span>
+</div>
+<div class="absolute right-[34%] top-[34%] chem-icon float-slow" style="font-size: 54px; opacity: 0.12;">
+<span class="material-symbols-outlined">bubble_chart</span>
+</div>
+<div class="absolute right-[14%] top-[58%] text-primary/12 slow-drift" style="font-size: 62px;">
+<span class="material-symbols-outlined">flare</span>
+</div>
+</div>
+<!-- Main Registration Card -->
+<main class="w-full max-w-[780px] glass-card rounded-[22px] overflow-hidden flex flex-col relative z-10">
+<!-- Right Column: Form -->
+<div class="flex-1 p-3 md:p-4 lg:p-5">
+<div class="mb-2.5 md:mb-3">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white shadow-lg">
+<span class="material-symbols-outlined text-[17px]">school</span>
+</div>
+<span class="font-display-lg text-[16px] md:text-[17px] text-primary tracking-tight">ChemLab</span>
+</div>
+<h1 class="font-display-lg text-[18px] md:text-[20px] text-on-surface mb-1">Tạo tài khoản mới</h1>
+<p class="text-body-md text-on-surface-variant">Trở thành một phần của học viên hóa học ma thuật.</p>
+</div>
+@if (!ViewData.ModelState.IsValid)
+{
+<div class="mb-2.5 rounded-2xl bg-error-container p-2 text-error text-sm font-bold border border-error/20">
+<div asp-validation-summary="All" class="list-none"></div>
+</div>
+}
+<form asp-action="Register" asp-controller="Account" method="post" class="space-y-2.5">
+@Html.AntiForgeryToken()
+<div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+<div class="space-y-0.5">
+<label asp-for="FullName" class="font-label-sm text-on-surface-variant ml-2"></label>
+<input asp-for="FullName" class="w-full bg-surface-container-low border-none rounded-full px-4 py-2 focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface placeholder:text-on-surface-variant/40" placeholder="Nguyễn Văn A" type="text">
+<span asp-validation-for="FullName" class="text-xs text-error ml-2"></span>
+</div>
+<div class="space-y-0.5">
+<label asp-for="Username" class="font-label-sm text-on-surface-variant ml-2"></label>
+<input asp-for="Username" class="w-full bg-surface-container-low border-none rounded-full px-4 py-2 focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface placeholder:text-on-surface-variant/40" placeholder="chemist_pro" type="text">
+<span asp-validation-for="Username" class="text-xs text-error ml-2"></span>
+</div>
+</div>
+<div class="space-y-0.5">
+<label asp-for="Email" class="font-label-sm text-on-surface-variant ml-2"></label>
+<input asp-for="Email" class="w-full bg-surface-container-low border-none rounded-full px-4 py-2 focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface placeholder:text-on-surface-variant/40" placeholder="example@chemlab.vn" type="email">
+<span asp-validation-for="Email" class="text-xs text-error ml-2"></span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+<div class="space-y-0.5">
+<label asp-for="Password" class="font-label-sm text-on-surface-variant ml-2"></label>
+<input asp-for="Password" class="w-full bg-surface-container-low border-none rounded-full px-4 py-2 focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface" placeholder="••••••••" type="password">
+<span asp-validation-for="Password" class="text-xs text-error ml-2"></span>
+</div>
+<div class="space-y-0.5">
+<label asp-for="ConfirmPassword" class="font-label-sm text-on-surface-variant ml-2"></label>
+<input asp-for="ConfirmPassword" class="w-full bg-surface-container-low border-none rounded-full px-4 py-2 focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface" placeholder="••••••••" type="password">
+<span asp-validation-for="ConfirmPassword" class="text-xs text-error ml-2"></span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-sm text-on-surface-variant ml-2">Chọn nhân vật đại diện</label>
+<div class="flex items-center space-x-2 overflow-hidden pb-0.5 scrollbar-hide">
+<input checked class="hidden avatar-radio" id="av1" name="AvatarUrl" value="https://lh3.googleusercontent.com/aida-public/AB6AXuDiRX57plp08FtbOQ35Krw6D6zYYYiBzS7_XkLETOQVHeqgkBkKDfF1zURT_oeAlOtg2yVx7y7lGL0lL3lKc0E-VmuZxQgWt4BHZes3ZGL6Bh2cRhK96-fy65pnmTRnutdtSdm2wQ7LllOfWorqhOw11NkpV7M07J8eHy0ygUukmxaKen7g_WdJZM0AaGzA-p9pdBhjvZCLgUQ1mAdqW5i2PEGgUNujw_sMrud2nVgfRgRSekXerKtppbAwZTb-BuEn1KqyKrqc3HQ" type="radio">
+<label class="avatar-option flex-shrink-0 w-10 h-10 rounded-full border-2 border-transparent overflow-hidden p-0.5 bg-white shadow-sm" for="av1">
+<img alt="Avatar 1" class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiRX57plp08FtbOQ35Krw6D6zYYYiBzS7_XkLETOQVHeqgkBkKDfF1zURT_oeAlOtg2yVx7y7lGL0lL3lKc0E-VmuZxQgWt4BHZes3ZGL6Bh2cRhK96-fy65pnmTRnutdtSdm2wQ7LllOfWorqhOw11NkpV7M07J8eHy0ygUukmxaKen7g_WdJZM0AaGzA-p9pdBhjvZCLgUQ1mAdqW5i2PEGgUNujw_sMrud2nVgfRgRSekXerKtppbAwZTb-BuEn1KqyKrqc3HQ">
+</label>
+<input class="hidden avatar-radio" id="av2" name="AvatarUrl" value="https://lh3.googleusercontent.com/aida-public/AB6AXuDc-GWYiP558vwvr7MKan9dC_CZUUAAPrQtLkMzd9UfdVz-KVLKOK0Fl5DLOONrqGbxfMRAfKl0fSXAQ5FKY-U0BkfYpY4dylvryM4NR935qrE17o1Yfw9HTKl7T81_g0JWESGbARfneAyuyxwrMupCWUHMldRnqbWuS-aOipO61TbhpAOBPUsDLseH1lefh4yKygux7szjWAcLPhdMq3_sChP2zWXWk0GWda5tF56qvZyfB-kmelvHKePEZ857tpRX7T6uNEc03eI" type="radio">
+<label class="avatar-option flex-shrink-0 w-10 h-10 rounded-full border-2 border-transparent overflow-hidden p-0.5 bg-white shadow-sm" for="av2">
+<img alt="Avatar 2" class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDc-GWYiP558vwvr7MKan9dC_CZUUAAPrQtLkMzd9UfdVz-KVLKOK0Fl5DLOONrqGbxfMRAfKl0fSXAQ5FKY-U0BkfYpY4dylvryM4NR935qrE17o1Yfw9HTKl7T81_g0JWESGbARfneAyuyxwrMupCWUHMldRnqbWuS-aOipO61TbhpAOBPUsDLseH1lefh4yKygux7szjWAcLPhdMq3_sChP2zWXWk0GWda5tF56qvZyfB-kmelvHKePEZ857tpRX7T6uNEc03eI">
+</label>
+<input class="hidden avatar-radio" id="av3" name="AvatarUrl" value="https://lh3.googleusercontent.com/aida-public/AB6AXuBFIYDvvBL9T8bspaMRnKaEArBhCg7Thtd9hEOTvj-h-8Qwv-P7FCs4jlQpN10mGDLr5QCUosOnkqB-ZC0MkWoctyznNHkf4HubmakfTv2T9xCEbfp1vdZuYC4vT2FZTpM6386n37Ar74BJ0dDlF1_yj3sIw8_47pkfDBYgL9-1vaFuhjoNPeFqWtcQX35VOekVQd0IYUigF9NreL28N71XoSZ2u66_gxQIvndluOIyqlyqlP9g_gpB9j4aYmkhrraLMDJ5u59VvtQ" type="radio">
+<label class="avatar-option flex-shrink-0 w-10 h-10 rounded-full border-2 border-transparent overflow-hidden p-0.5 bg-white shadow-sm" for="av3">
+<img alt="Avatar 3" class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFIYDvvBL9T8bspaMRnKaEArBhCg7Thtd9hEOTvj-h-8Qwv-P7FCs4jlQpN10mGDLr5QCUosOnkqB-ZC0MkWoctyznNHkf4HubmakfTv2T9xCEbfp1vdZuYC4vT2FZTpM6386n37Ar74BJ0dDlF1_yj3sIw8_47pkfDBYgL9-1vaFuhjoNPeFqWtcQX35VOekVQd0IYUigF9NreL28N71XoSZ2u66_gxQIvndluOIyqlyqlP9g_gpB9j4aYmkhrraLMDJ5u59VvtQ">
+</label>
+<input class="hidden avatar-radio" id="av4" name="AvatarUrl" value="https://lh3.googleusercontent.com/aida-public/AB6AXuCuz2Qzqle1Hf-a7_AyhqyPyZ7eOh4EySMmTZ1pUDQWnuadPYm9jhcAc9kVOWa4XkaGjiUUJ1BDJsvesAsXdVUGV0JW8ip3UaHz0SVbIXD3RrCWrg_zxho-lFpeIwUrZwIhGp6AD8BHBCAiLLds3qJNUZ36-D5EYzQT_TuTEx6Xaeo3KQZ_JfUHBHTG05QeGwSzmRcjp9KxRzAdKW8MV0gZsPH5nJ7ZlX7SsoA-C9_pHhyM44zrlEHwmJhKLNvUB3kuFBuJ9ssCAAU" type="radio">
+<label class="avatar-option flex-shrink-0 w-10 h-10 rounded-full border-2 border-transparent overflow-hidden p-0.5 bg-white shadow-sm" for="av4">
+<img alt="Avatar 4" class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuz2Qzqle1Hf-a7_AyhqyPyZ7eOh4EySMmTZ1pUDQWnuadPYm9jhcAc9kVOWa4XkaGjiUUJ1BDJsvesAsXdVUGV0JW8ip3UaHz0SVbIXD3RrCWrg_zxho-lFpeIwUrZwIhGp6AD8BHBCAiLLds3qJNUZ36-D5EYzQT_TuTEx6Xaeo3KQZ_JfUHBHTG05QeGwSzmRcjp9KxRzAdKW8MV0gZsPH5nJ7ZlX7SsoA-C9_pHhyM44zrlEHwmJhKLNvUB3kuFBuJ9ssCAAU">
+</label>
+</div>
+</div>
+<div class="space-y-0.5">
+<label class="font-label-sm text-on-surface-variant ml-2">Bạn là ai?</label>
+<div class="relative">
+<select class="w-full bg-surface-container-low border-none rounded-full px-4 py-2 focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-on-surface cursor-pointer" disabled>
+<option value="student">Học sinh (Mặc định)</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<div class="flex items-center space-x-3 ml-1">
+<input class="custom-checkbox w-4 h-4 rounded-md border-2 border-outline-variant text-primary focus:ring-primary/20 transition-all cursor-pointer bg-white checked:bg-primary checked:border-primary appearance-none flex items-center justify-center" id="terms" type="checkbox">
+<label class="text-[13px] md:text-sm text-on-surface-variant cursor-pointer select-none" for="terms">
+                        Tôi đồng ý với các <span class="text-primary font-bold hover:underline">Điều khoản &amp; Điều kiện</span>
+</label>
+</div>
+<div class="pt-1 space-y-2">
+<button class="glow-button w-full bg-primary text-on-primary font-display-lg text-[16px] py-2.5 rounded-full flex items-center justify-center space-x-3" type="submit">
+<span>Bắt đầu hành trình</span>
+<span class="material-symbols-outlined">rocket_launch</span>
+</button>
+<p class="text-center text-[13px] md:text-body-md text-on-surface-variant">
+                        Đã có tài khoản? 
+                        <a class="text-primary font-bold hover:underline" asp-action="Login" asp-controller="Account">Đăng nhập ngay</a>
+</p>
+</div>
+</form>
+</div>
+</main>
+</body></html>

@@ -5,7 +5,7 @@
     int? currentUserId = !string.IsNullOrEmpty(currentUserIdClaim) ? Convert.ToInt32(currentUserIdClaim) : null;
     bool isAuthenticated = User.Identity?.IsAuthenticated == true;
     bool isAuthor = currentUserId.HasValue && Model.UserId == currentUserId.Value;
-    bool canDelete = isAuthor || User.IsInRole("Teacher") || User.IsInRole("Admin");
+    bool canDelete = isAuthor || User.IsInRole("Admin");
     
     // Choose badge style based on role
     var role = Model.User?.Role ?? "Student";
@@ -17,10 +17,10 @@
         badgeClass = "bg-error-container/80 text-error border-error/20 font-bold";
         badgeText = "👑 Admin";
     }
-    else if (role.Equals("Teacher", StringComparison.OrdinalIgnoreCase))
+    else if (role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
     {
         badgeClass = "bg-secondary-container/80 text-on-secondary-container border-secondary/20 font-bold";
-        badgeText = "🎓 Giáo viên";
+        badgeText = "🎓 Quản trị";
     }
 }
 
