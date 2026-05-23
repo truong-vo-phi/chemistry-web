@@ -51,6 +51,8 @@ public partial class ElearningDbContext : DbContext
 
     public virtual DbSet<School> Schools { get; set; }
 
+    public virtual DbSet<SystemMission> SystemMissions { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<UserLessonProgress> UserLessonProgresses { get; set; }
@@ -497,6 +499,38 @@ public partial class ElearningDbContext : DbContext
                 .HasColumnName("name");
         });
 
+        modelBuilder.Entity<SystemMission>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_SystemMissions");
+
+            entity.ToTable("SystemMissions");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ColorClass)
+                .HasMaxLength(50)
+                .HasColumnName("color_class");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnName("created_at");
+            entity.Property(e => e.Icon)
+                .HasMaxLength(100)
+                .HasColumnName("icon");
+            entity.Property(e => e.IsActive)
+                .HasColumnName("is_active");
+            entity.Property(e => e.MetricKey)
+                .HasMaxLength(100)
+                .HasColumnName("metric_key");
+            entity.Property(e => e.RewardText)
+                .HasMaxLength(255)
+                .HasColumnName("reward_text");
+            entity.Property(e => e.SortOrder).HasColumnName("sort_order");
+            entity.Property(e => e.TargetValue).HasColumnName("target_value");
+            entity.Property(e => e.Title)
+                .HasMaxLength(255)
+                .HasColumnName("title");
+        });
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Users__3213E83F2D6B6E9F");
@@ -513,6 +547,18 @@ public partial class ElearningDbContext : DbContext
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("email");
+            entity.Property(e => e.EmailConfirmed)
+                .HasDefaultValue(false)
+                .HasColumnName("email_confirmed");
+            entity.Property(e => e.EmailVerificationCodeHash)
+                .HasMaxLength(255)
+                .HasColumnName("email_verification_code_hash");
+            entity.Property(e => e.EmailVerificationExpiresAt)
+                .HasColumnType("datetime")
+                .HasColumnName("email_verification_expires_at");
+            entity.Property(e => e.EmailVerifiedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("email_verified_at");
             entity.Property(e => e.FullName)
                 .HasMaxLength(255)
                 .HasColumnName("full_name");

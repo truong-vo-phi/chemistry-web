@@ -17,7 +17,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>ChemLab 3D - @Model.Lesson.Title</title>
+    <title>ChemLab - @Model.Lesson.Title</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&amp;family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
@@ -262,7 +262,7 @@
                             <span class="material-symbols-outlined text-3xl">lock</span>
                         </div>
                         <h3 class="font-headline-md text-xl text-on-surface mb-2 font-bold">Diễn đàn thảo luận đã đóng</h3>
-                        <p class="text-sm text-on-surface-variant max-w-md">🔒 Diễn đàn thảo luận của bài học này đã được đóng bởi giáo viên.</p>
+                        <p class="text-sm text-on-surface-variant max-w-md">🔒 Diễn đàn thảo luận của bài học này đã được đóng bởi quản trị viên.</p>
                     </div>
                 }
                 else
@@ -370,7 +370,6 @@
         </div>
     </main>
 
-<<<<<<< HEAD
     <!-- ----TV2---- Discussion functions and javascript -->
     @functions {
         public static string GetTimeAgo(DateTime dateTime)
@@ -436,33 +435,29 @@
                 }
             }
         }
-    </script>
-    <!-- ----TV2---- -->
-=======
-    <script>
-    // Lắng nghe message từ iframe Game (Mock hoặc Unity thực)
-    window.addEventListener('message', function (event) {
-        const data = event.data;
-        if (data && data.type === 'PRACTICE_COMPLETED') {
-            // Gửi điểm về API backend
-            fetch('/api/practice/submit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    lessonId: @Model.Lesson.Id,
-                    score: data.score
+
+        // Lắng nghe message từ iframe Game (Mock hoặc Unity thực)
+        window.addEventListener('message', function (event) {
+            const data = event.data;
+            if (data && data.type === 'PRACTICE_COMPLETED') {
+                // Gửi điểm về API backend
+                fetch('/api/practice/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        lessonId: @Model.Lesson.Id,
+                        score: data.score
+                    })
                 })
-            })
-            .then(r => r.json())
-            .then(res => {
-                if (res.success) {
-                    alert('Bạn đã nhận được ' + res.score + ' điểm và đã được lưu vào hệ thống!');
-                }
-            })
-            .catch(err => console.error('Error submitting practice score:', err));
-        }
-    });
-</script>
->>>>>>> nhiem
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        alert('Bạn đã nhận được ' + res.score + ' điểm và đã được lưu vào hệ thống!');
+                    }
+                })
+                .catch(err => console.error('Error submitting practice score:', err));
+            }
+        });
+    </script>
 </body>
 </html>

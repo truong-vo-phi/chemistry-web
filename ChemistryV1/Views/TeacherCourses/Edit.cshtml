@@ -7,7 +7,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Edit Course - ChemLab 3D</title>
+    <title>Edit Course - ChemLab</title>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link rel="stylesheet" href="~/css/academy.css" asp-append-version="true" />
@@ -205,9 +205,9 @@
                     </h2>
                     <div class="space-y-6">
                         <div>
-                            <label class="block font-label-sm text-label-sm text-on-surface mb-2">Teacher</label>
+                            <label class="block font-label-sm text-label-sm text-on-surface mb-2">Admin</label>
                             <select asp-for="TeacherId" class="w-full bg-surface rounded-full border-2 border-outline-variant px-4 py-3 text-sm focus:ring-primary focus:border-primary">
-                                <option value="">Select teacher</option>
+                                <option value="">Select admin</option>
                                 @foreach (var teacher in Model.Teachers)
                                 {
                                     <option value="@teacher.Id" selected="@(Model.TeacherId == teacher.Id)">@teacher.FullName</option>

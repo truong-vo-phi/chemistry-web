@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ChemistryV1.Controllers;
 
-[Authorize(Roles = "Admin,Teacher")]
+[Authorize(Roles = "Admin")]
 public class CategoriesController : Controller
 {
     private readonly ElearningDbContext _context;

@@ -15,6 +15,14 @@ public partial class User
 
     public string? Email { get; set; }
 
+    public bool? EmailConfirmed { get; set; }
+
+    public string? EmailVerificationCodeHash { get; set; }
+
+    public DateTime? EmailVerificationExpiresAt { get; set; }
+
+    public DateTime? EmailVerifiedAt { get; set; }
+
     public string? AvatarUrl { get; set; }
 
     public string? Role { get; set; }
