@@ -1,125 +1,107 @@
 @model ChemistryV1.ViewModels.TeacherCoursesIndexViewModel
 @{
-    Layout = null;
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Course Management | ChemLab";
+    ViewData["Description"] = "Manage your curriculum and student learning paths.";
 }
-<!DOCTYPE html>
-<html class="light" lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Course Management | ChemLab</title>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&amp;family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link rel="stylesheet" href="~/css/academy.css" asp-append-version="true" />
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        error: "#ba1a1a",
-                        "surface-variant": "#e4e3db",
-                        background: "#fbf9f1",
-                        surface: "#fbf9f1",
-                        "on-tertiary-container": "#fffbff",
-                        "on-tertiary": "#ffffff",
-                        "on-secondary-container": "#00714d",
-                        "on-surface": "#1b1c17",
-                        "surface-container-lowest": "#ffffff",
-                        "surface-bright": "#fbf9f1",
-                        secondary: "#006c49",
-                        "surface-tint": "#005ac2",
-                        "on-tertiary-fixed-variant": "#653e00",
-                        "on-secondary-fixed-variant": "#005236",
-                        outline: "#727785",
-                        "primary-fixed-dim": "#adc6ff",
-                        "surface-container-highest": "#e4e3db",
-                        "surface-container-high": "#eae8e0",
-                        "error-container": "#ffdad6",
-                        "on-secondary-fixed": "#002113",
-                        "on-secondary": "#ffffff",
-                        "primary-fixed": "#d8e2ff",
-                        "outline-variant": "#c2c6d6",
-                        "on-primary-fixed": "#001a42",
-                        "on-primary-container": "#fefcff",
-                        "on-primary": "#ffffff",
-                        "inverse-primary": "#adc6ff",
-                        "on-error-container": "#93000a",
-                        "on-background": "#1b1c17",
-                        "surface-container-low": "#f5f4ec",
-                        "inverse-surface": "#30312c",
-                        "surface-container": "#f0eee6",
-                        "secondary-fixed-dim": "#4edea3",
-                        "on-primary-fixed-variant": "#004395",
-                        "on-error": "#ffffff",
-                        "surface-dim": "#dcdad2",
-                        primary: "#0058be",
-                        "secondary-fixed": "#6ffbbe",
-                        "tertiary-container": "#a36700",
-                        "on-tertiary-fixed": "#2a1700",
-                        "on-surface-variant": "#424754",
-                        "inverse-on-surface": "#f3f1e9",
-                        "primary-container": "#2170e4",
-                        "tertiary-fixed-dim": "#ffb95f",
-                        "tertiary-fixed": "#ffddb8",
-                        "secondary-container": "#6cf8bb",
-                        tertiary: "#825100"
-                    },
-                    borderRadius: {
-                        DEFAULT: "1rem",
-                        lg: "2rem",
-                        xl: "3rem",
-                        full: "9999px"
-                    },
-                    spacing: {
-                        gutter: "24px",
-                        "margin-mobile": "16px",
-                        unit: "8px",
-                        "container-max": "1200px",
-                        "margin-desktop": "48px"
-                    },
-                    fontFamily: {
-                        "label-sm": ["Lexend"],
-                        "display-lg-mobile": ["Lexend"],
-                        "body-md": ["Quicksand"],
-                        "body-lg": ["Quicksand"],
-                        "display-lg": ["Lexend"],
-                        "headline-md": ["Lexend"]
-                    },
-                    fontSize: {
-                        "label-sm": ["14px", { lineHeight: "1.2", fontWeight: "600" }],
-                        "display-lg-mobile": ["32px", { lineHeight: "1.2", fontWeight: "700" }],
-                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "500" }],
-                        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "500" }],
-                        "display-lg": ["48px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }],
-                        "headline-md": ["24px", { lineHeight: "1.4", fontWeight: "600" }]
-                    }
-                },
-            },
-        }
-    </script>
+
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-on-background font-display">Active Courses</h1>
+        <p class="text-slate-500 mt-1">Manage your curriculum and student learning paths.</p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+        <a class="px-6 py-3 bg-secondary/10 text-secondary border-2 border-secondary/30 font-bold rounded-full btn-glow flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all" asp-controller="Categories" asp-action="Index">
+            <span class="material-symbols-outlined">category</span>
+            Add New Category
+        </a>
+        <a class="px-6 py-3 bg-primary text-white border-2 border-primary/30 font-bold rounded-full btn-glow flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all" asp-controller="TeacherCourses" asp-action="Create">
+            <span class="material-symbols-outlined">add</span>
+            Create Course
+        </a>
+    </div>
+</div>
+
+<!-- Search -->
+<form class="mb-6" method="get" asp-action="Index">
+    <div class="relative max-w-md">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+        <input class="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm outline-none transition-all focus:border-primary" name="search" placeholder="Search courses..." type="text" value="@Model.Search" />
+    </div>
+</form>
+
+<!-- Courses Table -->
+<div class="glass-card overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-slate-50 border-b-2 border-slate-200">
+                <tr>
+                    <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider">Course Name</th>
+                    <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider">Category</th>
+                    <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider text-center">Status</th>
+                    <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider">Created Date</th>
+                    <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+                @foreach (var course in Model.Courses)
+                {
+                    var primaryCategory = course.CourseCategories.FirstOrDefault()?.Category?.Name ?? "Uncategorized";
+                    var isPublished = course.Status == "published";
+                    <tr class="hover:bg-slate-50 transition-colors group">
+                        <td class="px-6 py-5">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center border-2 border-primary/20">
+                                    <span class="material-symbols-outlined text-primary">menu_book</span>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-on-background text-lg">@course.Title</div>
+                                    <div class="text-sm text-slate-500">@course.Chapters.Sum(ch => ch.Lessons.Count) Lessons</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5">
+                            <span class="px-3 py-1 bg-primary/10 text-primary border-2 border-primary/20 rounded-full text-xs font-bold uppercase tracking-wide">@primaryCategory</span>
+                        </td>
+                        <td class="px-6 py-5">
+                            <div class="flex flex-col items-center gap-1">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input class="sr-only peer status-checkbox" type="checkbox" data-course-id="@course.Id" @(isPublished ? "checked" : "") onchange="toggleCourseStatus(this)" />
+                                    <div class="toggle-switch"></div>
+                                </label>
+                                <span class="status-label text-[10px] font-bold @(isPublished ? "text-secondary" : "text-slate-500") uppercase">
+                                    @(isPublished ? "Published" : "Draft")
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-5 text-slate-600 text-sm">@course.CreatedAt?.ToString("MMM dd, yyyy")</td>
+                        <td class="px-6 py-5 text-right">
+                            <div class="flex justify-end gap-2">
+                                <a class="p-2 rounded-full hover:bg-tertiary/10 text-tertiary transition-colors" asp-controller="TeacherCourses" asp-action="Content" asp-route-id="@course.Id" title="Manage Content">
+                                    <span class="material-symbols-outlined">list_alt</span>
+                                </a>
+                                <a class="p-2 rounded-full hover:bg-secondary/10 text-secondary transition-colors" asp-controller="TeacherCourses" asp-action="Edit" asp-route-id="@course.Id" title="Edit">
+                                    <span class="material-symbols-outlined">edit</span>
+                                </a>
+                                <a class="p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors" asp-controller="TeacherCourses" asp-action="Delete" asp-route-id="@course.Id" title="Delete">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-4">
+    <span class="text-sm text-slate-500">Showing @Model.Courses.Count() courses</span>
+</div>
+
+@section Head {
     <style>
-        body {
-            background-color: #fbf9f1;
-            font-family: 'Quicksand', sans-serif;
-            color: #1b1c17;
-        }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-        }
-        .squishy-button {
-            transition: transform 0.1s, box-shadow 0.1s;
-            box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.1);
-        }
-        .squishy-button:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.1);
-        }
-        .card-stroke {
-            border: 2px solid #e4e3db;
-        }
         .toggle-switch {
             width: 44px;
             height: 24px;
@@ -147,129 +129,10 @@
         input:checked + .toggle-switch::after {
             left: 22px;
         }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
-</head>
-<body class="academy-shell min-h-screen flex flex-col md:flex-row">
-    <partial name="_AcademySidebar" />
-    <main class="flex-1 md:ml-64 flex flex-col min-h-screen">
-        <header class="academy-topbar w-full top-0 sticky z-40 bg-background border-b-2 border-surface-variant shadow-sm px-gutter py-4 flex justify-between items-center max-w-full">
-            <div class="flex items-center gap-4 flex-1 max-w-2xl">
-                <form class="flex items-center gap-4 flex-1" method="get" asp-action="Index">
-                    <div class="relative w-full">
-                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-                        <input class="w-full bg-surface-container-lowest border-2 border-outline-variant rounded-full pl-12 pr-4 py-2 text-body-md font-body-md outline-none transition-all focus:border-primary" name="search" placeholder="Search academy..." type="text" value="@Model.Search" />
-                    </div>
-                </form>
-            </div>
-            <div class="flex items-center gap-4">
-                @if (User.Identity?.IsAuthenticated == true)
-                {
-                    <div class="flex items-center gap-3">
-                        <img alt="User profile avatar" class="w-10 h-10 rounded-full border-2 border-primary object-cover" src="@User.FindFirst("AvatarUrl")?.Value" />
-                        <div class="text-left hidden lg:block">
-                            <p class="text-xs font-bold text-on-surface leading-tight">@User.Identity.Name</p>
-                            <p class="text-[9px] uppercase font-bold text-primary tracking-wider leading-none">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</p>
-                        </div>
-                        <form asp-controller="Account" asp-action="Logout" method="post" class="ml-2">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="text-xs font-bold text-error hover:bg-error-container/20 px-3 py-1.5 rounded-full border border-error/20 transition-all">Đăng xuất</button>
-                        </form>
-                    </div>
-                }
-                else
-                {
-                    <a class="bg-primary text-on-primary px-6 py-2 rounded-full font-bold squishy-button" asp-controller="Account" asp-action="Login">Đăng nhập</a>
-                }
-            </div>
-        </header>
-        <section class="p-gutter max-w-container-max mx-auto w-full flex flex-col gap-gutter">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 class="font-headline-md text-headline-md text-on-background">Active Courses</h2>
-                    <p class="font-body-md text-body-md text-on-surface-variant">Manage your curriculum and student learning paths.</p>
-                </div>
-                <div class="flex flex-wrap gap-3">
-                    <a class="px-6 py-3 bg-secondary-container text-on-secondary-container border-2 border-secondary font-bold rounded-full squishy-button flex items-center gap-2" asp-controller="Categories" asp-action="Index">
-                        <span class="material-symbols-outlined">category</span>
-                        Add New Category
-                    </a>
-                    <a class="px-6 py-3 bg-primary text-on-primary border-2 border-primary-container font-bold rounded-full squishy-button flex items-center gap-2" asp-controller="TeacherCourses" asp-action="Create">
-                        <span class="material-symbols-outlined">add</span>
-                        Create Course
-                    </a>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg card-stroke shadow-sm overflow-hidden">
-                <div class="overflow-x-auto no-scrollbar">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-surface-container-low border-b-2 border-surface-variant">
-                            <tr>
-                                <th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant">Course Name</th>
-                                <th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant">Category</th>
-                                <th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant text-center">Status</th>
-                                <th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant">Created Date</th>
-                                <th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-surface-variant">
-                            @foreach (var course in Model.Courses)
-                            {
-                                var primaryCategory = course.CourseCategories.FirstOrDefault()?.Category?.Name ?? "Uncategorized";
-                                var isPublished = course.Status == "published";
-                                <tr class="hover:bg-surface-container-lowest transition-colors group">
-                                    <td class="px-6 py-5">
-                                        <div class="flex items-center gap-4">
-                                            <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center border-2 border-blue-200">
-                                                <span class="material-symbols-outlined text-primary">menu_book</span>
-                                            </div>
-                                            <div>
-                                                <div class="font-bold text-on-surface font-headline-md text-body-lg">@course.Title</div>
-                                                <div class="text-xs text-on-surface-variant">@course.Chapters.Sum(ch => ch.Lessons.Count) Lessons</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5">
-                                        <span class="px-3 py-1 bg-primary-container/20 text-primary border-2 border-primary-container rounded-full font-label-sm text-[12px] uppercase tracking-wide">@primaryCategory</span>
-                                    </td>
-                                    <td class="px-6 py-5">
-                                        <div class="flex flex-col items-center gap-1">
-                                            <label class="relative inline-flex items-center cursor-pointer">
-                                                <input class="sr-only peer status-checkbox" type="checkbox" data-course-id="@course.Id" @(isPublished ? "checked" : "") onchange="toggleCourseStatus(this)" />
-                                                <div class="toggle-switch"></div>
-                                            </label>
-                                            <span class="status-label text-[10px] font-bold @(isPublished ? "text-secondary" : "text-on-surface-variant") uppercase">
-                                                @(isPublished ? "Published" : "Draft")
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-5 font-body-md text-on-surface-variant">@course.CreatedAt?.ToString("MMM dd, yyyy")</td>
-                                    <td class="px-6 py-5 text-right">
-                                        <div class="flex justify-end gap-2">
-                                            <a class="p-2 rounded-full hover:bg-tertiary-fixed-dim/20 text-tertiary transition-colors" asp-controller="TeacherCourses" asp-action="Content" asp-route-id="@course.Id" title="Manage Content">
-                                                <span class="material-symbols-outlined">list_alt</span>
-                                            </a>
-                                            <a class="p-2 rounded-full hover:bg-secondary-fixed-dim/20 text-secondary transition-colors" asp-controller="TeacherCourses" asp-action="Edit" asp-route-id="@course.Id" title="Edit">
-                                                <span class="material-symbols-outlined">edit</span>
-                                            </a>
-                                            <a class="p-2 rounded-full hover:bg-error-container/40 text-error transition-colors" asp-controller="TeacherCourses" asp-action="Delete" asp-route-id="@course.Id" title="Delete">
-                                                <span class="material-symbols-outlined">delete</span>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-2">
-                <span class="font-body-md text-on-surface-variant">Showing @Model.Courses.Count() courses</span>
-            </div>
-        </section>
-    </main>
+}
 
+@section Scripts {
     <script>
         async function toggleCourseStatus(checkbox) {
             const courseId = checkbox.getAttribute('data-course-id');
@@ -294,27 +157,26 @@
                         
                         if (isPub) {
                             labelSpan.textContent = 'Published';
-                            labelSpan.classList.remove('text-on-surface-variant');
+                            labelSpan.classList.remove('text-slate-500');
                             labelSpan.classList.add('text-secondary');
                         } else {
                             labelSpan.textContent = 'Draft';
                             labelSpan.classList.remove('text-secondary');
-                            labelSpan.classList.add('text-on-surface-variant');
+                            labelSpan.classList.add('text-slate-500');
                         }
                     } else {
-                        alert('Không thể cập nhật trạng thái.');
+                        alert('Cannot update status.');
                         checkbox.checked = !checkbox.checked;
                     }
                 } else {
-                    alert('Lỗi kết nối máy chủ.');
+                    alert('Server error.');
                     checkbox.checked = !checkbox.checked;
                 }
             } catch (error) {
                 console.error(error);
-                alert('Có lỗi xảy ra.');
+                alert('An error occurred.');
                 checkbox.checked = !checkbox.checked;
             }
         }
     </script>
-</body>
-</html>
+}
