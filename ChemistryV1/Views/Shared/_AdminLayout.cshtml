@@ -5,6 +5,7 @@
     var isTeacherCourses = controller == "teachercourses" || controller == "lessons" || controller == "chapters";
     var isCourses = controller == "courses";
     var isCategories = controller == "categories";
+    var isAdminMissions = controller == "adminmissions";
     var isProfile = controller == "profile";
     var isHome = controller == "home";
 }
@@ -52,33 +53,37 @@
         <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
             <a asp-controller="Dashboard" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(isDashboard ? "bg-secondary/10 text-secondary border border-secondary/20 shadow-sm" : "text-slate-600 hover:bg-slate-100")">
                 <span class="material-symbols-outlined @(isDashboard ? "fill-1" : "")">dashboard</span>
-                Overview
+                Tổng quan
             </a>
             <a asp-controller="AdminUsers" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:bg-slate-100">
                 <span class="material-symbols-outlined">group</span>
-                User Management
+                Quản lý người dùng
             </a>
             <a asp-controller="TeacherCourses" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(isTeacherCourses ? "bg-secondary/10 text-secondary border border-secondary/20 shadow-sm" : "text-slate-600 hover:bg-slate-100")">
                 <span class="material-symbols-outlined @(isTeacherCourses ? "fill-1" : "")">auto_stories</span>
-                Course Management
+                Quản lý khóa học
             </a>
             <a asp-controller="AdminComments" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(controller == "admincomments" ? "bg-secondary/10 text-secondary border border-secondary/20 shadow-sm" : "text-slate-600 hover:bg-slate-100")">
                 <span class="material-symbols-outlined">report</span>
-                Comment Moderation
+                Kiểm duyệt bình luận
+            </a>
+            <a asp-controller="AdminMissions" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(isAdminMissions ? "bg-secondary/10 text-secondary border border-secondary/20 shadow-sm" : "text-slate-600 hover:bg-slate-100")">
+                <span class="material-symbols-outlined @(isAdminMissions ? "fill-1" : "")">assignment</span>
+                Quản lý nhiệm vụ
             </a>
             
             @if (User.IsInRole("Admin"))
             {
                 <a asp-controller="Categories" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(isCategories ? "bg-secondary/10 text-secondary border border-secondary/20 shadow-sm" : "text-slate-600 hover:bg-slate-100")">
                     <span class="material-symbols-outlined">menu_book</span>
-                    Categories
+                    Danh mục
                 </a>
             }
             <div class="my-3 border-t border-slate-200"></div>
             
             <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:bg-slate-100">
                 <span class="material-symbols-outlined">settings</span>
-                Settings
+                Cài đặt
             </a>
         </nav>
 
@@ -88,12 +93,12 @@
                 @Html.AntiForgeryToken()
                 <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 transition-all">
                     <span class="material-symbols-outlined">logout</span>
-                    Logout
+                    Đăng xuất
                 </button>
             </form>
             <a asp-controller="TeacherCourses" asp-action="Create" class="w-full flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold text-sm btn-glow hover:scale-[1.02] active:scale-[0.98] transition-all">
                 <span class="material-symbols-outlined">add</span>
-                New Course
+                Khóa học mới
             </a>
         </div>
     </aside>

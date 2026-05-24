@@ -1,27 +1,27 @@
 @model ChemistryV1.ViewModels.TeacherCourseEditViewModel
 @{
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Edit Course - ChemLab";
-    ViewData["Description"] = "Edit course details and settings.";
+    ViewData["Title"] = "Chỉnh sửa khóa học - ChemLab";
+    ViewData["Description"] = "Chỉnh sửa chi tiết và cài đặt khóa học.";
 }
 
 <!-- Breadcrumb -->
 <nav class="flex items-center gap-2 mb-6 text-sm text-slate-500">
-    <a class="hover:text-primary transition-colors" asp-action="Index">Courses</a>
+    <a class="hover:text-primary transition-colors" asp-action="Index">Khóa học</a>
     <span class="material-symbols-outlined text-sm opacity-50">chevron_right</span>
-    <span class="text-primary font-bold">Edit @Model.Title</span>
+    <span class="text-primary font-bold">Chỉnh sửa @Model.Title</span>
 </nav>
 
 <!-- Page Header with Actions -->
 <div class="flex justify-between items-center mb-8">
     <div>
-        <h1 class="text-3xl font-bold text-on-background font-display">Edit Course</h1>
-        <p class="text-slate-500 mt-1">Update course details and settings</p>
+        <h1 class="text-3xl font-bold text-on-background font-display">Chỉnh sửa khóa học</h1>
+        <p class="text-slate-500 mt-1">Cập nhật chi tiết và cài đặt khóa học</p>
     </div>
     <div class="hidden md:flex items-center gap-3">
         <button form="course-form" class="px-6 py-3 bg-primary text-white border-2 border-primary/30 rounded-full font-bold btn-glow flex items-center gap-2" type="submit">
             <span class="material-symbols-outlined fill-1">save</span>
-            Save Changes
+            Lưu thay đổi
         </button>
     </div>
 </div>
@@ -35,19 +35,19 @@
             <div class="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl"></div>
             <h2 class="text-lg font-bold text-primary mb-6 flex items-center gap-2">
                 <span class="material-symbols-outlined">menu_book</span>
-                Course Details
+                Chi tiết khóa học
             </h2>
             <div class="space-y-6 relative z-10">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Course Title</label>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Tiêu đề khóa học</label>
                     <input asp-for="Title" class="w-full bg-white border-2 border-slate-200 rounded-2xl px-6 py-4 text-on-background focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all" type="text" />
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Description</label>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Mô tả</label>
                     <textarea asp-for="Description" class="w-full bg-white border-2 border-slate-200 rounded-2xl px-6 py-4 text-on-background focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all resize-none" rows="4"></textarea>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-3">Categories</label>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-3">Danh mục</label>
                     <div class="flex flex-wrap gap-3">
                         @foreach (var category in Model.Categories)
                         {
@@ -63,7 +63,7 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Slug (optional)</label>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Slug (tùy chọn)</label>
                     <input asp-for="Slug" class="w-full bg-white border-2 border-slate-200 rounded-2xl px-6 py-3 text-on-background focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all" type="text" />
                     <span asp-validation-for="Slug" class="text-red-500 text-xs"></span>
                 </div>
@@ -74,14 +74,14 @@
         <div class="glass-card p-6 md:p-8">
             <h2 class="text-lg font-bold text-primary mb-6 flex items-center gap-2">
                 <span class="material-symbols-outlined">image</span>
-                Cover Image
+                Ảnh bìa
             </h2>
             <div class="relative w-full h-64 bg-slate-50 rounded-2xl border-4 border-dashed border-primary/30 flex flex-col items-center justify-center transition-all group overflow-hidden">
                 <div class="absolute inset-0 opacity-20 bg-cover bg-center transition-transform group-hover:scale-105 duration-500" style="background-image: url('@(Model.ThumbnailUrl ?? "https://lh3.googleusercontent.com/aida-public/AB6AXuBuzYyPxBIHzRjakSddvr7Be3JXTj0TYC5S788E-VUztNu3Nt-hmAarj4bpimXojbWkrNtU6aITXLcp8Y9JpAYftz9Kmyq4d6kU3pp6NUC3jBrreJykkinIpFuNi1s3hsMBWKx-TZuyXviHS2oI5lRNWBT0k4NYvWCEPof-41uWCG-9MUhyu4f513AaxsrBuBJeYeFNP-jNXbUH5xwrWJLHo7yYd2wKUqU-movkTsueZ_cIVAgQMnDkDEv2P5iqNFL3kyGP7X0VCSg")');">
                 </div>
                 <div class="z-10 flex flex-col items-center text-center p-4 bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-slate-200 shadow-sm">
                     <span class="material-symbols-outlined text-4xl text-primary mb-2">upload_file</span>
-                    <p class="text-xs font-bold text-slate-600 uppercase tracking-widest">Cover Image URL</p>
+                    <p class="text-xs font-bold text-slate-600 uppercase tracking-widest">URL ảnh bìa</p>
                     <input asp-for="ThumbnailUrl" class="mt-3 w-full bg-white border-2 border-slate-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/5 transition-all" placeholder="https://..." type="text" />
                 </div>
             </div>
@@ -93,13 +93,13 @@
         <div class="glass-card p-6">
             <h2 class="text-lg font-bold text-primary mb-6 flex items-center gap-2">
                 <span class="material-symbols-outlined">settings</span>
-                Course Settings
+                Cài đặt khóa học
             </h2>
             <div class="space-y-6">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Teacher</label>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Giáo viên</label>
                     <select asp-for="TeacherId" class="w-full bg-white border-2 border-slate-200 rounded-2xl px-4 py-3 text-sm focus:ring-primary focus:border-primary">
-                        <option value="">Select teacher</option>
+                        <option value="">Chọn giáo viên</option>
                         @foreach (var teacher in Model.Teachers)
                         {
                             <option value="@teacher.Id" selected="@(Model.TeacherId == teacher.Id)">@teacher.FullName</option>
@@ -107,10 +107,10 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Status</label>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Trạng thái</label>
                     <select asp-for="Status" class="w-full bg-white border-2 border-slate-200 rounded-2xl px-4 py-3 text-sm focus:ring-primary focus:border-primary">
-                        <option value="draft">Draft</option>
-                        <option value="published">Published</option>
+                        <option value="draft">Nháp</option>
+                        <option value="published">Đã xuất bản</option>
                     </select>
                 </div>
             </div>
@@ -118,10 +118,10 @@
 
         <div class="glass-card p-6 bg-secondary/10">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xs font-bold text-slate-600 uppercase tracking-widest">Current Status</h3>
+                <h3 class="text-xs font-bold text-slate-600 uppercase tracking-widest">Trạng thái hiện tại</h3>
                 <span class="bg-white text-secondary border-2 border-secondary rounded-full px-3 py-1 text-[12px] font-bold">@Model.Status?.ToUpperInvariant()</span>
             </div>
-            <p class="text-sm text-slate-500 mb-4">This course is hidden from students until you publish it.</p>
+            <p class="text-sm text-slate-500 mb-4">Khóa học này đang ẩn với học sinh cho đến khi bạn xuất bản nó.</p>
         </div>
     </div>
 </form>

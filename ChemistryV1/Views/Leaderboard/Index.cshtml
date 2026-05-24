@@ -30,7 +30,7 @@
         <a href="@Url.Action("Index", "Leaderboard", new { sortBy = "level" })" 
            class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all @(sortBy == "level" ? "bg-primary text-white shadow-lg" : "bg-white/60 text-slate-600 border border-white/60 hover:bg-white")">
             <span class="material-symbols-outlined">trending_up</span>
-            <span>Level</span>
+            <span>Cấp độ</span>
         </a>
         <a href="@Url.Action("Index", "Leaderboard", new { sortBy = "missions" })" 
            class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all @(sortBy == "missions" ? "bg-primary text-white shadow-lg" : "bg-white/60 text-slate-600 border border-white/60 hover:bg-white")">
@@ -40,12 +40,12 @@
         <a href="@Url.Action("Index", "Leaderboard", new { sortBy = "streak" })" 
            class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all @(sortBy == "streak" ? "bg-primary text-white shadow-lg" : "bg-white/60 text-slate-600 border border-white/60 hover:bg-white")">
             <span class="material-symbols-outlined">local_fire_department</span>
-            <span>Streak</span>
+            <span>Chuỗi ngày</span>
         </a>
         <a href="@Url.Action("Index", "Leaderboard", new { sortBy = "score" })" 
            class="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all @(sortBy == "score" ? "bg-primary text-white shadow-lg" : "bg-white/60 text-slate-600 border border-white/60 hover:bg-white")">
             <span class="material-symbols-outlined">stars</span>
-            <span>Score</span>
+            <span>Điểm số</span>
         </a>
     </div>
 

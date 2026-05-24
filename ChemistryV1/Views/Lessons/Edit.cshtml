@@ -1,36 +1,36 @@
 @model ChemistryV1.ViewModels.LessonEditorViewModel
 @{
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Edit Lesson - ChemLab";
-    ViewData["Description"] = "Edit lesson details and content.";
+    ViewData["Title"] = "Chỉnh sửa bài học - ChemLab";
+    ViewData["Description"] = "Chỉnh sửa chi tiết và nội dung bài học.";
     var chapters = Model.Chapters.OrderBy(c => c.OrderIndex).ToList();
     var activeChapterId = Model.Lesson.ChapterId ?? chapters.FirstOrDefault()?.Id;
 }
 
 <!-- Breadcrumb -->
 <div class="flex items-center gap-2 mb-4 text-sm text-slate-500">
-    <a class="hover:text-primary transition-colors" asp-controller="TeacherCourses" asp-action="Index">Library</a>
+    <a class="hover:text-primary transition-colors" asp-controller="TeacherCourses" asp-action="Index">Thư viện</a>
     <span class="material-symbols-outlined text-sm opacity-50">chevron_right</span>
-    <a class="hover:text-primary transition-colors" asp-controller="TeacherCourses" asp-action="Content" asp-route-id="@Model.Course.Id">Course Content</a>
+    <a class="hover:text-primary transition-colors" asp-controller="TeacherCourses" asp-action="Content" asp-route-id="@Model.Course.Id">Nội dung khóa học</a>
     <span class="material-symbols-outlined text-sm opacity-50">chevron_right</span>
-    <span class="text-primary font-bold">Edit @Model.Lesson.Title</span>
+    <span class="text-primary font-bold">Chỉnh sửa @Model.Lesson.Title</span>
 </div>
 
 <!-- Page Header with Actions -->
 <div class="flex justify-between items-center mb-6">
     <div>
-        <h1 class="text-3xl font-bold text-on-background font-display">Edit Lesson</h1>
-        <p class="text-slate-500 mt-1">Update lesson content and settings</p>
+        <h1 class="text-3xl font-bold text-on-background font-display">Chỉnh sửa bài học</h1>
+        <p class="text-slate-500 mt-1">Cập nhật nội dung và cài đặt bài học</p>
     </div>
     <div class="flex items-center gap-3">
         <span class="text-xs text-slate-500 flex items-center gap-1 mr-2">
-            <span class="material-symbols-outlined text-[14px]">cloud_done</span> Saved just now
+            <span class="material-symbols-outlined text-[14px]">cloud_done</span> Đã lưu vừa xong
         </span>
         <a class="px-5 py-2 bg-white text-slate-600 rounded-full border-2 border-slate-200 hover:bg-slate-100 transition-colors text-sm" asp-controller="Lessons" asp-action="Details" asp-route-id="@Model.Lesson.Id">
-            Preview
+            Xem trước
         </a>
         <button form="lesson-form" class="px-5 py-2 bg-secondary text-white rounded-full border-2 border-secondary/30 hover:bg-secondary/90 transition-all btn-glow text-sm flex items-center gap-2" type="submit">
-            <span class="material-symbols-outlined text-[18px]">save</span> Save
+            <span class="material-symbols-outlined text-[18px]">save</span> Lưu
         </button>
     </div>
 </div>

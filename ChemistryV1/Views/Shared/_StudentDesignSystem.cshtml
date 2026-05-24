@@ -1,0 +1,208 @@
+@* Neon Lab — Student UI (DESIGN.md) *@
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Sora:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script id="tailwind-config-student">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "primary": "#00D4FF",
+                    "on-primary": "#003642",
+                    "primary-container": "#004e5f",
+                    "secondary": "#39FF14",
+                    "on-secondary": "#022100",
+                    "secondary-container": "#0f6d00",
+                    "tertiary": "#BC13FE",
+                    "on-tertiary": "#320047",
+                    "tertiary-container": "#74009f",
+                    "background": "#0b1326",
+                    "on-background": "#dae2fd",
+                    "surface": "rgba(23, 31, 51, 0.85)",
+                    "surface-variant": "#2d3449",
+                    "surface-container": "#171f33",
+                    "surface-container-low": "#131b2e",
+                    "surface-container-high": "#222a3d",
+                    "on-surface": "#dae2fd",
+                    "on-surface-variant": "#bbc9cf",
+                    "outline": "#3c494e",
+                    "outline-variant": "#859398",
+                    "error": "#FF0055",
+                    "warning": "#FF8C00"
+                },
+                borderRadius: {
+                    DEFAULT: "0.5rem",
+                    lg: "1rem",
+                    xl: "1.5rem",
+                    "2xl": "1.5rem",
+                    full: "9999px"
+                },
+                spacing: {
+                    gutter: "16px",
+                    "margin-mobile": "24px",
+                    unit: "4px",
+                    "margin-desktop": "48px",
+                    "container-max": "1280px"
+                },
+                fontFamily: {
+                    display: ["Sora", "sans-serif"],
+                    body: ["Be Vietnam Pro", "sans-serif"],
+                    label: ["Space Grotesk", "sans-serif"]
+                },
+                boxShadow: {
+                    "neon-blue": "0 0 20px rgba(0, 212, 255, 0.45), 0 0 40px rgba(0, 212, 255, 0.15)",
+                    "neon-green": "0 0 20px rgba(57, 255, 20, 0.45), 0 0 40px rgba(57, 255, 20, 0.15)",
+                    "neon-purple": "0 0 20px rgba(188, 19, 254, 0.45), 0 0 40px rgba(188, 19, 254, 0.15)"
+                }
+            }
+        }
+    }
+</script>
+<style>
+    body.neon-lab-shell {
+        background-color: #0b1326;
+        background-image:
+            radial-gradient(ellipse 80% 50% at 20% -10%, rgba(0, 212, 255, 0.12) 0%, transparent 50%),
+            radial-gradient(ellipse 60% 40% at 90% 80%, rgba(188, 19, 254, 0.08) 0%, transparent 50%),
+            linear-gradient(rgba(60, 215, 255, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(60, 215, 255, 0.03) 1px, transparent 1px);
+        background-size: auto, auto, 48px 48px, 48px 48px;
+        font-family: 'Be Vietnam Pro', sans-serif;
+        color: #dae2fd;
+        overflow-x: hidden;
+        position: relative;
+    }
+    body.neon-lab-shell::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        opacity: 0.04;
+        z-index: 100;
+        pointer-events: none;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    .neon-lab-shell .font-display { font-family: 'Sora', sans-serif; }
+    .neon-lab-shell .font-label { font-family: 'Space Grotesk', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; }
+    .neon-lab-shell .text-glow-primary { text-shadow: 0 0 24px rgba(0, 212, 255, 0.55); }
+    .neon-lab-shell .text-glow-secondary { text-shadow: 0 0 24px rgba(57, 255, 20, 0.5); }
+
+    .neon-lab-shell .blob {
+        position: fixed;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        z-index: -1;
+        filter: blur(80px);
+        pointer-events: none;
+    }
+    .neon-lab-shell .blob:nth-of-type(1) { background: radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 70%); }
+    .neon-lab-shell .blob:nth-of-type(2) { background: radial-gradient(circle, rgba(188, 19, 254, 0.12) 0%, transparent 70%); }
+    .neon-lab-shell .blob:nth-of-type(3) { background: radial-gradient(circle, rgba(57, 255, 20, 0.08) 0%, transparent 70%); }
+
+    .neon-lab-shell .glass-card {
+        background: rgba(23, 31, 51, 0.55);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(0, 212, 255, 0.25);
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        border-radius: 1rem;
+    }
+    .neon-lab-shell .glass-panel {
+        background: rgba(19, 27, 46, 0.75);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 0.75rem;
+    }
+    .neon-lab-shell .premium-shadow { box-shadow: 0 0 40px rgba(0, 212, 255, 0.12); }
+    .neon-lab-shell .xp-glow { box-shadow: 0 0 20px rgba(57, 255, 20, 0.45); }
+    .neon-lab-shell .btn-glow { box-shadow: 0 0 24px rgba(0, 212, 255, 0.5); }
+    .neon-lab-shell .btn-glow-green { box-shadow: 0 0 24px rgba(57, 255, 20, 0.45); }
+
+    .neon-lab-shell .collectible-border {
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        background: linear-gradient(135deg, rgba(23, 31, 51, 0.9) 0%, rgba(19, 27, 46, 0.95) 100%);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .neon-lab-shell .collectible-border:hover {
+        transform: translateY(-4px);
+        border-color: rgba(0, 212, 255, 0.5);
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+    }
+
+    .neon-lab-shell .sidebar-active {
+        background: linear-gradient(90deg, rgba(0, 212, 255, 0.15) 0%, transparent 100%);
+        border-right: 3px solid #00D4FF;
+        color: #00D4FF !important;
+    }
+    .neon-lab-shell .neon-sidebar {
+        background: rgba(6, 14, 32, 0.95);
+        backdrop-filter: blur(16px);
+        border-right: 1px solid rgba(0, 212, 255, 0.2);
+        box-shadow: 4px 0 40px rgba(0, 0, 0, 0.4);
+    }
+    .neon-lab-shell .neon-nav-link {
+        color: #bbc9cf;
+    }
+    .neon-lab-shell .neon-nav-link:hover {
+        color: #00D4FF;
+        background: rgba(0, 212, 255, 0.08);
+    }
+
+    .neon-lab-shell .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+    .neon-lab-shell .custom-scrollbar::-webkit-scrollbar-track { background: #131b2e; }
+    .neon-lab-shell .custom-scrollbar::-webkit-scrollbar-thumb { background: #3c494e; border-radius: 10px; }
+
+    .neon-lab-shell .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .neon-lab-shell .material-symbols-outlined.fill-1 { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+    #mobile-sidebar-overlay { display: none; }
+    #mobile-sidebar-overlay.active { display: block; }
+    #mobile-sidebar.open, #mobile-sidebar.neon-sidebar.open { transform: translateX(0); }
+
+    @@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .neon-lab-shell .animate-float { animation: float 4s ease-in-out infinite; }
+    @@keyframes pulse-glow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+    .neon-lab-shell .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+
+    /* Compatibility: light-theme utility classes used in views */
+    .neon-lab-shell .text-slate-400 { color: #859398 !important; }
+    .neon-lab-shell .text-slate-500 { color: #bbc9cf !important; }
+    .neon-lab-shell .text-slate-600 { color: #a8b4c8 !important; }
+    .neon-lab-shell .text-slate-700 { color: #dae2fd !important; }
+    .neon-lab-shell .bg-slate-50 { background-color: #171f33 !important; }
+    .neon-lab-shell .bg-slate-100 { background-color: #222a3d !important; }
+    .neon-lab-shell .bg-slate-200 { background-color: #2d3449 !important; }
+    .neon-lab-shell .border-slate-100,
+    .neon-lab-shell .border-slate-200 { border-color: rgba(60, 73, 78, 0.6) !important; }
+    .neon-lab-shell .bg-white { background-color: rgba(23, 31, 51, 0.92) !important; }
+    .neon-lab-shell .bg-white\/60 { background-color: rgba(23, 31, 51, 0.6) !important; }
+    .neon-lab-shell .bg-white\/70 { background-color: rgba(23, 31, 51, 0.7) !important; }
+    .neon-lab-shell .bg-white\/80 { background-color: rgba(23, 31, 51, 0.8) !important; }
+    .neon-lab-shell .bg-white\/90 { background-color: rgba(23, 31, 51, 0.9) !important; }
+    .neon-lab-shell .border-white { border-color: rgba(0, 212, 255, 0.15) !important; }
+    .neon-lab-shell .border-white\/60 { border-color: rgba(0, 212, 255, 0.2) !important; }
+    .neon-lab-shell .border-white\/80 { border-color: rgba(0, 212, 255, 0.25) !important; }
+    .neon-lab-shell .hover\:bg-slate-100:hover { background-color: #222a3d !important; }
+    .neon-lab-shell .hover\:bg-slate-200:hover { background-color: #2d3449 !important; }
+    .neon-lab-shell .hover\:bg-red-50:hover { background-color: rgba(255, 0, 85, 0.1) !important; }
+    .neon-lab-shell .hover\:text-red-600:hover { color: #FF0055 !important; }
+    .neon-lab-shell .bg-green-500 { background-color: #39FF14 !important; color: #022100 !important; }
+    .neon-lab-shell .border-green-500\/30 { border-color: rgba(57, 255, 20, 0.35) !important; }
+    .neon-lab-shell .bg-primary.text-white,
+    .neon-lab-shell .bg-primary .text-white { color: #003642 !important; }
+
+    .neon-lab-shell input,
+    .neon-lab-shell select,
+    .neon-lab-shell textarea {
+        background-color: #131b2e !important;
+        border-color: #3c494e !important;
+        color: #dae2fd !important;
+    }
+    .neon-lab-shell input::placeholder,
+    .neon-lab-shell textarea::placeholder { color: #859398 !important; }
+    .neon-lab-shell input:focus,
+    .neon-lab-shell select:focus,
+    .neon-lab-shell textarea:focus {
+        border-color: #00D4FF !important;
+        box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.25) !important;
+    }
+</style>

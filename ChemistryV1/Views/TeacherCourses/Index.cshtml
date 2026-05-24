@@ -1,24 +1,24 @@
 @model ChemistryV1.ViewModels.TeacherCoursesIndexViewModel
 @{
     Layout = "_AdminLayout";
-    ViewData["Title"] = "Course Management | ChemLab";
-    ViewData["Description"] = "Manage your curriculum and student learning paths.";
+    ViewData["Title"] = "Quản lý khóa học | ChemLab";
+    ViewData["Description"] = "Quản lý chương trình học và lộ trình học tập của học sinh.";
 }
 
 <!-- Page Header -->
 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
     <div>
-        <h1 class="text-3xl font-bold text-on-background font-display">Active Courses</h1>
-        <p class="text-slate-500 mt-1">Manage your curriculum and student learning paths.</p>
+        <h1 class="text-3xl font-bold text-on-background font-display">Khóa học đang hoạt động</h1>
+        <p class="text-slate-500 mt-1">Quản lý chương trình học và lộ trình học tập của học sinh.</p>
     </div>
     <div class="flex flex-wrap gap-3">
         <a class="px-6 py-3 bg-secondary/10 text-secondary border-2 border-secondary/30 font-bold rounded-full btn-glow flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all" asp-controller="Categories" asp-action="Index">
             <span class="material-symbols-outlined">category</span>
-            Add New Category
+            Thêm danh mục mới
         </a>
         <a class="px-6 py-3 bg-primary text-white border-2 border-primary/30 font-bold rounded-full btn-glow flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all" asp-controller="TeacherCourses" asp-action="Create">
             <span class="material-symbols-outlined">add</span>
-            Create Course
+            Tạo khóa học
         </a>
     </div>
 </div>
@@ -27,7 +27,7 @@
 <form class="mb-6" method="get" asp-action="Index">
     <div class="relative max-w-md">
         <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-        <input class="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm outline-none transition-all focus:border-primary" name="search" placeholder="Search courses..." type="text" value="@Model.Search" />
+        <input class="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm outline-none transition-all focus:border-primary" name="search" placeholder="Tìm kiếm khóa học..." type="text" value="@Model.Search" />
     </div>
 </form>
 
@@ -37,17 +37,17 @@
         <table class="w-full text-left border-collapse">
             <thead class="bg-slate-50 border-b-2 border-slate-200">
                 <tr>
-                    <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider">Course Name</th>
-                    <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider">Category</th>
-                    <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider text-center">Status</th>
-                    <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider">Created Date</th>
-                    <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider text-right">Actions</th>
+                    <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider">Tên khóa học</th>
+                    <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider">Danh mục</th>
+                    <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider text-center">Trạng thái</th>
+                    <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider">Ngày tạo</th>
+                    <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider text-right">Hành động</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-200">
                 @foreach (var course in Model.Courses)
                 {
-                    var primaryCategory = course.CourseCategories.FirstOrDefault()?.Category?.Name ?? "Uncategorized";
+                    var primaryCategory = course.CourseCategories.FirstOrDefault()?.Category?.Name ?? "Chưa phân loại";
                     var isPublished = course.Status == "published";
                     <tr class="hover:bg-slate-50 transition-colors group">
                         <td class="px-6 py-5">
@@ -57,7 +57,7 @@
                                 </div>
                                 <div>
                                     <div class="font-bold text-on-background text-lg">@course.Title</div>
-                                    <div class="text-sm text-slate-500">@course.Chapters.Sum(ch => ch.Lessons.Count) Lessons</div>
+                                    <div class="text-sm text-slate-500">@course.Chapters.Sum(ch => ch.Lessons.Count) bài học</div>
                                 </div>
                             </div>
                         </td>
@@ -71,20 +71,20 @@
                                     <div class="toggle-switch"></div>
                                 </label>
                                 <span class="status-label text-[10px] font-bold @(isPublished ? "text-secondary" : "text-slate-500") uppercase">
-                                    @(isPublished ? "Published" : "Draft")
+                                    @(isPublished ? "Đã xuất bản" : "Nháp")
                                 </span>
                             </div>
                         </td>
-                        <td class="px-6 py-5 text-slate-600 text-sm">@course.CreatedAt?.ToString("MMM dd, yyyy")</td>
+                        <td class="px-6 py-5 text-slate-600 text-sm">@course.CreatedAt?.ToString("dd/MM/yyyy")</td>
                         <td class="px-6 py-5 text-right">
                             <div class="flex justify-end gap-2">
-                                <a class="p-2 rounded-full hover:bg-tertiary/10 text-tertiary transition-colors" asp-controller="TeacherCourses" asp-action="Content" asp-route-id="@course.Id" title="Manage Content">
+                                <a class="p-2 rounded-full hover:bg-tertiary/10 text-tertiary transition-colors" asp-controller="TeacherCourses" asp-action="Content" asp-route-id="@course.Id" title="Quản lý nội dung">
                                     <span class="material-symbols-outlined">list_alt</span>
                                 </a>
-                                <a class="p-2 rounded-full hover:bg-secondary/10 text-secondary transition-colors" asp-controller="TeacherCourses" asp-action="Edit" asp-route-id="@course.Id" title="Edit">
+                                <a class="p-2 rounded-full hover:bg-secondary/10 text-secondary transition-colors" asp-controller="TeacherCourses" asp-action="Edit" asp-route-id="@course.Id" title="Chỉnh sửa">
                                     <span class="material-symbols-outlined">edit</span>
                                 </a>
-                                <a class="p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors" asp-controller="TeacherCourses" asp-action="Delete" asp-route-id="@course.Id" title="Delete">
+                                <a class="p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors" asp-controller="TeacherCourses" asp-action="Delete" asp-route-id="@course.Id" title="Xóa">
                                     <span class="material-symbols-outlined">delete</span>
                                 </a>
                             </div>
@@ -97,7 +97,7 @@
 </div>
 
 <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-4">
-    <span class="text-sm text-slate-500">Showing @Model.Courses.Count() courses</span>
+    <span class="text-sm text-slate-500">Hiển thị @Model.Courses.Count() khóa học</span>
 </div>
 
 @section Head {
@@ -156,25 +156,25 @@
                         checkbox.checked = isPub;
                         
                         if (isPub) {
-                            labelSpan.textContent = 'Published';
+                            labelSpan.textContent = 'Đã xuất bản';
                             labelSpan.classList.remove('text-slate-500');
                             labelSpan.classList.add('text-secondary');
                         } else {
-                            labelSpan.textContent = 'Draft';
+                            labelSpan.textContent = 'Nháp';
                             labelSpan.classList.remove('text-secondary');
                             labelSpan.classList.add('text-slate-500');
                         }
                     } else {
-                        alert('Cannot update status.');
+                        alert('Không thể cập nhật trạng thái.');
                         checkbox.checked = !checkbox.checked;
                     }
                 } else {
-                    alert('Server error.');
+                    alert('Lỗi máy chủ.');
                     checkbox.checked = !checkbox.checked;
                 }
             } catch (error) {
                 console.error(error);
-                alert('An error occurred.');
+                alert('Đã xảy ra lỗi.');
                 checkbox.checked = !checkbox.checked;
             }
         }

@@ -9,13 +9,18 @@
 @Html.Partial("_PublicTopAppBar")
 
 <!-- Page Header -->
-<div class="mb-12">
-    <h2 class="text-4xl font-bold text-on-background mb-4 font-display leading-tight">Library of Elements</h2>
-    <p class="text-slate-500 text-lg leading-relaxed font-medium max-w-2xl">
-        Discover the secrets of the universe through our interactive theory courses. Each lesson is a step closer to becoming a Master Alchemist.
-    </p>
+<div class="mb-8 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+    <div>
+        <h2 class="text-4xl font-bold text-on-background mb-3 font-display leading-tight">Library of Elements</h2>
+        <p class="text-slate-500 text-base leading-relaxed font-medium max-w-2xl">
+            Discover the secrets of the universe through our interactive theory courses. Each lesson is a step closer to becoming a Master Alchemist.
+        </p>
+    </div>
+    <form asp-controller="Courses" asp-action="Library" method="get" class="flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 py-2.5 rounded-xl border-2 border-primary/20 shadow-lg shadow-primary/10 w-full lg:w-72 focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/40 focus-within:shadow-xl focus-within:shadow-primary/20 transition-all hover:border-primary/30 hover:shadow-xl hover:shadow-primary/15">
+        <span class="material-symbols-outlined text-primary text-xl">search</span>
+        <input name="search" class="border-none focus:ring-0 bg-transparent text-sm w-full font-semibold outline-none placeholder:text-slate-400 text-on-background" placeholder="Tìm kiếm..." type="text" />
+    </form>
 </div>
-
 <!-- Main Content Grid -->
 <div class="flex flex-col lg:flex-row gap-8">
     <!-- Sidebar Filters -->

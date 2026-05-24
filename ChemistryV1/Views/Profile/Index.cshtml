@@ -165,7 +165,7 @@
         <div class="glass-card p-8">
             <h3 class="text-xl font-bold text-on-background font-display mb-6 flex items-center gap-2">
                 <span class="material-symbols-outlined text-primary">assignment</span>
-                Daily Missions
+                Nhiệm vụ hàng ngày
             </h3>
             <div class="space-y-4">
                 @if (Model.Missions.Any())
@@ -187,7 +187,7 @@
                                     </div>
                                     <div class="flex justify-between text-[10px] text-slate-500 font-bold mt-2 uppercase tracking-wider">
                                         <span>@mission.Current/@mission.Target</span>
-                                        <span>@(mission.Completed ? "Completed" : "In Progress")</span>
+                                        <span>@(mission.Completed ? "Đã hoàn thành" : "Đang thực hiện")</span>
                                     </div>
                                 </div>
                             </div>
@@ -197,7 +197,7 @@
                 else
                 {
                     <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-slate-500">
-                        No active missions right now.
+                        Không có nhiệm vụ nào đang hoạt động ngay bây giờ.
                     </div>
                 }
             </div>
@@ -205,7 +205,7 @@
 
         <!-- Recent Activity -->
         <div class="glass-card p-8">
-            <h3 class="text-xl font-bold text-on-background font-display mb-6">Recent Activity</h3>
+            <h3 class="text-xl font-bold text-on-background font-display mb-6">Hoạt động gần đây</h3>
             <ul class="space-y-6 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
                 @foreach (var activity in Model.RecentActivity)
                 {

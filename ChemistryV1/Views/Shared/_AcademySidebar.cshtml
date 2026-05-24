@@ -13,7 +13,7 @@
         </div>
         <div>
             <h1 class="font-headline-md text-headline-md text-primary leading-tight">ChemLab</h1>
-            <p class="text-xs font-label-sm text-on-surface-variant opacity-70">Magical Academy</p>
+            <p class="text-xs font-label-sm text-on-surface-variant opacity-70">Học viện kỳ diệu</p>
         </div>
     </div>
 
@@ -21,59 +21,59 @@
         @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
         {
             <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isDashboard ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="Dashboard" asp-action="Index">
-                <span class="material-symbols-outlined">science</span> Laboratory
+                <span class="material-symbols-outlined">science</span> Phòng thí nghiệm
             </a>
             <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" asp-controller="AdminUsers" asp-action="Index">
-                <span class="material-symbols-outlined">group</span> Users
+                <span class="material-symbols-outlined">group</span> Người dùng
             </a>
             <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" asp-controller="AdminMissions" asp-action="Index">
-                <span class="material-symbols-outlined">assignment</span> Missions
+                <span class="material-symbols-outlined">assignment</span> Nhiệm vụ
             </a>
             <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isAdminCourses ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="TeacherCourses" asp-action="Index">
-                <span class="material-symbols-outlined">auto_stories</span> Academy Panel
+                <span class="material-symbols-outlined">auto_stories</span> Bảng điều khiển học viện
             </a>
         }
 
         <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isCourses ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="Courses" asp-action="Library">
-            <span class="material-symbols-outlined">school</span> Academy
+            <span class="material-symbols-outlined">school</span> Học viện
         </a>
 
         <!-- Các danh mục bổ sung cho thư viện đầy đặn hơn (Dummy Links) -->
         <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" href="#">
-            <span class="material-symbols-outlined">biotech</span> Virtual Labs 2D
+            <span class="material-symbols-outlined">biotech</span> Phòng thí nghiệm ảo 2D
         </a>
         @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Student")))
         {
             <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" href="#">
-                <span class="material-symbols-outlined">local_library</span> Achievements
+                <span class="material-symbols-outlined">local_library</span> Thành tích
             </a>
 
             <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" href="#">
-                <span class="material-symbols-outlined">quiz</span> Practice questions
+                <span class="material-symbols-outlined">quiz</span> Câu hỏi luyện tập
             </a>
         }
         <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" href="#">
-            <span class="material-symbols-outlined">groups</span> Alchemical Guild
+            <span class="material-symbols-outlined">groups</span> Hội giả kim
         </a>
 
         @if (User.Identity?.IsAuthenticated == true &&  User.IsInRole("Admin"))
         {
             <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isCategories ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="Categories" asp-action="Index">
-                <span class="material-symbols-outlined">menu_book</span> Categories
+                <span class="material-symbols-outlined">menu_book</span> Danh mục
             </a>
         }
     </nav>
 
     <div class="mt-auto border-t border-surface-variant pt-4 flex flex-col gap-2">
         <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20 transition-all rounded-lg font-label-sm text-label-sm" href="#">
-            <span class="material-symbols-outlined">settings</span> Settings
+            <span class="material-symbols-outlined">settings</span> Cài đặt
         </a>
         <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20 transition-all rounded-lg font-label-sm text-label-sm" href="#">
-            <span class="material-symbols-outlined">help</span> Support
+            <span class="material-symbols-outlined">help</span> Hỗ trợ
         </a>
         <button class="mt-4 w-full py-3 bg-primary text-white rounded-full font-bold squishy-button flex items-center justify-center gap-2">
             <span class="material-symbols-outlined">rocket_launch</span>
-            Enter Lab
+            Vào phòng thí nghiệm
         </button>
     </div>
 </aside>
