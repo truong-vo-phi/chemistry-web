@@ -115,7 +115,14 @@
             @if (isAuthenticated)
             {
                 <form id="reply-form-@Model.Id" class="hidden mt-4 p-4 rounded-xl bg-surface/50 border border-outline-variant/20 flex-col gap-2 w-full transition-all" asp-controller="Comments" asp-action="Create" method="post">
-                    <input type="hidden" name="lessonId" value="@Model.LessonId" />
+                    @if (Model.LessonId.HasValue)
+                    {
+                        <input type="hidden" name="lessonId" value="@Model.LessonId" />
+                    }
+                    @if (Model.MissionId.HasValue)
+                    {
+                        <input type="hidden" name="missionId" value="@Model.MissionId" />
+                    }
                     <input type="hidden" name="parentId" value="@Model.Id" />
                     <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Gửi phản hồi cho @(Model.User?.FullName ?? Model.User?.Username)</label>
                     <textarea name="content" class="w-full bg-surface-container-lowest border border-outline-variant/40 focus:border-primary/50 focus:ring-0 rounded-xl text-sm p-3 font-medium outline-none resize-none min-h-[80px]" placeholder="Viết phản hồi..."></textarea>
@@ -208,5 +215,35 @@
             document.body.appendChild(modal);
         }
         modal.classList.remove('hidden');
+    }
+
+    if (!window.toggleReply) {
+        window.toggleReply = function(commentId) {
+            const form = document.getElementById(`reply-form-${commentId}`);
+            if (!form) return;
+            const isHidden = form.classList.contains('hidden');
+            form.classList.toggle('hidden');
+            if (!isHidden) return;
+            const textarea = form.querySelector('textarea');
+            if (textarea) textarea.focus();
+        };
+    }
+
+    if (!window.toggleEdit) {
+        window.toggleEdit = function(commentId) {
+            const form = document.getElementById(`edit-form-${commentId}`);
+            const contentDiv = document.getElementById(`comment-content-${commentId}`);
+            if (!form || !contentDiv) return;
+            const isHidden = form.classList.contains('hidden');
+            if (isHidden) {
+                form.classList.remove('hidden');
+                contentDiv.classList.add('hidden');
+                const textarea = form.querySelector('textarea');
+                if (textarea) textarea.focus();
+            } else {
+                form.classList.add('hidden');
+                contentDiv.classList.remove('hidden');
+            }
+        };
     }
 </script>

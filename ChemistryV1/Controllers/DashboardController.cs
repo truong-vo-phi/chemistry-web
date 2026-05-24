@@ -37,7 +37,7 @@ public class DashboardController : Controller
         ViewBag.TotalEnrollments = totalEnrollments > 0 ? totalEnrollments : 3200;
 
         ViewBag.UserGrowth = "+12%";
-        ViewBag.PendingReports = 3;
+        ViewBag.PendingReports = await _context.Comments.CountAsync(c => c.IsReported && c.AdminAction == null);
         ViewBag.AdminUsers = await _context.Users.CountAsync(u => u.Role == "Admin");
         ViewBag.ActiveUsers = await _context.Users.CountAsync(u => u.IsActive == true);
         ViewBag.InactiveUsers = await _context.Users.CountAsync(u => u.IsActive != true);

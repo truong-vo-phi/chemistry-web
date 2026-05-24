@@ -166,6 +166,27 @@ public partial class ElearningDbContext : DbContext
             entity.Property(e => e.ParentId).HasColumnName("parent_id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.MissionId).HasColumnName("mission_id");
+            entity.Property(e => e.IsReported)
+                .HasColumnName("is_reported")
+                .HasDefaultValue(false);
+            entity.Property(e => e.ReportCount)
+                .HasColumnName("report_count")
+                .HasDefaultValue(0);
+            entity.Property(e => e.ReportReason)
+                .HasColumnName("report_reason");
+            entity.Property(e => e.ReportedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("reported_at");
+            entity.Property(e => e.AdminAction)
+                .HasMaxLength(255)
+                .HasColumnName("admin_action");
+            entity.Property(e => e.AdminActionReason)
+                .HasColumnName("admin_action_reason");
+            entity.Property(e => e.AdminActionBy)
+                .HasColumnName("admin_action_by");
+            entity.Property(e => e.ActionTakenAt)
+                .HasColumnType("datetime")
+                .HasColumnName("action_taken_at");
 
             entity.HasOne(d => d.Lesson).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.LessonId)
