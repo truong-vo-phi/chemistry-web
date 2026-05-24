@@ -4,6 +4,10 @@
     var isAdminCourses = controller == "teachercourses" || controller == "lessons" || controller == "chapters";
     var isCourses = controller == "courses";
     var isCategories = controller == "categories";
+    var isAdmin = User.Identity?.IsAuthenticated == true && User.IsInRole("Admin");
+    var isTeacher = User.Identity?.IsAuthenticated == true && User.IsInRole("Teacher");
+    var isStudent = User.Identity?.IsAuthenticated == true && User.IsInRole("Student");
+    var showChemLab2DMenu = isStudent;
 }
 
 <aside class="academy-sidebar hidden md:flex flex-col h-screen w-64 rounded-r-lg bg-surface-container-low border-r-2 border-secondary-container shadow-md p-unit gap-gutter fixed left-0 top-0 z-50">
@@ -13,50 +17,47 @@
         </div>
         <div>
             <h1 class="font-headline-md text-headline-md text-primary leading-tight">ChemLab</h1>
-            <p class="text-xs font-label-sm text-on-surface-variant opacity-70">Magical Academy</p>
+            <p class="text-xs font-label-sm text-on-surface-variant opacity-70">ChemLab 2D</p>
         </div>
     </div>
 
     <nav class="flex-1 flex flex-col gap-2">
-        @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+        @if (isAdmin)
         {
-            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isDashboard ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="Dashboard" asp-action="Index">
-                <span class="material-symbols-outlined">science</span> Laboratory
-            </a>
             <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" asp-controller="AdminUsers" asp-action="Index">
                 <span class="material-symbols-outlined">group</span> Users
             </a>
             <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" asp-controller="AdminMissions" asp-action="Index">
                 <span class="material-symbols-outlined">assignment</span> Missions
             </a>
+        }
+
+        @if (isAdmin || isTeacher)
+        {
             <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isAdminCourses ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="TeacherCourses" asp-action="Index">
                 <span class="material-symbols-outlined">auto_stories</span> Academy Panel
             </a>
         }
 
-        <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isCourses ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="Courses" asp-action="Library">
-            <span class="material-symbols-outlined">school</span> Academy
-        </a>
+        @if (showChemLab2DMenu)
+        {
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isCourses ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="Courses" asp-action="Library">
+                <span class="material-symbols-outlined">school</span> Academy
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" href="#">
+                <span class="material-symbols-outlined">science</span> Laboratory
+            </a>
+        }
 
-        <!-- Các danh mục bổ sung cho thư viện đầy đặn hơn (Dummy Links) -->
         <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" href="#">
             <span class="material-symbols-outlined">biotech</span> Virtual Labs 2D
         </a>
-        @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Student")))
-        {
-            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" href="#">
-                <span class="material-symbols-outlined">local_library</span> Achievements
-            </a>
 
-            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" href="#">
-                <span class="material-symbols-outlined">quiz</span> Practice questions
-            </a>
-        }
         <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" href="#">
             <span class="material-symbols-outlined">groups</span> Alchemical Guild
         </a>
 
-        @if (User.Identity?.IsAuthenticated == true &&  User.IsInRole("Admin"))
+        @if (isAdmin)
         {
             <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isCategories ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="Categories" asp-action="Index">
                 <span class="material-symbols-outlined">menu_book</span> Categories

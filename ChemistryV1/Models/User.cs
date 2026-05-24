@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ChemistryV1.Models;
@@ -33,6 +33,18 @@ public partial class User
 
     public DateTime? CreatedAt { get; set; }
 
+    public int Xp { get; set; } = 0;
+
+    public int Level { get; set; } = 1;
+
+    public int Streak { get; set; } = 0;
+
+    public int CompletedMissions { get; set; } = 0;
+
+    public int Score { get; set; } = 0;
+
+    public virtual ICollection<GameplayResult> GameplayResults { get; set; } = new List<GameplayResult>();
+
     public virtual ICollection<Class> Classes { get; set; } = new List<Class>();
 
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
@@ -54,6 +66,8 @@ public partial class User
     public virtual School? School { get; set; }
 
     public virtual ICollection<UserLessonProgress> UserLessonProgresses { get; set; } = new List<UserLessonProgress>();
+
+    public virtual ICollection<UserMissionProgress> UserMissionProgresses { get; set; } = new List<UserMissionProgress>();
 
     public virtual ICollection<Class> ClassesNavigation { get; set; } = new List<Class>();
 }

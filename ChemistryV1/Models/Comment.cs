@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ChemistryV1.Models;
@@ -13,6 +13,8 @@ public partial class Comment
 
     public int? ParentId { get; set; }
 
+    public int? MissionId { get; set; }
+
     public string? Content { get; set; }
 
     public DateTime? CreatedAt { get; set; }
@@ -20,6 +22,8 @@ public partial class Comment
     public virtual ICollection<Comment> InverseParent { get; set; } = new List<Comment>();
 
     public virtual Lesson? Lesson { get; set; }
+
+    public virtual SystemMission? Mission { get; set; }
 
     public virtual Comment? Parent { get; set; }
 

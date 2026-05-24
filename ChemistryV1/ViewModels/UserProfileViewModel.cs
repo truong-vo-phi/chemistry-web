@@ -20,6 +20,10 @@ public class UserProfileViewModel
 
     public int LevelProgressPercent { get; set; }
 
+    public int TotalScore { get; set; }
+
+    public int CompletedMissions { get; set; }
+
     public int TotalCompletedLessons { get; set; }
 
     public int TotalQuizResults { get; set; }
@@ -98,6 +102,8 @@ public class UserProfileRoadmapStepViewModel
 
 public class UserProfileMissionViewModel
 {
+    public int Id { get; set; }
+
     public string Title { get; set; } = string.Empty;
 
     public string RewardText { get; set; } = string.Empty;

@@ -110,31 +110,27 @@
         }
     </script>
 </head>
-<body class="text-on-surface">
-<nav class="fixed w-full top-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm h-16 flex justify-between items-center px-[24px] md:px-margin-desktop">
-<div class="flex items-center gap-8">
-<a asp-controller="Home" asp-action="Index" class="text-headline-md font-headline-md font-bold text-primary">ChemLab</a>
-<div class="hidden md:flex gap-6">
-<a class="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" asp-controller="Home" asp-action="Index">Dashboard</a>
-<a class="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" asp-controller="Courses" asp-action="Library">Curriculum</a>
-<a class="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" asp-controller="Lessons" asp-action="Details" asp-route-id="1">Resources</a>
-<a class="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" asp-controller="Account" asp-action="VerifyEmail">Support</a>
-</div>
-</div>
-<div class="flex items-center gap-4">
-<button class="material-symbols-outlined p-2 text-on-surface-variant hover:bg-primary-container/10 rounded-full transition-all">notifications</button>
-<div class="h-10 w-10 rounded-full bg-primary-fixed flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
-<img alt="User Profile" class="w-full h-full object-cover" src="@Model.AvatarUrl"/>
-</div>
-<a asp-controller="Home" asp-action="Index" class="bg-primary text-on-primary-container px-6 py-2 rounded-full font-label-md squishy-button flex items-center gap-2">
-                Launch Lab
-                <span class="material-symbols-outlined text-sm">rocket_launch</span>
-</a>
-</div>
-</nav>
+<body class="text-on-surface bg-[#FFFDF5]">
+    <partial name="_GamifiedSidebar" />
 
-<main class="pt-24 pb-20 px-[24px] md:px-margin-desktop max-w-[1400px] mx-auto">
-<div class="grid grid-cols-12 gap-gutter">
+    <main class="lg:ml-72 px-[24px] md:px-margin-desktop pt-8 pb-32 max-w-[1400px] mx-auto">
+        <!-- TopAppBar -->
+        <header class="flex justify-between items-center w-full mb-8">
+            <div class="flex items-center gap-6">
+                <!-- Mobile menu toggle -->
+                <button onclick="openMobileSidebar()" class="p-3 bg-white rounded-2xl border border-slate-100 shadow-sm lg:hidden">
+                    <span class="material-symbols-outlined text-primary">menu</span>
+                </button>
+            </div>
+            <div class="flex items-center gap-4">
+                <a asp-controller="Profile" asp-action="Index" class="flex items-center gap-3 bg-white p-1.5 pr-5 rounded-full border border-slate-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                    <img alt="@Model.UserName" class="w-10 h-10 rounded-full object-cover shadow-sm" src="@Model.AvatarUrl" />
+                    <span class="font-bold text-sm hidden sm:block text-slate-700">@Model.UserName</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-12 gap-gutter">
 <section class="col-span-12 lg:col-span-8">
 <div class="cartoon-card bg-white rounded-xl p-8 relative overflow-hidden flex flex-col md:flex-row items-center gap-8">
 <div class="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
@@ -160,7 +156,7 @@
 </div>
 </div>
 
-<div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-gutter">
+<div class="grid grid-cols-2 md:grid-cols-3 gap-6 mt-gutter">
 <div class="cartoon-card bg-white p-6 rounded-xl flex flex-col items-center text-center group hover:border-primary/30 transition-all cursor-default">
 <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary mb-3 group-hover:scale-110 transition-transform">
 <span class="material-symbols-outlined filled-icon">menu_book</span>
@@ -188,6 +184,20 @@
 </div>
 <span class="text-2xl font-bold font-lexend">@Model.TotalXp.ToString("N0")</span>
 <span class="text-label-md text-on-surface-variant">Total XP</span>
+</div>
+<div class="cartoon-card bg-white p-6 rounded-xl flex flex-col items-center text-center group hover:border-primary/30 transition-all cursor-default">
+<div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary mb-3 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined filled-icon">score</span>
+</div>
+<span class="text-2xl font-bold font-lexend">@Model.TotalScore.ToString("N0")</span>
+<span class="text-label-md text-on-surface-variant">Score</span>
+</div>
+<div class="cartoon-card bg-white p-6 rounded-xl flex flex-col items-center text-center group hover:border-secondary/30 transition-all cursor-default">
+<div class="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center text-secondary mb-3 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined filled-icon">check_circle</span>
+</div>
+<span class="text-2xl font-bold font-lexend">@Model.CompletedMissions</span>
+<span class="text-label-md text-on-surface-variant">Completed Missions</span>
 </div>
 </div>
 
@@ -248,7 +258,7 @@
 {
     @foreach (var mission in Model.Missions)
     {
-        <div class="p-4 rounded-2xl border @ToneBorder(mission.Tone) @ToneBg(mission.Tone)">
+        <a asp-controller="Missions" asp-action="Details" asp-route-id="@mission.Id" class="block p-4 rounded-2xl border @ToneBorder(mission.Tone) @ToneBg(mission.Tone) hover:scale-[1.02] hover:shadow-md transition-all cursor-pointer">
             <div class="flex items-start gap-4">
                 <div class="w-11 h-11 rounded-xl bg-white/80 flex items-center justify-center border border-white shadow-sm @ToneText(mission.Tone)">
                     <span class="material-symbols-outlined">@mission.Icon</span>
@@ -267,7 +277,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
     }
 }
 else
@@ -319,6 +329,7 @@ else
 }
 </ul>
 </div>
+
 </aside>
 </div>
 

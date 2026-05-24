@@ -21,24 +21,43 @@ public class CommentsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(int lessonId, int? parentId, string content)
+    public async Task<IActionResult> Create(int? lessonId, int? missionId, int? parentId, string content)
     {
         if (string.IsNullOrWhiteSpace(content))
         {
             TempData["CommentError"] = "Nội dung bình luận không được để trống.";
-            return RedirectToAction("Details", "Lessons", new { id = lessonId });
+            if (lessonId.HasValue)
+                return RedirectToAction("Details", "Lessons", new { id = lessonId.Value });
+            else if (missionId.HasValue)
+                return RedirectToAction("Details", "Missions", new { id = missionId.Value });
+            return RedirectToAction("Index", "Home");
         }
 
-        var lesson = await _context.Lessons.FindAsync(lessonId);
-        if (lesson == null)
+        if (lessonId.HasValue)
         {
-            return NotFound();
-        }
+            var lesson = await _context.Lessons.FindAsync(lessonId.Value);
+            if (lesson == null)
+            {
+                return NotFound();
+            }
 
-        if (lesson.CommentsEnabled == false)
+            if (lesson.CommentsEnabled == false)
+            {
+                TempData["CommentError"] = "Diễn đàn thảo luận của bài học này đã bị khóa.";
+                return RedirectToAction("Details", "Lessons", new { id = lessonId.Value });
+            }
+        }
+        else if (missionId.HasValue)
         {
-            TempData["CommentError"] = "Diễn đàn thảo luận của bài học này đã bị khóa.";
-            return RedirectToAction("Details", "Lessons", new { id = lessonId });
+            var mission = await _context.SystemMissions.FindAsync(missionId.Value);
+            if (mission == null)
+            {
+                return NotFound();
+            }
+        }
+        else
+        {
+            return BadRequest();
         }
 
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -50,6 +69,7 @@ public class CommentsController : Controller
         var comment = new Comment
         {
             LessonId = lessonId,
+            MissionId = missionId,
             ParentId = parentId,
             UserId = Convert.ToInt32(userIdClaim),
             Content = content.Trim(),
@@ -60,7 +80,15 @@ public class CommentsController : Controller
         await _context.SaveChangesAsync();
 
         TempData["CommentSuccess"] = "Đã gửi bình luận thành công.";
-        return Redirect($"{Url.Action("Details", "Lessons", new { id = lessonId })}#comment-{comment.Id}");
+
+        if (lessonId.HasValue)
+        {
+            return Redirect($"{Url.Action("Details", "Lessons", new { id = lessonId.Value })}#comment-{comment.Id}");
+        }
+        else
+        {
+            return Redirect($"{Url.Action("Details", "Missions", new { id = missionId!.Value })}#comment-{comment.Id}");
+        }
     }
 
     [HttpPost]
@@ -90,7 +118,10 @@ public class CommentsController : Controller
         if (string.IsNullOrWhiteSpace(content))
         {
             TempData["CommentError"] = "Nội dung bình luận không được để trống.";
-            return Redirect($"{Url.Action("Details", "Lessons", new { id = comment.LessonId })}#comment-{comment.Id}");
+            if (comment.LessonId.HasValue)
+                return Redirect($"{Url.Action("Details", "Lessons", new { id = comment.LessonId.Value })}#comment-{comment.Id}");
+            else
+                return Redirect($"{Url.Action("Details", "Missions", new { id = comment.MissionId!.Value })}#comment-{comment.Id}");
         }
 
         comment.Content = content.Trim();
@@ -98,7 +129,11 @@ public class CommentsController : Controller
         await _context.SaveChangesAsync();
 
         TempData["CommentSuccess"] = "Cập nhật bình luận thành công.";
-        return Redirect($"{Url.Action("Details", "Lessons", new { id = comment.LessonId })}#comment-{comment.Id}");
+        
+        if (comment.LessonId.HasValue)
+            return Redirect($"{Url.Action("Details", "Lessons", new { id = comment.LessonId.Value })}#comment-{comment.Id}");
+        else
+            return Redirect($"{Url.Action("Details", "Missions", new { id = comment.MissionId!.Value })}#comment-{comment.Id}");
     }
 
     [HttpPost]
@@ -119,21 +154,30 @@ public class CommentsController : Controller
 
         var userId = Convert.ToInt32(userIdClaim);
 
-        // Creator or Admin can delete
-        bool canDelete = comment.UserId == userId || User.IsInRole("Admin");
+        // Creator, Admin or Teacher can delete
+        bool canDelete = comment.UserId == userId || User.IsInRole("Admin") || User.IsInRole("Teacher");
         if (!canDelete)
         {
             return Forbid();
         }
 
-        int lessonId = comment.LessonId ?? 0;
+        int? lessonId = comment.LessonId;
+        int? missionId = comment.MissionId;
 
         // Perform recursive deletion to bypass foreign key constraint of ParentId self-reference
         await DeleteCommentAndRepliesAsync(comment.Id);
         await _context.SaveChangesAsync();
 
         TempData["CommentSuccess"] = "Đã xóa bình luận thành công.";
-        return RedirectToAction("Details", "Lessons", new { id = lessonId });
+        
+        if (lessonId.HasValue)
+        {
+            return RedirectToAction("Details", "Lessons", new { id = lessonId.Value });
+        }
+        else
+        {
+            return RedirectToAction("Details", "Missions", new { id = missionId!.Value });
+        }
     }
 
     private async Task DeleteCommentAndRepliesAsync(int commentId)

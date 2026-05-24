@@ -1,0 +1,285 @@
+@model ChemistryV1.ViewModels.LeaderboardViewModel
+@{
+    Layout = null;
+    var currentUserId = User.Identity?.IsAuthenticated == true 
+        ? Convert.ToInt32(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value) 
+        : 0;
+
+    var podium = Model.Users.Take(3).ToList();
+    var listUsers = Model.Users.Skip(3).ToList();
+
+    string GetSortLabel() => Model.SortBy switch
+    {
+        "level" => "Level",
+        "streak" => "Streak",
+        "missions" => "Missions",
+        "score" => "Score",
+        _ => "XP"
+    };
+
+    string GetValueText(ChemistryV1.ViewModels.LeaderboardUserViewModel user) => Model.SortBy switch
+    {
+        "level" => $"Level {user.Level}",
+        "streak" => $"{user.Streak} ngày",
+        "missions" => $"{user.CompletedMissions} nhiệm vụ",
+        "score" => $"{user.Score:N0} điểm",
+        _ => $"{user.Xp:N0} XP"
+    };
+}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Bảng xếp hạng Alchemist - ChemLab</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3b82f6",
+                        "secondary": "#10b981",
+                        "tertiary": "#f59e0b",
+                        "background": "#fdfcf8",
+                        "on-background": "#1e293b",
+                        "surface": "rgba(255,255,255,0.7)",
+                        "surface-variant": "#f1f5f9",
+                        "outline": "#cbd5e1",
+                        "error": "#ef4444"
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                        lg: "2rem",
+                        xl: "2.5rem",
+                        "2xl": "32px",
+                        full: "9999px"
+                    },
+                    spacing: {
+                        gutter: "32px",
+                        "margin-mobile": "20px",
+                        unit: "8px",
+                        "margin-desktop": "48px",
+                        "container-max": "1300px"
+                    },
+                    fontFamily: {
+                        display: ["Lexend", "sans-serif"],
+                        body: ["Lexend", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #FFFDF5; font-family: 'Quicksand', sans-serif; color: #1e293b; overflow-x: hidden; position: relative; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.02; z-index: 100; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
+        .blob { position: fixed; width: 600px; height: 600px; background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%); border-radius: 50%; z-index: -1; filter: blur(60px); }
+        .glass-card { background: rgba(255,255,255,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 2px solid rgba(255,255,255,0.9); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.03); border-radius: 32px; }
+        .premium-shadow { box-shadow: 0 20px 50px -15px rgba(59,130,246,0.1); }
+        .cartoon-card { border: 2px solid rgba(0, 88, 190, 0.08); box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.04); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .filled-icon { font-variation-settings: 'FILL' 1; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Atmospheric Blobs -->
+    <div class="blob -top-48 -left-48"></div>
+    <div class="blob top-1/2 -right-48"></div>
+
+    <!-- Sidebar Partial -->
+    <partial name="_GamifiedSidebar" />
+
+    <!-- Main Content Area -->
+    <main class="lg:ml-72 px-margin-mobile md:px-margin-desktop pt-8 pb-32 max-w-[1200px] mx-auto">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+            <div>
+                <div class="flex items-center gap-4">
+                    <button onclick="openMobileSidebar()" class="p-3 bg-white rounded-2xl border border-slate-100 shadow-sm lg:hidden">
+                        <span class="material-symbols-outlined text-primary">menu</span>
+                    </button>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 font-display">Bảng Xếp Hạng</h1>
+                </div>
+                <p class="text-slate-500 font-medium mt-2">Vinh danh những Alchemist tài năng nhất học viện!</p>
+            </div>
+
+            <!-- Sorting/Filter Tabs -->
+            <div class="flex flex-wrap items-center gap-2 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/50 backdrop-blur-md">
+                <a asp-controller="Leaderboard" asp-action="Index" asp-route-sortBy="xp" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all @(Model.SortBy == "xp" ? "bg-primary text-white shadow-md" : "text-slate-500 hover:text-slate-800")">
+                    XP
+                </a>
+                <a asp-controller="Leaderboard" asp-action="Index" asp-route-sortBy="level" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all @(Model.SortBy == "level" ? "bg-primary text-white shadow-md" : "text-slate-500 hover:text-slate-800")">
+                    Level
+                </a>
+                <a asp-controller="Leaderboard" asp-action="Index" asp-route-sortBy="streak" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all @(Model.SortBy == "streak" ? "bg-primary text-white shadow-md" : "text-slate-500 hover:text-slate-800")">
+                    Streak học tập
+                </a>
+                <a asp-controller="Leaderboard" asp-action="Index" asp-route-sortBy="missions" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all @(Model.SortBy == "missions" ? "bg-primary text-white shadow-md" : "text-slate-500 hover:text-slate-800")">
+                    Missions
+                </a>
+                <a asp-controller="Leaderboard" asp-action="Index" asp-route-sortBy="score" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all @(Model.SortBy == "score" ? "bg-primary text-white shadow-md" : "text-slate-500 hover:text-slate-800")">
+                    Score
+                </a>
+            </div>
+        </header>
+
+        <!-- ================= TOP PODIUM ================= -->
+        @if (podium.Any())
+        {
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-end mb-16 max-w-4xl mx-auto px-4">
+                
+                <!-- RANK 2 (Silver) -->
+                @if (podium.Count >= 2)
+                {
+                    var user2 = podium[1];
+                    <div class="flex flex-col items-center order-2 md:order-1">
+                        <div class="relative mb-4">
+                            <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-300 text-slate-800 font-extrabold w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-md text-xs">2</div>
+                            <img alt="@user2.FullName" class="w-24 h-24 rounded-full object-cover border-4 border-slate-300 shadow-md" src="@user2.AvatarUrl" />
+                        </div>
+                        <div class="glass-card w-full text-center p-6 border-slate-300/40 relative">
+                            <h3 class="font-bold text-slate-800 truncate mb-1">@user2.FullName</h3>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Level @user2.Level</p>
+                            <span class="text-sm font-extrabold text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 shadow-sm">
+                                @GetValueText(user2)
+                            </span>
+                        </div>
+                    </div>
+                }
+
+                <!-- RANK 1 (Gold) -->
+                @if (podium.Count >= 1)
+                {
+                    var user1 = podium[0];
+                    <div class="flex flex-col items-center order-1 md:order-2 transform md:-translate-y-6">
+                        <div class="relative mb-4">
+                            <span class="material-symbols-outlined text-amber-400 absolute -top-8 left-1/2 -translate-x-1/2 text-4xl filled-icon animate-bounce">emoji_events</span>
+                            <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-400 text-amber-900 font-extrabold w-7 h-7 rounded-full flex items-center justify-center border-2 border-white shadow-md text-sm">1</div>
+                            <img alt="@user1.FullName" class="w-32 h-32 rounded-full object-cover border-4 border-amber-400 shadow-lg ring-4 ring-amber-400/20" src="@user1.AvatarUrl" />
+                        </div>
+                        <div class="glass-card w-full text-center p-8 border-amber-300/40 premium-shadow">
+                            <h3 class="font-extrabold text-slate-800 truncate mb-1 text-lg">@user1.FullName</h3>
+                            <p class="text-xs font-bold text-amber-500 uppercase tracking-widest mb-3">Level @user1.Level</p>
+                            <span class="text-base font-extrabold text-amber-700 bg-amber-50 px-4 py-1.5 rounded-full border border-amber-200 shadow-md">
+                                @GetValueText(user1)
+                            </span>
+                        </div>
+                    </div>
+                }
+
+                <!-- RANK 3 (Bronze) -->
+                @if (podium.Count >= 3)
+                {
+                    var user3 = podium[2];
+                    <div class="flex flex-col items-center order-3 md:order-3">
+                        <div class="relative mb-4">
+                            <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-orange-400 text-white font-extrabold w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-md text-xs">3</div>
+                            <img alt="@user3.FullName" class="w-24 h-24 rounded-full object-cover border-4 border-orange-400 shadow-md" src="@user3.AvatarUrl" />
+                        </div>
+                        <div class="glass-card w-full text-center p-6 border-orange-300/40 relative">
+                            <h3 class="font-bold text-slate-800 truncate mb-1">@user3.FullName</h3>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Level @user3.Level</p>
+                            <span class="text-sm font-extrabold text-orange-700 bg-orange-50 px-3 py-1 rounded-full border border-orange-200 shadow-sm">
+                                @GetValueText(user3)
+                            </span>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        }
+
+        <!-- ================= RANKINGS LIST ================= -->
+        <div class="glass-card premium-shadow p-6 md:p-8">
+            <h2 class="text-xl font-extrabold text-slate-800 font-display mb-6 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">military_tech</span>
+                Bảng xếp hạng chi tiết
+            </h2>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b-2 border-slate-100 text-slate-400 text-xs uppercase font-extrabold tracking-wider">
+                            <th class="py-4 px-4 w-20 text-center">Hạng</th>
+                            <th class="py-4 px-4">Học sinh</th>
+                            <th class="py-4 px-4 w-28 text-center">Cấp độ</th>
+                            <th class="py-4 px-4 w-40 text-right">@GetSortLabel()</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 font-medium text-sm text-slate-700">
+                        @if (!Model.Users.Any())
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center py-12 text-slate-400 font-bold">
+                                    Không có dữ liệu học sinh nào trong bảng xếp hạng.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var user in Model.Users)
+                            {
+                                var isCurrentUser = user.UserId == currentUserId;
+                                var activeRowClass = isCurrentUser ? "bg-primary/5 border-l-4 border-l-primary" : "hover:bg-slate-50/50 transition-colors";
+                                
+                                <tr class="@activeRowClass">
+                                    <!-- Rank Number -->
+                                    <td class="py-4 px-4 text-center font-extrabold">
+                                        @if (user.Rank == 1)
+                                        {
+                                            <span class="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs border border-amber-200">🥇 1</span>
+                                        }
+                                        else if (user.Rank == 2)
+                                        {
+                                            <span class="px-3 py-1 bg-slate-100 text-slate-800 rounded-full text-xs border border-slate-200">🥈 2</span>
+                                        }
+                                        else if (user.Rank == 3)
+                                        {
+                                            <span class="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs border border-orange-200">🥉 3</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-slate-400 font-lexend">#@user.Rank</span>
+                                        }
+                                    </td>
+
+                                    <!-- User Bio -->
+                                    <td class="py-4 px-4">
+                                        <div class="flex items-center gap-3">
+                                            <img alt="@user.FullName" class="w-10 h-10 rounded-full object-cover border border-slate-100 shadow-sm" src="@user.AvatarUrl" />
+                                            <div>
+                                                <div class="font-bold text-slate-800 flex items-center gap-1.5">
+                                                    @user.FullName
+                                                    @if (isCurrentUser)
+                                                    {
+                                                        <span class="px-2 py-0.5 bg-primary/10 text-primary border border-primary/20 text-[9px] rounded-full uppercase tracking-wider font-extrabold">Bạn</span>
+                                                    }
+                                                </div>
+                                                <span class="text-xs text-slate-400">@@@user.Username</span>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- Level -->
+                                    <td class="py-4 px-4 text-center font-extrabold text-slate-500">
+                                        <span class="px-3 py-1 bg-slate-100 rounded-full text-xs border border-slate-200 shadow-xs">
+                                            Level @user.Level
+                                        </span>
+                                    </td>
+
+                                    <!-- Ranked value -->
+                                    <td class="py-4 px-4 text-right font-extrabold text-slate-800 text-base">
+                                        @GetValueText(user)
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

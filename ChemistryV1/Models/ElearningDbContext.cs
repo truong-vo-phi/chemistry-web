@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -53,13 +53,17 @@ public partial class ElearningDbContext : DbContext
 
     public virtual DbSet<SystemMission> SystemMissions { get; set; }
 
+    public virtual DbSet<UserMissionProgress> UserMissionProgresses { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
+
+    public virtual DbSet<GameplayResult> GameplayResults { get; set; }
 
     public virtual DbSet<UserLessonProgress> UserLessonProgresses { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=.;Database=ElearningDB;Trusted_Connection=True;TrustServerCertificate=True;");
+        => optionsBuilder.UseSqlServer("Server=.;Database=ChemistryV1Db;User ID=sa;Password=2025;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -161,10 +165,15 @@ public partial class ElearningDbContext : DbContext
             entity.Property(e => e.LessonId).HasColumnName("lesson_id");
             entity.Property(e => e.ParentId).HasColumnName("parent_id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.MissionId).HasColumnName("mission_id");
 
             entity.HasOne(d => d.Lesson).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.LessonId)
                 .HasConstraintName("FK_Comments_Lessons");
+
+            entity.HasOne(d => d.Mission).WithMany(p => p.Comments)
+                .HasForeignKey(d => d.MissionId)
+                .HasConstraintName("FK_Comments_SystemMissions");
 
             entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent)
                 .HasForeignKey(d => d.ParentId)
@@ -579,9 +588,48 @@ public partial class ElearningDbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("username");
 
+            entity.Property(e => e.Xp)
+                .HasDefaultValue(0)
+                .HasColumnName("xp");
+            entity.Property(e => e.Level)
+                .HasDefaultValue(1)
+                .HasColumnName("level");
+            entity.Property(e => e.Streak)
+                .HasDefaultValue(0)
+                .HasColumnName("streak");
+            entity.Property(e => e.CompletedMissions)
+                .HasDefaultValue(0)
+                .HasColumnName("completed_missions");
+            entity.Property(e => e.Score)
+                .HasDefaultValue(0)
+                .HasColumnName("score");
+
             entity.HasOne(d => d.School).WithMany(p => p.Users)
                 .HasForeignKey(d => d.SchoolId)
                 .HasConstraintName("FK_Users_Schools");
+        });
+
+        modelBuilder.Entity<UserMissionProgress>(entity =>
+        {
+            entity.HasKey(e => new { e.UserId, e.MissionId }).HasName("PK_UserMissionProgress");
+
+            entity.ToTable("UserMissionProgress");
+
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.MissionId).HasColumnName("mission_id");
+            entity.Property(e => e.CompletedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("completed_at");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserMissionProgresses)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_UserMissionProgress_Users");
+
+            entity.HasOne(d => d.Mission).WithMany(p => p.UserMissionProgresses)
+                .HasForeignKey(d => d.MissionId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_UserMissionProgress_SystemMissions");
         });
 
         modelBuilder.Entity<UserLessonProgress>(entity =>
@@ -624,6 +672,29 @@ public partial class ElearningDbContext : DbContext
                   .HasColumnName("created_at")
                   .HasColumnType("datetime2")
                   .HasDefaultValueSql("GETDATE()");   
+        });
+        modelBuilder.Entity<GameplayResult>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_GameplayResults");
+
+            entity.ToTable("GameplayResults");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.Score).HasColumnName("score");
+            entity.Property(e => e.Xp).HasColumnName("xp");
+            entity.Property(e => e.CompletionTime).HasColumnName("completion_time");
+            entity.Property(e => e.MissionStatus)
+                .HasMaxLength(100)
+                .HasColumnName("mission_status");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnName("created_at");
+
+            entity.HasOne(d => d.User).WithMany(p => p.GameplayResults)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_GameplayResults_Users");
         });
         OnModelCreatingPartial(modelBuilder);
     }
