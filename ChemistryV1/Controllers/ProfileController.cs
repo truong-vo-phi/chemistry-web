@@ -38,11 +38,9 @@ public class ProfileController : Controller
 
         var totalEnrollments = await _context.CourseEnrollments.CountAsync(e => e.StudentId == userId);
 
-        var totalXpFromQuizzes = await _context.QuizResults
-            .Where(q => q.StudentId == userId)
-            .SumAsync(q => (double?)q.Score) ?? 0;
-
-        var totalXp = (int)Math.Round(totalXpFromQuizzes) + (totalCompletedLessons * 50);
+        var totalXp = currentUser.Xp;
+        var totalScore = currentUser.Score;
+        var completedMissions = currentUser.CompletedMissions;
 
         var activityDates = new HashSet<DateOnly>();
         var quizDates = await _context.QuizResults
@@ -69,7 +67,7 @@ public class ProfileController : Controller
         }
 
         const int xpPerLevel = 180;
-        var level = Math.Max(1, (totalXp / xpPerLevel) + 1);
+        var level = Math.Max(1, currentUser.Level);
         var currentLevelXp = Math.Max(0, totalXp - ((level - 1) * xpPerLevel));
         var nextLevelXp = level * xpPerLevel;
         var xpToNext = Math.Max(0, nextLevelXp - totalXp);
@@ -197,6 +195,7 @@ public class ProfileController : Controller
 
         var missions = activeMissions.Select(mission => new UserProfileMissionViewModel
         {
+            Id = mission.Id,
             Title = mission.Title,
             RewardText = mission.RewardText,
             Icon = mission.Icon,

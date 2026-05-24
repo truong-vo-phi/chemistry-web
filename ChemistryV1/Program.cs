@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using ChemistryV1.Infrastructure;
 
@@ -29,13 +29,18 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ChemistryV1.Models.ElearningDbContext>();
+    await context.Database.EnsureCreatedAsync();
+
     var dbConnection = context.Database.GetDbConnection();
     await dbConnection.OpenAsync();
     using var command = dbConnection.CreateCommand();
     command.CommandText = @"
-        UPDATE Users
-        SET role = 'Admin'
-        WHERE role = 'Teacher';
+        IF OBJECT_ID(N'dbo.Users', N'U') IS NOT NULL
+        BEGIN
+            UPDATE Users
+            SET role = 'Admin'
+            WHERE role = 'Teacher';
+        END
     ";
     await command.ExecuteNonQueryAsync();
 
@@ -53,31 +58,69 @@ using (var scope = app.Services.CreateScope())
             INSERT INTO VirtualLabs (title, description, url) 
             VALUES (N'Thí nghiệm: Chuẩn độ Axit - Bazo', N'Game thực hành ảo mô phỏng', '/mock-games/titration.html');
         END
-        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[Lessons]') AND name = 'virtual_lab_id')
+        IF OBJECT_ID(N'dbo.Lessons', N'U') IS NOT NULL AND NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[Lessons]') AND name = 'virtual_lab_id')
         BEGIN
             ALTER TABLE Lessons ADD virtual_lab_id INT NULL;
             ALTER TABLE Lessons ADD CONSTRAINT FK_Lessons_VirtualLabs FOREIGN KEY (virtual_lab_id) REFERENCES VirtualLabs(id) ON DELETE SET NULL;
         END
-        IF COL_LENGTH('Lessons', 'comments_enabled') IS NULL
+        IF OBJECT_ID(N'dbo.Lessons', N'U') IS NOT NULL AND COL_LENGTH('Lessons', 'comments_enabled') IS NULL
         BEGIN
             ALTER TABLE Lessons ADD comments_enabled BIT NOT NULL CONSTRAINT DF_Lessons_comments_enabled DEFAULT(1);
         END
-        IF COL_LENGTH('Users', 'email_confirmed') IS NULL
+        IF OBJECT_ID(N'dbo.Users', N'U') IS NOT NULL AND COL_LENGTH('Users', 'email_confirmed') IS NULL
         BEGIN
             ALTER TABLE Users ADD email_confirmed BIT NOT NULL CONSTRAINT DF_Users_email_confirmed DEFAULT(0);
         END
-        IF COL_LENGTH('Users', 'email_verification_code_hash') IS NULL
+        IF OBJECT_ID(N'dbo.Users', N'U') IS NOT NULL AND COL_LENGTH('Users', 'email_verification_code_hash') IS NULL
         BEGIN
             ALTER TABLE Users ADD email_verification_code_hash NVARCHAR(255) NULL;
         END
-        IF COL_LENGTH('Users', 'email_verification_expires_at') IS NULL
+        IF OBJECT_ID(N'dbo.Users', N'U') IS NOT NULL AND COL_LENGTH('Users', 'email_verification_expires_at') IS NULL
         BEGIN
             ALTER TABLE Users ADD email_verification_expires_at DATETIME NULL;
         END
-        IF COL_LENGTH('Users', 'email_verified_at') IS NULL
+        IF OBJECT_ID(N'dbo.Users', N'U') IS NOT NULL AND COL_LENGTH('Users', 'email_verified_at') IS NULL
         BEGIN
             ALTER TABLE Users ADD email_verified_at DATETIME NULL;
         END
+
+        -- Progression columns on Users
+        IF OBJECT_ID(N'dbo.Users', N'U') IS NOT NULL AND COL_LENGTH('Users', 'xp') IS NULL
+        BEGIN
+            ALTER TABLE Users ADD xp INT NOT NULL CONSTRAINT DF_Users_xp DEFAULT(0);
+        END
+        IF OBJECT_ID(N'dbo.Users', N'U') IS NOT NULL AND COL_LENGTH('Users', 'level') IS NULL
+        BEGIN
+            ALTER TABLE Users ADD level INT NOT NULL CONSTRAINT DF_Users_level DEFAULT(1);
+        END
+        IF OBJECT_ID(N'dbo.Users', N'U') IS NOT NULL AND COL_LENGTH('Users', 'streak') IS NULL
+        BEGIN
+            ALTER TABLE Users ADD streak INT NOT NULL CONSTRAINT DF_Users_streak DEFAULT(0);
+        END
+        IF OBJECT_ID(N'dbo.Users', N'U') IS NOT NULL AND COL_LENGTH('Users', 'completed_missions') IS NULL
+        BEGIN
+            ALTER TABLE Users ADD completed_missions INT NOT NULL CONSTRAINT DF_Users_completed_missions DEFAULT(0);
+        END
+        IF OBJECT_ID(N'dbo.Users', N'U') IS NOT NULL AND COL_LENGTH('Users', 'score') IS NULL
+        BEGIN
+            ALTER TABLE Users ADD score INT NOT NULL CONSTRAINT DF_Users_score DEFAULT(0);
+        END
+
+        -- GameplayResults table
+        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='GameplayResults' AND xtype='U')
+        BEGIN
+            CREATE TABLE GameplayResults (
+                id INT IDENTITY(1,1) PRIMARY KEY,
+                user_id INT NOT NULL,
+                score INT NOT NULL,
+                xp INT NOT NULL,
+                completion_time INT NOT NULL,
+                mission_status NVARCHAR(100) NULL,
+                created_at DATETIME DEFAULT GETDATE(),
+                CONSTRAINT FK_GameplayResults_Users FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
+            );
+        END
+
         IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='SystemMissions' AND xtype='U')
         BEGIN
             CREATE TABLE SystemMissions (
@@ -102,6 +145,45 @@ using (var scope = app.Services.CreateScope())
                 (N'Giữ streak 3 ngày', N'+250 XP', N'streak_days', 3, N'local_fire_department', N'tertiary', 1, 3),
                 (N'Hoàn thành 2 khóa học', N'+300 XP', N'enrollments_count', 2, N'school', N'secondary', 1, 4);
         END
+
+        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='UserMissionProgress' AND xtype='U')
+        BEGIN
+            CREATE TABLE UserMissionProgress (
+                user_id INT NOT NULL,
+                mission_id INT NOT NULL,
+                completed_at DATETIME NOT NULL DEFAULT(GETDATE()),
+                CONSTRAINT PK_UserMissionProgress PRIMARY KEY (user_id, mission_id),
+                CONSTRAINT FK_UserMissionProgress_Users FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
+                CONSTRAINT FK_UserMissionProgress_SystemMissions FOREIGN KEY (mission_id) REFERENCES SystemMissions(id) ON DELETE CASCADE
+            );
+        END
+
+        -- Add mission_id to Comments table
+        IF OBJECT_ID(N'dbo.Comments', N'U') IS NOT NULL AND COL_LENGTH('Comments', 'mission_id') IS NULL
+        BEGIN
+            ALTER TABLE Comments ADD mission_id INT NULL;
+            ALTER TABLE Comments ADD CONSTRAINT FK_Comments_SystemMissions FOREIGN KEY (mission_id) REFERENCES SystemMissions(id) ON DELETE SET NULL;
+        END
+
+        -- One-time dynamic sync for Users progression data if empty
+        IF COL_LENGTH('Users','xp') IS NOT NULL
+        BEGIN
+            EXEC sp_executesql N'
+                UPDATE Users
+                SET xp = ISNULL((SELECT ROUND(SUM(q.score), 0) FROM QuizResults q WHERE q.student_id = Users.id), 0) + 
+                         ISNULL((SELECT COUNT(*) FROM UserLessonProgress p WHERE p.user_id = Users.id AND p.is_completed = 1), 0) * 50
+                WHERE xp = 0;
+            ';
+        END
+
+        IF COL_LENGTH('Users','level') IS NOT NULL
+        BEGIN
+            EXEC sp_executesql N'
+                UPDATE Users
+                SET level = CASE WHEN xp / 180 + 1 < 1 THEN 1 ELSE xp / 180 + 1 END
+                WHERE level = 1 AND xp > 0;
+            ';
+        END
     ";
     await command.ExecuteNonQueryAsync();
 }
@@ -122,6 +204,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapControllers();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}");
