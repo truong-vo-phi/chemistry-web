@@ -83,7 +83,7 @@ public class CategoriesController : Controller
 
         if (await _context.Categories.AnyAsync(c => c.Slug == category.Slug))
         {
-            ModelState.AddModelError("Category.Slug", "Slug already exists.");
+            ModelState.AddModelError("Category.Slug", "Slug đã tồn tại.");
         }
 
         if (!ModelState.IsValid)
@@ -133,7 +133,7 @@ public class CategoriesController : Controller
 
         if (await _context.Categories.AnyAsync(c => c.Slug == category.Slug && c.Id != id))
         {
-            ModelState.AddModelError("Category.Slug", "Slug already exists.");
+            ModelState.AddModelError("Category.Slug", "Slug đã tồn tại.");
         }
 
         if (!ModelState.IsValid)

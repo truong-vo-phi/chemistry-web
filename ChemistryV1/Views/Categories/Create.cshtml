@@ -75,12 +75,12 @@
                     <span class="material-symbols-outlined text-secondary">visibility</span>
                 </div>
                 <div>
-                    <h4 class="text-sm font-bold text-on-background tracking-wide">CATEGORY STATUS</h4>
-                    <p class="text-xs text-slate-500">Set visibility for the entire academy.</p>
+                    <h4 class="text-sm font-bold text-on-background tracking-wide">TRẠNG THÁI DANH MỤC</h4>
+                    <p class="text-xs text-slate-500">Thiết lập khả năng hiển thị cho toàn bộ học viện.</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest" id="status-label">@(Model.Category.IsActive ? "Active" : "Draft")</span>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest" id="status-label">@(Model.Category.IsActive ? "Đang hoạt động" : "Nháp")</span>
                 <button class="relative inline-flex h-10 w-16 items-center rounded-full @(Model.Category.IsActive ? "bg-secondary" : "bg-slate-300") transition-colors focus:outline-none shadow-inner" id="status-toggle" onclick="toggleStatus()" type="button">
                     <span class="inline-block h-7 w-7 @(Model.Category.IsActive ? "translate-x-7.5" : "translate-x-1.5") transform rounded-full bg-white shadow-md transition-transform" id="toggle-circle"></span>
                 </button>
@@ -89,10 +89,10 @@
 
         <div class="flex flex-col sm:flex-row items-center gap-4 pt-4">
             <a class="w-full sm:w-auto px-8 py-4 rounded-full font-bold text-center hover:bg-slate-100 transition-all border-2 border-slate-200 text-slate-600" asp-action="Index">
-                Cancel
+                Hủy
             </a>
             <button class="w-full sm:w-auto px-10 py-4 rounded-full text-white font-bold transition-all hover:bg-primary/90 btn-glow" type="submit">
-                Create Category
+                Tạo danh mục
             </button>
         </div>
     </form>

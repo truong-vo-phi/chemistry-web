@@ -78,20 +78,20 @@
                                     <option value="Student" selected="@(user.Role == "Student")">Student</option>
                                     <option value="Admin" selected="@(user.Role == "Admin")">Admin</option>
                                 </select>
-                                <button type="submit" class="px-3 py-2 rounded-full bg-slate-900 text-white text-sm font-semibold hover:bg-black transition-colors">Save</button>
+                                <button type="submit" class="px-3 py-2 rounded-full bg-slate-900 text-white text-sm font-semibold hover:bg-black transition-colors">Lưu</button>
                             </form>
                         </td>
                         <td class="px-5 py-4">
                             @if (user.IsActive == true)
                             {
                                 <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Active
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Đang hoạt động
                                 </span>
                             }
                             else
                             {
                                 <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 text-rose-700 text-xs font-bold border border-rose-200">
-                                    <span class="w-2 h-2 rounded-full bg-rose-500"></span> Locked
+                                    <span class="w-2 h-2 rounded-full bg-rose-500"></span> Đã khóa
                                 </span>
                             }
                         </td>
@@ -100,7 +100,7 @@
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@user.Id" />
                                 <button type="submit" class="px-3 py-2 rounded-full border border-slate-300 bg-white text-sm font-semibold hover:border-slate-900 transition-colors">
-                                    @(user.IsActive == true ? "Lock" : "Unlock")
+                                    @(user.IsActive == true ? "Khóa" : "Mở khóa")
                                 </button>
                             </form>
                         </td>

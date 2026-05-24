@@ -2,74 +2,79 @@
     var controller = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLowerInvariant() ?? "";
 }
 <!DOCTYPE html>
-<html class="light" lang="vi">
+<html class="dark" lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>@ViewData["Title"] - ChemLab</title>
+    <title>@ViewData["Title"] - Neon Lab</title>
     <meta name="description" content="@ViewData["Description"]" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    @Html.Partial("_DesignSystem")
+    @Html.Partial("_StudentDesignSystem")
     @RenderSection("Head", required: false)
 </head>
-<body class="min-h-screen">
-    <!-- Atmospheric Blobs -->
+<body class="neon-lab-shell min-h-screen">
     <div class="blob -top-48 -left-48"></div>
     <div class="blob top-1/2 -right-48"></div>
     <div class="blob -bottom-48 left-1/3"></div>
 
-    <!-- Mobile Sidebar Overlay -->
-    <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 backdrop-blur-sm lg:hidden" onclick="closeMobileSidebar()"></div>
+    <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm lg:hidden" onclick="closeMobileSidebar()"></div>
 
-    <!-- SideNavBar -->
-    <aside id="mobile-sidebar" class="flex flex-col w-72 fixed left-0 top-0 h-full bg-white/70 backdrop-blur-xl border-r border-white/60 z-50 lg:flex py-10 px-8 shadow-xl transition-transform duration-300 -translate-x-full lg:translate-x-0">
+    <aside id="mobile-sidebar" class="neon-sidebar flex flex-col w-72 fixed left-0 top-0 h-full z-50 lg:flex py-10 px-8 transition-transform duration-300 -translate-x-full lg:translate-x-0">
         <div class="mb-10">
-            <a asp-controller="Home" asp-action="Index" class="text-3xl font-bold text-primary tracking-tight font-display block">ChemLab</a>
+            <a asp-controller="Home" asp-action="Index" class="text-3xl font-bold text-primary tracking-tight font-display block text-glow-primary">Neon Lab</a>
+            <p class="text-[10px] font-label text-on-surface-variant mt-1">ChemLab Adventure</p>
         </div>
 
-        <!-- User Profile Card -->
         @if (User.Identity?.IsAuthenticated == true)
         {
-            <div class="flex items-center gap-4 p-4 mb-8 bg-white/60 rounded-2xl border border-white/80 shadow-sm">
+            <div class="flex items-center gap-4 p-4 mb-8 glass-panel">
                 <div class="relative flex-shrink-0">
-                    <img alt="@User.Identity.Name" class="w-12 h-12 rounded-full object-cover border-2 border-primary/20" src="@(User.FindFirst("AvatarUrl")?.Value ?? "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Crect fill='%23e2e8f0' width='48' height='48'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%2364748b'%3E?%3C/text%3E%3C/svg%3E")" />
-                    <div class="absolute bottom-0 right-0 w-3 h-3 bg-secondary border-2 border-white rounded-full"></div>
+                    <img alt="@User.Identity.Name" class="w-12 h-12 rounded-full object-cover border-2 border-primary/40" src="@(User.FindFirst("AvatarUrl")?.Value ?? "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Crect fill='%23222a3d' width='48' height='48'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23bbc9cf'%3E?%3C/text%3E%3C/svg%3E")" />
+                    <div class="absolute bottom-0 right-0 w-3 h-3 bg-secondary border-2 border-surface-container rounded-full"></div>
                 </div>
                 <div class="min-w-0">
                     <p class="font-bold text-sm text-on-background leading-none mb-1 truncate">@User.Identity.Name</p>
-                    <p class="text-[10px] text-slate-500 uppercase font-semibold tracking-widest">@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Student")</p>
+                    <p class="text-[10px] text-secondary font-label tracking-widest">@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Student")</p>
                 </div>
             </div>
         }
 
         <nav class="flex-1 space-y-1">
-            <a class="@(controller == "home" ? "sidebar-active" : "text-slate-500 hover:text-primary") flex items-center gap-4 p-4 transition-all duration-300 rounded-l-xl" asp-controller="Home" asp-action="Index">
+            <a class="@(controller == "home" ? "sidebar-active" : "neon-nav-link") flex items-center gap-4 p-4 transition-all duration-300 rounded-l-xl" asp-controller="Home" asp-action="Index">
                 <span class="material-symbols-outlined @(controller == "home" ? "fill-1" : "")">science</span>
-                <span class="font-semibold text-sm">Lab Bench</span>
+                <span class="font-semibold text-sm">Bàn thí nghiệm</span>
             </a>
-            <a class="@(controller == "courses" ? "sidebar-active" : "text-slate-500 hover:text-primary") flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5" asp-controller="Courses" asp-action="Library">
+            <a class="@(controller == "courses" ? "sidebar-active" : "neon-nav-link") flex items-center gap-4 p-4 transition-all hover:translate-x-1 rounded-l-xl" asp-controller="Courses" asp-action="Library">
                 <span class="material-symbols-outlined">apps</span>
-                <span class="font-medium text-sm">Curriculum</span>
+                <span class="font-medium text-sm">Chương trình học</span>
             </a>
-            <a class="@(controller == "profile" ? "sidebar-active" : "text-slate-500 hover:text-primary") flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5" asp-controller="Profile" asp-action="Index">
+            <a class="@(controller == "profile" ? "sidebar-active" : "neon-nav-link") flex items-center gap-4 p-4 transition-all hover:translate-x-1 rounded-l-xl" asp-controller="Profile" asp-action="Index">
                 <span class="material-symbols-outlined">stars</span>
-                <span class="font-medium text-sm">My Progress</span>
+                <span class="font-medium text-sm">Tiến độ của tôi</span>
             </a>
-            <a class="@(controller == "leaderboard" ? "sidebar-active" : "text-slate-500 hover:text-primary") flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5" asp-controller="Leaderboard" asp-action="Index">
+            <a class="@(controller == "leaderboard" ? "sidebar-active" : "neon-nav-link") flex items-center gap-4 p-4 transition-all hover:translate-x-1 rounded-l-xl" asp-controller="Leaderboard" asp-action="Index">
                 <span class="material-symbols-outlined">emoji_events</span>
-                <span class="font-medium text-sm">Leaderboard</span>
+                <span class="font-medium text-sm">Bảng xếp hạng</span>
+            </a>
+            <a class="@(controller == "achievements" ? "sidebar-active" : "neon-nav-link") flex items-center gap-4 p-4 transition-all hover:translate-x-1 rounded-l-xl" asp-controller="Achievements" asp-action="Index">
+                <span class="material-symbols-outlined">military_tech</span>
+                <span class="font-medium text-sm">Phân tích học tập</span>
+            </a>
+            <a class="@(controller == "practicequestions" ? "sidebar-active" : "neon-nav-link") flex items-center gap-4 p-4 transition-all hover:translate-x-1 rounded-l-xl" asp-controller="PracticeQuestions" asp-action="Index">
+                <span class="material-symbols-outlined">style</span>
+                <span class="font-medium text-sm">Luyện tập Flashcard</span>
             </a>
             @if (User.IsInRole("Admin"))
             {
-                <a class="@(controller == "dashboard" ? "sidebar-active" : "text-slate-500 hover:text-primary") flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5" asp-controller="Dashboard" asp-action="Index">
+                <div class="my-3 border-t border-outline/50"></div>
+                <a class="neon-nav-link flex items-center gap-4 p-4 transition-all rounded-l-xl" asp-controller="Dashboard" asp-action="Index">
                     <span class="material-symbols-outlined">dashboard</span>
-                    <span class="font-medium text-sm">Admin Dashboard</span>
+                    <span class="font-medium text-sm">Bảng điều khiển Admin</span>
                 </a>
-                <a class="@(controller == "teachercourses" ? "sidebar-active" : "text-slate-500 hover:text-primary") flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5" asp-controller="TeacherCourses" asp-action="Index">
+                <a class="neon-nav-link flex items-center gap-4 p-4 transition-all rounded-l-xl" asp-controller="TeacherCourses" asp-action="Index">
                     <span class="material-symbols-outlined">auto_stories</span>
-                    <span class="font-medium text-sm">Manage Courses</span>
+                    <span class="font-medium text-sm">Quản lý khóa học</span>
                 </a>
             }
         </nav>
@@ -79,20 +84,19 @@
             {
                 <form asp-controller="Account" asp-action="Logout" method="post">
                     @Html.AntiForgeryToken()
-                    <button type="submit" class="w-full text-slate-500 hover:text-error flex items-center gap-3 p-3 rounded-2xl hover:bg-red-50 transition-all text-sm font-semibold">
+                    <button type="submit" class="w-full text-on-surface-variant hover:text-error flex items-center gap-3 p-3 rounded-xl hover:bg-red-500/10 transition-all text-sm font-semibold">
                         <span class="material-symbols-outlined text-lg">logout</span>
                         Đăng xuất
                     </button>
                 </form>
             }
-            <a asp-controller="Courses" asp-action="Library" class="w-full bg-primary text-white font-bold text-sm py-4 rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] btn-glow">
+            <a asp-controller="Courses" asp-action="Library" class="w-full bg-primary text-on-primary font-label font-bold text-sm py-4 rounded-xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] btn-glow">
                 <span class="material-symbols-outlined text-xl">add_circle</span>
-                New Experiment
+                Thí nghiệm mới
             </a>
         </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="lg:ml-72 px-margin-mobile md:px-margin-desktop pt-8 pb-32 max-w-[1600px] mx-auto">
         @RenderBody()
     </main>

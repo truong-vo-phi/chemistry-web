@@ -2,7 +2,7 @@
 @{
     Layout = "_LessonLayout";
     ViewData["Title"] = "@Model.Lesson.Title - ChemLab";
-    ViewData["Description"] = "Learn chemistry with interactive lessons and virtual labs.";
+    ViewData["Description"] = "Học hóa học với các bài học tương tác và phòng thí nghiệm ảo.";
     ViewData["CourseTitle"] = Model.Course.Title;
     ViewData["CourseDetailsUrl"] = Url.Action("Details", "Courses", new { id = Model.Course.Id });
     ViewData["IsLessonCompleted"] = Model.CompletedLessonIds.Contains(Model.Lesson.Id);
@@ -13,17 +13,17 @@
 @section LessonOutline {
     @foreach (var chapter in chapters)
     {
-        <div class="mt-4 text-xs uppercase tracking-widest text-slate-500 font-bold">@chapter.Title</div>
+        <div class="mt-4 text-xs uppercase tracking-widest text-on-surface-variant font-label font-bold">@chapter.Title</div>
         @foreach (var lesson in chapter.Lessons.OrderBy(l => l.OrderIndex))
         {
             var isActive = lesson.Id == Model.Lesson.Id;
             var isCompleted = Model.CompletedLessonIds.Contains(lesson.Id);
-            <a class="flex items-center gap-3 @(isActive ? "bg-primary/10 text-primary border-2 border-primary/30 glass-card" : "text-slate-600 hover:bg-slate-100 border-2 border-transparent") rounded-xl p-3 cursor-pointer transition-colors" asp-controller="Lessons" asp-action="Details" asp-route-id="@lesson.Id">
+            <a class="flex items-center gap-3 @(isActive ? "bg-primary/15 text-primary border border-primary/40 shadow-neon-blue" : "text-on-surface-variant hover:bg-surface-container-high border border-transparent") rounded-xl p-3 cursor-pointer transition-colors" asp-controller="Lessons" asp-action="Details" asp-route-id="@lesson.Id">
                 <span class="material-symbols-outlined fill-1">@(isActive ? "play_circle" : "article")</span>
                 <span class="text-sm flex-1 font-semibold">@lesson.Title</span>
                 @if (isCompleted)
                 {
-                    <span class="material-symbols-outlined text-green-500 fill-1">check_circle</span>
+                    <span class="material-symbols-outlined text-secondary fill-1">check_circle</span>
                 }
             </a>
         }
@@ -40,7 +40,7 @@
 
     @if (Model.Lesson.ContentType == "virtual_lab" && Model.Lesson.VirtualLabId.HasValue)
     {
-        <div class="w-full aspect-video bg-slate-100 rounded-2xl border-2 border-primary/20 flex items-center justify-center relative overflow-hidden">
+        <div class="w-full aspect-video bg-surface-container rounded-xl border border-primary/30 flex items-center justify-center relative overflow-hidden">
             <iframe src="@Model.Lesson.VirtualLab.Url"
                     class="absolute inset-0 w-full h-full border-0"
                     allowfullscreen></iframe>
@@ -153,20 +153,20 @@
                 <input type="hidden" name="lessonId" value="@Model.Lesson.Id" />
                 <div class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-[20px] text-primary">create</span>
-                    <label class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Ask a question or share your thoughts</label>
+                    <label class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Đặt câu hỏi hoặc chia sẻ suy nghĩ của bạn</label>
                 </div>
-                <textarea name="content" rows="3" class="w-full bg-white border border-slate-200 focus:border-primary/50 focus:ring-0 rounded-xl text-sm p-4 font-medium outline-none resize-none transition-all" placeholder="Enter your question or discussion content here..."></textarea>
+                <textarea name="content" rows="3" class="w-full bg-white border border-slate-200 focus:border-primary/50 focus:ring-0 rounded-xl text-sm p-4 font-medium outline-none resize-none transition-all" placeholder="Nhập câu hỏi hoặc nội dung thảo luận của bạn ở đây..."></textarea>
                 <button type="submit" class="px-5 py-2.5 bg-primary text-white rounded-full border-2 border-primary/30 hover:bg-primary/90 transition-all btn-glow text-sm self-end flex items-center gap-2 font-bold">
-                    <span class="material-symbols-outlined text-[18px]">send</span> Submit
+                    <span class="material-symbols-outlined text-[18px]">send</span> Gửi
                 </button>
             </form>
         }
         else
         {
             <div class="mb-8 p-6 bg-slate-100 rounded-2xl text-center border border-slate-200">
-                <p class="text-sm text-slate-500 font-medium mb-3">Please login to participate in the discussion.</p>
+                <p class="text-sm text-slate-500 font-medium mb-3">Vui lòng đăng nhập để tham gia thảo luận.</p>
                 <a class="px-5 py-2 bg-primary text-white rounded-full border-2 border-primary/30 hover:bg-primary/90 transition-all btn-glow text-sm inline-flex items-center gap-2 font-bold" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path">
-                    <span class="material-symbols-outlined text-[18px]">login</span> Login now
+                    <span class="material-symbols-outlined text-[18px]">login</span> Đăng nhập ngay
                 </a>
             </div>
         }
@@ -287,7 +287,7 @@
                 .then(r => r.json())
                 .then(res => {
                     if (res.success) {
-                        alert('You received ' + res.score + ' points and it has been saved to the system!');
+                        alert('Bạn nhận được ' + res.score + ' điểm và đã được lưu vào hệ thống!');
                     }
                 })
                 .catch(err => console.error('Error submitting practice score:', err));

@@ -81,7 +81,7 @@ public class TeacherCoursesController : Controller
 
         if (await SlugExists(viewModel.Slug))
         {
-            ModelState.AddModelError(nameof(viewModel.Slug), "Slug already exists.");
+            ModelState.AddModelError(nameof(viewModel.Slug), "Slug đã tồn tại.");
         }
 
         if (!ModelState.IsValid)
@@ -157,7 +157,7 @@ public class TeacherCoursesController : Controller
 
         if (await SlugExists(viewModel.Slug, id))
         {
-            ModelState.AddModelError(nameof(viewModel.Slug), "Slug already exists.");
+            ModelState.AddModelError(nameof(viewModel.Slug), "Slug đã tồn tại.");
         }
 
         if (!ModelState.IsValid)

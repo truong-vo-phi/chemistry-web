@@ -1,7 +1,7 @@
 @model ChemistryV1.ViewModels.MissionDetailsViewModel
 @{
     ViewData["Title"] = $"{Model.Title} | ChemLab";
-    ViewData["Description"] = "Xem mission và tham gia thảo luận cùng cộng đồng.";
+    ViewData["Description"] = "Xem nhiệm vụ và tham gia thảo luận cùng cộng đồng.";
 }
 
 <div class="max-w-7xl mx-auto px-4 py-8">
@@ -11,7 +11,7 @@
                 <div>
                     <div class="inline-flex items-center gap-3 rounded-full bg-secondary/10 text-secondary px-4 py-2 text-sm font-bold">
                         <span class="material-symbols-outlined">stars</span>
-                        Mission Challenge
+                        Thử thách nhiệm vụ
                     </div>
                     <h1 class="mt-4 text-3xl font-bold text-on-background">@Model.Title</h1>
                     <p class="text-sm text-slate-500 mt-2">Hoàn thành mục tiêu để nhận phần thưởng.</p>
@@ -50,9 +50,9 @@
                 </div>
 
                 <div class="rounded-3xl bg-white p-6 border border-slate-200 shadow-sm">
-                    <h2 class="text-xl font-bold text-on-background mb-3">Chi tiết mission</h2>
+                    <h2 class="text-xl font-bold text-on-background mb-3">Chi tiết nhiệm vụ</h2>
                     <p class="text-sm text-slate-600 leading-relaxed">
-                        Mission này yêu cầu bạn hoàn thành mục tiêu và giúp bạn theo dõi tiến trình học tập. Hãy thực hiện các bài học hoặc quiz liên quan để tiến gần hơn đến phần thưởng.
+                        Nhiệm vụ này yêu cầu bạn hoàn thành mục tiêu và giúp bạn theo dõi tiến trình học tập. Hãy thực hiện các bài học hoặc quiz liên quan để tiến gần hơn đến phần thưởng.
                     </p>
                 </div>
             </div>
@@ -61,7 +61,7 @@
         <div class="glass-card p-6 md:p-8">
             <h2 class="text-xl font-bold text-on-background flex items-center gap-2 mb-6">
                 <span class="material-symbols-outlined text-secondary">forum</span>
-                Thảo luận mission
+                Thảo luận nhiệm vụ
             </h2>
 
             @if (TempData["CommentError"] != null)
@@ -97,7 +97,7 @@
             else
             {
                 <div class="mb-8 p-6 bg-slate-100 rounded-2xl text-center border border-slate-200">
-                    <p class="text-sm text-slate-500 font-medium mb-3">Đăng nhập để tham gia thảo luận mission.</p>
+                    <p class="text-sm text-slate-500 font-medium mb-3">Đăng nhập để tham gia thảo luận nhiệm vụ.</p>
                     <a class="px-5 py-2 bg-primary text-white rounded-full border-2 border-primary/30 hover:bg-primary/90 transition-all btn-glow text-sm inline-flex items-center gap-2 font-bold" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path">
                         <span class="material-symbols-outlined text-[18px]">login</span>
                         Đăng nhập

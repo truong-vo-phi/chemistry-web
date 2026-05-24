@@ -1,42 +1,33 @@
-@{
-    // Simplified layout for authentication and user flow pages
-    // No sidebar, minimal navigation, focused on the task
-}
 <!DOCTYPE html>
-<html class="light" lang="vi">
+<html class="dark" lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>@ViewData["Title"] - ChemLab</title>
+    <title>@ViewData["Title"] - Neon Lab</title>
     <meta name="description" content="@ViewData["Description"]" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    @Html.Partial("_DesignSystem")
+    @Html.Partial("_StudentDesignSystem")
     @RenderSection("Head", required: false)
 </head>
-<body class="min-h-screen flex flex-col">
-    <!-- Atmospheric Blobs -->
+<body class="neon-lab-shell min-h-screen flex flex-col">
     <div class="blob -top-48 -left-48"></div>
     <div class="blob top-1/2 -right-48"></div>
     <div class="blob -bottom-48 left-1/3"></div>
 
-    <!-- Simple Header -->
     <header class="w-full py-6 px-8 flex justify-between items-center z-10">
-        <a asp-controller="Home" asp-action="Index" class="text-2xl font-bold text-primary tracking-tight font-display">ChemLab</a>
-        <a asp-controller="Courses" asp-action="Library" class="text-slate-500 hover:text-primary transition-colors font-medium text-sm">Back to Academy</a>
+        <a asp-controller="Home" asp-action="Index" class="text-2xl font-bold text-primary tracking-tight font-display text-glow-primary">Neon Lab</a>
+        <a asp-controller="Courses" asp-action="Library" class="text-on-surface-variant hover:text-primary transition-colors font-medium text-sm">Quay lại học viện</a>
     </header>
 
-    <!-- Main Content -->
     <main class="flex-1 flex items-center justify-center px-8 py-12">
         <div class="w-full max-w-md">
             @RenderBody()
         </div>
     </main>
 
-    <!-- Simple Footer -->
-    <footer class="py-6 px-8 text-center text-slate-400 text-sm">
-        <p>© 2026 ChemLab. All rights reserved.</p>
+    <footer class="py-6 px-8 text-center text-on-surface-variant text-sm">
+        <p>© 2026 Neon Lab · ChemLab Adventure</p>
     </footer>
 
     @RenderSection("Scripts", required: false)

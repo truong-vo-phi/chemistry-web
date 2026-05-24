@@ -6,9 +6,9 @@
 
 <!-- Page Header -->
 <div class="mb-8">
-    <h1 class="text-3xl font-bold text-on-background font-display">Academy Dashboard</h1>
+    <h1 class="text-3xl font-bold text-on-background font-display">Bảng điều khiển học viện</h1>
     <p class="text-slate-500 mt-1">
-        Welcome back, <strong>@User.Identity?.Name</strong>. System is operating normally.
+        Chào mừng trở lại, <strong>@User.Identity?.Name</strong>. Hệ thống đang hoạt động bình thường.
     </p>
 </div>
 
@@ -26,7 +26,7 @@
             }
         </div>
         <p class="text-2xl font-bold text-on-background">@ViewBag.TotalUsers</p>
-        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Total Users</p>
+        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Tổng số người dùng</p>
     </div>
     <!-- Active Students -->
     <div class="glass-card p-5 hover:shadow-md transition-all group">
@@ -34,7 +34,7 @@
             <span class="material-symbols-outlined text-lg">school</span>
         </div>
         <p class="text-2xl font-bold text-on-background">@ViewBag.TotalStudents</p>
-        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Active Students</p>
+        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Học sinh đang hoạt động</p>
     </div>
     <!-- Total Courses -->
     <div class="glass-card p-5 hover:shadow-md transition-all group">
@@ -42,7 +42,7 @@
             <span class="material-symbols-outlined text-lg">auto_stories</span>
         </div>
         <p class="text-2xl font-bold text-on-background">@ViewBag.TotalCourses</p>
-        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Total Courses</p>
+        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Tổng số khóa học</p>
     </div>
     <!-- Total Lessons -->
     <div class="glass-card p-5 hover:shadow-md transition-all group">
@@ -50,7 +50,7 @@
             <span class="material-symbols-outlined text-lg">menu_book</span>
         </div>
         <p class="text-2xl font-bold text-on-background">@ViewBag.TotalLessons</p>
-        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Total Lessons</p>
+        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Tổng số bài học</p>
     </div>
     <!-- Total Enrollments -->
     <div class="glass-card p-5 hover:shadow-md transition-all group">
@@ -58,7 +58,7 @@
             <span class="material-symbols-outlined text-lg">person_add</span>
         </div>
         <p class="text-2xl font-bold text-on-background">@ViewBag.TotalEnrollments</p>
-        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Enrollments</p>
+        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Đăng ký</p>
     </div>
     <!-- Categories -->
     <div class="glass-card p-5 hover:shadow-md transition-all group">
@@ -66,14 +66,14 @@
             <span class="material-symbols-outlined text-lg">category</span>
         </div>
         <p class="text-2xl font-bold text-on-background">@ViewBag.TotalCategories</p>
-        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Categories</p>
+        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Danh mục</p>
     </div>
     <div class="glass-card p-5 hover:shadow-md transition-all group">
         <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-3 group-hover:scale-110 transition-transform">
             <span class="material-symbols-outlined text-lg">admin_panel_settings</span>
         </div>
         <p class="text-2xl font-bold text-on-background">@ViewBag.AdminUsers</p>
-        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Admins</p>
+        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Quản trị viên</p>
     </div>
 </div>
 
@@ -83,10 +83,10 @@
     <div class="lg:col-span-8 glass-card p-6">
         <div class="flex justify-between items-center mb-6">
             <div>
-                <h3 class="font-bold text-lg text-on-background font-display">Weekly Login Activity</h3>
-                <p class="text-xs text-slate-500 mt-0.5">Login count by day this week</p>
+                <h3 class="font-bold text-lg text-on-background font-display">Hoạt động đăng nhập hàng tuần</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Số lần đăng nhập theo ngày trong tuần</p>
             </div>
-            <span class="text-xs bg-primary/10 border border-primary/20 text-primary px-3 py-1.5 rounded-full font-bold">Last 7 Days</span>
+            <span class="text-xs bg-primary/10 border border-primary/20 text-primary px-3 py-1.5 rounded-full font-bold">7 ngày qua</span>
         </div>
         <!-- Bar Chart -->
         <div class="h-48 flex items-end gap-3 border-b border-slate-200 pb-2">
@@ -101,7 +101,7 @@
                 var barBg = isPeak ? "bg-secondary" : "bg-primary/20 hover:bg-primary/40";
                 <div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
                     <div class="w-full @barBg rounded-t-lg transition-all bar-animated cursor-pointer relative group" style="height:@h%">
-                        <div class="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-700 text-white text-[10px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">@h logins</div>
+                        <div class="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-700 text-white text-[10px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">@h lần đăng nhập</div>
                     </div>
                     <span class="text-[10px] font-bold text-slate-500">@days[i]</span>
                 </div>
@@ -128,7 +128,7 @@
                     </svg>
                     <div class="absolute inset-0 flex flex-col items-center justify-center">
                         <span class="text-2xl font-bold text-secondary font-display">@completionRate%</span>
-                        <span class="text-[9px] text-slate-500 font-bold uppercase">Success</span>
+                        <span class="text-[9px] text-slate-500 font-bold uppercase">Thành công</span>
                     </div>
                 </div>
             </div>
@@ -136,31 +136,31 @@
 
         <!-- Quick Actions -->
         <div class="glass-card p-6">
-            <h4 class="font-bold text-sm text-on-background mb-4 font-display">Quick Actions</h4>
+            <h4 class="font-bold text-sm text-on-background mb-4 font-display">Hành động nhanh</h4>
             <div class="grid grid-cols-2 gap-3">
                 <a asp-controller="TeacherCourses" asp-action="Create" class="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all text-slate-600 group text-center">
                     <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-primary text-lg">add</span>
                     </div>
-                    <span class="text-[10px] font-bold">New Course</span>
+                    <span class="text-[10px] font-bold">Khóa học mới</span>
                 </a>
                 <a asp-controller="Categories" asp-action="Index" class="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-2xl hover:bg-secondary/10 hover:text-secondary transition-all text-slate-600 group text-center">
                     <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-secondary text-lg">category</span>
                     </div>
-                    <span class="text-[10px] font-bold">Categories</span>
+                    <span class="text-[10px] font-bold">Danh mục</span>
                 </a>
                 <a asp-controller="AdminMissions" asp-action="Index" class="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-2xl hover:bg-tertiary/10 hover:text-tertiary transition-all text-slate-600 group text-center">
                     <div class="w-10 h-10 rounded-xl bg-tertiary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-tertiary text-lg">assignment</span>
                     </div>
-                    <span class="text-[10px] font-bold">Missions</span>
+                    <span class="text-[10px] font-bold">Nhiệm vụ</span>
                 </a>
                 <a asp-controller="AdminComments" asp-action="Index" class="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-2xl hover:bg-red-50 hover:text-red-600 transition-all text-slate-600 group text-center">
                     <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-red-600 text-lg">report</span>
                     </div>
-                    <span class="text-[10px] font-bold">Comments</span>
+                    <span class="text-[10px] font-bold">Bình luận</span>
                 </a>
             </div>
         </div>
@@ -189,7 +189,7 @@
                             <p class="text-[11px] text-slate-500">@(course.Teacher?.FullName ?? course.Teacher?.Username ?? "Unknown") • @(course.Status ?? "draft")</p>
                         </div>
                         <a asp-controller="Courses" asp-action="Details" asp-route-id="@course.Id" class="text-[11px] bg-primary/10 text-primary px-3 py-1 rounded-full font-bold hover:bg-primary hover:text-white transition-all">
-                            View
+                            Xem
                         </a>
                     </div>
                 }
@@ -198,8 +198,8 @@
             {
                 <div class="text-center py-10 text-slate-400">
                     <span class="material-symbols-outlined text-4xl mb-2 block opacity-30">auto_stories</span>
-                    <p class="text-sm">No courses yet.</p>
-                    <a asp-controller="TeacherCourses" asp-action="Create" class="mt-3 inline-block text-primary font-bold text-sm hover:underline">Create one</a>
+                    <p class="text-sm">Chưa có khóa học nào.</p>
+                    <a asp-controller="TeacherCourses" asp-action="Create" class="mt-3 inline-block text-primary font-bold text-sm hover:underline">Tạo một khóa học</a>
                 </div>
             }
         </div>
@@ -208,52 +208,52 @@
     <!-- System Health -->
     <div class="lg:col-span-4 space-y-4">
         <div class="glass-card p-6">
-            <h4 class="font-bold text-sm text-on-background mb-4 font-display">System Health</h4>
+            <h4 class="font-bold text-sm text-on-background mb-4 font-display">Tình trạng hệ thống</h4>
             <div class="space-y-3">
                 <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
                     <div class="flex items-center gap-3">
                         <div class="w-2 h-2 bg-secondary rounded-full"></div>
-                        <span class="text-sm font-semibold">Authentication</span>
+                        <span class="text-sm font-semibold">Xác thực</span>
                     </div>
-                    <span class="text-[10px] text-secondary font-bold bg-secondary/10 px-2 py-0.5 rounded-full">ONLINE</span>
+                    <span class="text-[10px] text-secondary font-bold bg-secondary/10 px-2 py-0.5 rounded-full">TRỰC TUYẾN</span>
                 </div>
                 <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
                     <div class="flex items-center gap-3">
                         <div class="w-2 h-2 bg-secondary rounded-full"></div>
-                        <span class="text-sm font-semibold">Database</span>
+                        <span class="text-sm font-semibold">Cơ sở dữ liệu</span>
                     </div>
-                    <span class="text-[10px] text-secondary font-bold bg-secondary/10 px-2 py-0.5 rounded-full">ONLINE</span>
+                    <span class="text-[10px] text-secondary font-bold bg-secondary/10 px-2 py-0.5 rounded-full">TRỰC TUYẾN</span>
                 </div>
                 <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
                     <div class="flex items-center gap-3">
                         <div class="w-2 h-2 bg-secondary rounded-full"></div>
-                        <span class="text-sm font-semibold">Storage</span>
+                        <span class="text-sm font-semibold">Lưu trữ</span>
                     </div>
-                    <span class="text-[10px] text-secondary font-bold bg-secondary/10 px-2 py-0.5 rounded-full">ONLINE</span>
+                    <span class="text-[10px] text-secondary font-bold bg-secondary/10 px-2 py-0.5 rounded-full">TRỰC TUYẾN</span>
                 </div>
             </div>
         </div>
 
         <!-- DB Metrics -->
         <div class="glass-card p-6">
-            <h4 class="font-bold text-sm text-on-background mb-4 font-display">Database Metrics</h4>
+            <h4 class="font-bold text-sm text-on-background mb-4 font-display">Số liệu cơ sở dữ liệu</h4>
             <div class="space-y-3">
                 <div class="flex justify-between items-center text-sm">
-                    <span class="text-slate-500">Total Courses</span>
+                    <span class="text-slate-500">Tổng số khóa học</span>
                     <span class="font-bold text-primary">@ViewBag.TotalCourses</span>
                 </div>
                 <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                     <div class="h-full bg-primary rounded-full" style="width:@(Math.Min(100, (int)(ViewBag.TotalCourses ?? 0) * 4))%;"></div>
                 </div>
                 <div class="flex justify-between items-center text-sm mt-2">
-                    <span class="text-slate-500">Total Lessons</span>
+                    <span class="text-slate-500">Tổng số bài học</span>
                     <span class="font-bold text-secondary">@ViewBag.TotalLessons</span>
                 </div>
                 <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                     <div class="h-full bg-secondary rounded-full" style="width:@(Math.Min(100, (int)(ViewBag.TotalLessons ?? 0) * 2))%;"></div>
                 </div>
                 <div class="flex justify-between items-center text-sm mt-2">
-                    <span class="text-slate-500">Categories</span>
+                    <span class="text-slate-500">Danh mục</span>
                     <span class="font-bold text-tertiary">@ViewBag.TotalCategories</span>
                 </div>
                 <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">

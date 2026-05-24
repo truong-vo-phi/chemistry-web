@@ -42,12 +42,12 @@ public class ProgressionController : ControllerBase
 
         if (request.Score < 0 || request.Xp < 0 || request.CompletionTime < 0)
         {
-            return BadRequest(new { success = false, message = "Invalid gameplay result values." });
+            return BadRequest(new { success = false, message = "Giá trị kết quả gameplay không hợp lệ." });
         }
 
         var user = await _context.Users.FindAsync(userId.Value);
         if (user == null)
-            return NotFound(new { success = false, message = "User not found." });
+            return NotFound(new { success = false, message = "Không tìm thấy người dùng." });
 
         var gameplayResult = new GameplayResult
         {
@@ -93,11 +93,11 @@ public class ProgressionController : ControllerBase
 
         var mission = await _context.SystemMissions.FindAsync(request.MissionId);
         if (mission == null)
-            return NotFound(new { success = false, message = "Mission not found." });
+            return NotFound(new { success = false, message = "Không tìm thấy nhiệm vụ." });
 
         var currentProgress = await ResolveMissionProgress(userId.Value, mission);
         if (currentProgress < mission.TargetValue)
-            return BadRequest(new { success = false, message = "Mission goal has not been reached yet." });
+            return BadRequest(new { success = false, message = "Mục tiêu nhiệm vụ chưa đạt được." });
 
         var existingCompletion = await _context.UserMissionProgresses.FindAsync(userId.Value, request.MissionId);
         if (existingCompletion != null)
@@ -127,7 +127,7 @@ public class ProgressionController : ControllerBase
 
         var response = await SyncUserStats(userId.Value);
         if (response == null)
-            return NotFound(new { success = false, message = "User not found." });
+            return NotFound(new { success = false, message = "Không tìm thấy người dùng." });
 
         return Ok(new { success = true, user = response });
     }

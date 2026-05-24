@@ -5,144 +5,76 @@
     var controller = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLowerInvariant() ?? "";
 }
 <!DOCTYPE html>
-<html class="light" lang="vi">
+<html class="dark" lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>ChemLab | Futuristic Academy Dashboard</title>
-    <meta name="description" content="Bảng điều khiển học tập ChemLab - theo dõi tiến độ, nhiệm vụ và thành tích của bạn." />
+    <title>Neon Lab | Bàn thí nghiệm</title>
+    <meta name="description" content="Bảng điều khiển Neon Lab - theo dõi tiến độ, nhiệm vụ và thành tích của bạn." />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#3b82f6",
-                        "secondary": "#10b981",
-                        "tertiary": "#f59e0b",
-                        "background": "#fdfcf8",
-                        "on-background": "#1e293b",
-                        "surface": "rgba(255,255,255,0.7)",
-                        "surface-variant": "#f1f5f9",
-                        "outline": "#cbd5e1",
-                        "error": "#ef4444"
-                    },
-                    borderRadius: {
-                        DEFAULT: "1rem",
-                        lg: "2rem",
-                        xl: "2.5rem",
-                        "2xl": "32px",
-                        full: "9999px"
-                    },
-                    spacing: {
-                        gutter: "32px",
-                        "margin-mobile": "20px",
-                        unit: "8px",
-                        "margin-desktop": "48px",
-                        "container-max": "1300px"
-                    },
-                    fontFamily: {
-                        display: ["Lexend", "sans-serif"],
-                        body: ["Lexend", "sans-serif"]
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { background-color: #fdfcf8; font-family: 'Lexend', sans-serif; color: #1e293b; overflow-x: hidden; position: relative; }
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.03; z-index: 100; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
-        .blob { position: fixed; width: 600px; height: 600px; background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%); border-radius: 50%; z-index: -1; filter: blur(60px); }
-        .glass-card { background: rgba(255,255,255,0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.04); border-radius: 32px; }
-        .premium-shadow { box-shadow: 0 20px 50px -15px rgba(59,130,246,0.15); }
-        .xp-glow { box-shadow: 0 0 20px rgba(59,130,246,0.4); }
-        .btn-glow { box-shadow: 0 8px 25px -5px rgba(59,130,246,0.5); }
-        .collectible-border { border: 1px solid rgba(0,0,0,0.05); background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 100%); transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-        .collectible-border:hover { transform: translateY(-5px) scale(1.02); border-color: rgba(59,130,246,0.3); box-shadow: 0 12px 30px -10px rgba(0,0,0,0.1); }
-        .sidebar-active { background: linear-gradient(90deg, rgba(59,130,246,0.1) 0%, transparent 100%); border-right: 3px solid #3b82f6; }
-        .custom-scrollbar::-webkit-scrollbar { height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-        @@keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
-        .animate-float { animation: float 4s ease-in-out infinite; }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .material-symbols-outlined.fill-1 { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        /* Mobile sidebar overlay */
-        #mobile-sidebar-overlay { display: none; }
-        #mobile-sidebar-overlay.active { display: block; }
-        #mobile-sidebar.open { transform: translateX(0); }
-    </style>
+    @Html.Partial("_StudentDesignSystem")
 </head>
-<body class="min-h-screen">
+<body class="neon-lab-shell min-h-screen">
     <!-- Atmospheric Blobs -->
     <div class="blob -top-48 -left-48"></div>
     <div class="blob top-1/2 -right-48"></div>
     <div class="blob -bottom-48 left-1/3"></div>
 
     <!-- Mobile Sidebar Overlay -->
-    <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black/30 z-40 backdrop-blur-sm lg:hidden" onclick="closeMobileSidebar()"></div>
+    <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm lg:hidden" onclick="closeMobileSidebar()"></div>
 
-    <!-- SideNavBar -->
-    <aside id="mobile-sidebar" class="flex flex-col w-72 fixed left-0 top-0 h-full bg-white/70 backdrop-blur-xl border-r border-white/60 z-50 lg:flex py-10 px-8 shadow-xl transition-transform duration-300 -translate-x-full lg:translate-x-0">
+    <aside id="mobile-sidebar" class="neon-sidebar flex flex-col w-72 fixed left-0 top-0 h-full z-50 lg:flex py-10 px-8 transition-transform duration-300 -translate-x-full lg:translate-x-0">
         <div class="mb-10">
-            <a asp-controller="Home" asp-action="Index" class="text-3xl font-bold text-primary tracking-tight font-display block">ChemLab</a>
+            <a asp-controller="Home" asp-action="Index" class="text-3xl font-bold text-primary tracking-tight font-display block text-glow-primary">Neon Lab</a>
+            <p class="text-[10px] font-label text-on-surface-variant mt-1">ChemLab Adventure</p>
         </div>
 
-        <!-- User Profile Card -->
-        <div class="flex items-center gap-4 p-4 mb-8 bg-white/60 rounded-2xl border border-white/80 shadow-sm">
+        <div class="flex items-center gap-4 p-4 mb-8 glass-panel">
             <div class="relative flex-shrink-0">
                 <img alt="@Model.UserName" class="w-12 h-12 rounded-full object-cover border-2 border-primary/20" src="@Model.AvatarUrl" />
-                <div class="absolute bottom-0 right-0 w-3 h-3 bg-secondary border-2 border-white rounded-full"></div>
+                <div class="absolute bottom-0 right-0 w-3 h-3 bg-secondary border-2 border-surface-container rounded-full"></div>
             </div>
             <div class="min-w-0">
                 <p class="font-bold text-sm text-on-background leading-none mb-1 truncate">@Model.UserName</p>
-                <p class="text-[10px] text-slate-500 uppercase font-semibold tracking-widest">@Model.Role</p>
+                <p class="text-[10px] text-secondary font-label tracking-widest">@Model.Role</p>
             </div>
         </div>
 
         <nav class="flex-1 space-y-1">
             
-           @if (User.IsInRole("Admin"))
-            {
-                <a class="text-slate-500 hover:text-primary flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5"
-                   asp-controller="Dashboard" asp-action="Index">
-                    <span class="material-symbols-outlined">dashboard</span>
-                    <span class="font-medium text-sm">Admin Dashboard</span>
-                </a>
-
-                <a class="text-slate-500 hover:text-primary flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5"
-                   asp-controller="TeacherCourses" asp-action="Index">
-                    <span class="material-symbols-outlined">auto_stories</span>
-                    <span class="font-medium text-sm">Manage Courses</span>
-                </a>
-            }
-            else
-            {
+           @if (User.IsInRole("Student"))
+            {              
                 <a class="sidebar-active flex items-center gap-4 p-4 text-primary transition-all duration-300 rounded-l-xl"
                    asp-controller="Home" asp-action="Index">
                     <span class="material-symbols-outlined fill-1">science</span>
-                    <span class="font-semibold text-sm">Lab Bench</span>
+                    <span class="font-semibold text-sm">Bàn thí nghiệm</span>
                 </a>
 
-                <a class="text-slate-500 hover:text-primary flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5"
+                <a class="neon-nav-link flex items-center gap-4 p-4 transition-all hover:translate-x-1 rounded-l-xl"
                    asp-controller="Courses" asp-action="Library">
                     <span class="material-symbols-outlined">apps</span>
-                    <span class="font-medium text-sm">Curriculum</span>
+                    <span class="font-medium text-sm">Chương trình học</span>
                 </a>
 
-                <a class="text-slate-500 hover:text-primary flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5"
+                <a class="neon-nav-link flex items-center gap-4 p-4 transition-all hover:translate-x-1 rounded-l-xl"
                    asp-controller="Profile" asp-action="Index">
                     <span class="material-symbols-outlined">stars</span>
-                    <span class="font-medium text-sm">My Progress</span>
+                    <span class="font-medium text-sm">Tiến độ của tôi</span>
                 </a>
-                <a class="text-slate-500 hover:text-primary flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5"
+                <a class="neon-nav-link flex items-center gap-4 p-4 transition-all hover:translate-x-1 rounded-l-xl"
                    asp-controller="Leaderboard" asp-action="Index">
                     <span class="material-symbols-outlined">emoji_events</span>
-                    <span class="font-medium text-sm">Leaderboard</span>
+                    <span class="font-medium text-sm">Bảng xếp hạng</span>
                 </a>
+                <a class="@(controller == "achievements" ? "sidebar-active" : "neon-nav-link") flex items-center gap-4 p-4 transition-all hover:translate-x-1 rounded-l-xl" asp-controller="Achievements" asp-action="Index">
+                    <span class="material-symbols-outlined">military_tech</span>
+                    <span class="font-medium text-sm">Phân tích học tập</span>
+                </a>
+                <a class="@(controller == "practicequestions" ? "sidebar-active" : "neon-nav-link") flex items-center gap-4 p-4 transition-all hover:translate-x-1 rounded-l-xl" asp-controller="PracticeQuestions" asp-action="Index">
+                    <span class="material-symbols-outlined">style</span>
+                    <span class="font-medium text-sm">Luyện tập Flashcard</span>
+                 </a>
             }
         </nav>
 
@@ -154,9 +86,9 @@
                     Đăng xuất
                 </button>
             </form>
-            <a asp-controller="Courses" asp-action="Library" class="w-full bg-primary text-white font-bold text-sm py-4 rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] btn-glow">
+            <a asp-controller="Courses" asp-action="Library" class="w-full bg-primary text-on-primary font-label font-bold text-sm py-4 rounded-xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] btn-glow">
                 <span class="material-symbols-outlined text-xl">add_circle</span>
-                New Experiment
+                Thí nghiệm mới
             </a>
         </div>
     </aside>
@@ -167,26 +99,22 @@
         <header class="flex justify-between items-center w-full mb-12">
             <div class="flex items-center gap-6">
                 <!-- Mobile menu toggle -->
-                <button onclick="openMobileSidebar()" class="p-3 bg-white rounded-2xl border border-slate-100 shadow-sm lg:hidden">
+                <button onclick="openMobileSidebar()" class="p-3 glass-panel rounded-xl border border-primary/20 lg:hidden">
                     <span class="material-symbols-outlined text-primary">menu</span>
                 </button>
-                <!-- Search -->
-                <form asp-controller="Courses" asp-action="Library" method="get" class="hidden lg:flex items-center gap-3 bg-white/60 backdrop-blur-sm px-5 py-3 rounded-2xl border border-white w-[400px] focus-within:ring-2 focus-within:ring-primary/20 transition-all">
-                    <span class="material-symbols-outlined text-slate-400">search</span>
-                    <input name="search" class="border-none focus:ring-0 bg-transparent text-sm w-full font-medium outline-none" placeholder="Tìm thí nghiệm, bài học, nguyên tố..." type="text" />
-                </form>
+                
             </div>
             <div class="flex items-center gap-4">
-                <button class="relative p-3 bg-white/60 backdrop-blur-sm rounded-2xl border border-white text-slate-500 hover:text-primary transition-colors" title="Thông báo">
+                <button class="relative p-3 glass-panel rounded-xl border border-outline/50 text-on-surface-variant hover:text-primary transition-colors" title="Thông báo">
                     <span class="material-symbols-outlined">notifications</span>
                     @if (Model.DayStreak > 0)
                     {
-                        <span class="absolute top-3 right-3 w-2 h-2 bg-secondary rounded-full border-2 border-white"></span>
+                        <span class="absolute top-3 right-3 w-2 h-2 bg-secondary rounded-full border-2 border-surface-container"></span>
                     }
                 </button>
-                <a asp-controller="Profile" asp-action="Index" class="flex items-center gap-3 bg-white p-1.5 pr-5 rounded-full border border-slate-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                    <img alt="@Model.UserName" class="w-10 h-10 rounded-full object-cover shadow-sm" src="@Model.AvatarUrl" />
-                    <span class="font-bold text-sm hidden sm:block text-slate-700">@Model.UserName</span>
+                <a asp-controller="Profile" asp-action="Index" class="flex items-center gap-3 glass-panel p-1.5 pr-5 rounded-full border border-primary/20 hover:border-primary/50 transition-all cursor-pointer">
+                    <img alt="@Model.UserName" class="w-10 h-10 rounded-full object-cover border border-primary/30" src="@Model.AvatarUrl" />
+                    <span class="font-bold text-sm hidden sm:block text-on-background">@Model.UserName</span>
                 </a>
             </div>
         </header>
@@ -199,7 +127,7 @@
                 <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-secondary/5 rounded-full blur-2xl"></div>
                 <!-- Avatar float -->
                 <div class="relative z-10 w-full max-w-[200px] flex-shrink-0 animate-float">
-                    <div class="w-40 h-40 mx-auto rounded-full overflow-hidden border-4 border-white shadow-2xl bg-primary/10 flex items-center justify-center">
+                    <div class="w-40 h-40 mx-auto rounded-full overflow-hidden border-4 border-primary/50 shadow-neon-blue bg-primary/10 flex items-center justify-center">
                         <img alt="@Model.UserName" class="w-full h-full object-cover" src="@Model.AvatarUrl" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" />
                         <span class="material-symbols-outlined text-6xl text-primary hidden">person</span>
                     </div>
@@ -211,8 +139,8 @@
                 </div>
                 <!-- Hero Text -->
                 <div class="relative z-10 flex-1 w-full text-center md:text-left">
-                    <h2 class="text-4xl font-bold text-on-background mb-4 font-display leading-tight">
-                        Chào mừng, <span class="text-primary">@Model.UserName.Split(' ').FirstOrDefault()</span>!
+                    <h2 class="text-4xl font-bold text-on-background mb-4 font-display leading-tight text-glow-primary">
+                        CHÀO MỪNG, <span class="text-primary">@Model.UserName.Split(' ').FirstOrDefault()?.ToUpperInvariant()</span>!
                     </h2>
                     @{
                         var xpToNext = Model.NextGoalTarget - Model.NextGoalCurrent;
@@ -554,7 +482,7 @@
                 <a asp-controller="Courses" asp-action="Library" class="text-slate-500 hover:text-primary transition-all font-bold text-xs uppercase tracking-widest">Chương Trình</a>
                 <a asp-controller="Profile" asp-action="Index" class="text-slate-500 hover:text-primary transition-all font-bold text-xs uppercase tracking-widest">Hồ Sơ</a>
             </div>
-            <div class="text-slate-400 font-bold text-[10px] uppercase tracking-widest">© 2024 ChemLab Academy</div>
+            <div class="text-slate-400 font-bold text-[10px] uppercase tracking-widest">© 2024 Học viện ChemLab</div>
         </div>
     </footer>
 
