@@ -25,7 +25,7 @@ public class LessonsController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> Details(int id)
     {
-        
+
         var lesson = await _context.Lessons
             .Include(l => l.Chapter)
 
@@ -34,7 +34,7 @@ public class LessonsController : Controller
             .Include(l => l.Comments)
                 .ThenInclude(c => c.User)
             .FirstOrDefaultAsync(l => l.Id == id);
-       
+
 
         if (lesson == null || lesson.ChapterId == null)
         {
@@ -80,7 +80,82 @@ public class LessonsController : Controller
             Lesson = lesson
         };
 
+        // Load completed lessons for current user if authenticated
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(userIdClaim))
+            {
+                var userId = Convert.ToInt32(userIdClaim);
+                viewModel.CompletedLessonIds = await _context.UserLessonProgresses
+                    .Where(ulp => ulp.UserId == userId && ulp.IsCompleted == true)
+                    .Select(ulp => ulp.LessonId)
+                    .ToListAsync();
+            }
+        }
+
         return View(viewModel);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> MarkAsComplete(int lessonId)
+    {
+        Console.WriteLine($"[MarkAsComplete DEBUG] User.Identity?.IsAuthenticated: {User.Identity?.IsAuthenticated}");
+        Console.WriteLine($"[MarkAsComplete DEBUG] User.Identity?.Name: {User.Identity?.Name}");
+
+        if (User.Identity?.IsAuthenticated != true)
+        {
+            Console.WriteLine($"[MarkAsComplete DEBUG] User not authenticated, redirecting to login");
+            return RedirectToAction("Login", "Account");
+        }
+
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        Console.WriteLine($"[MarkAsComplete DEBUG] userIdClaim: {userIdClaim}");
+
+        if (string.IsNullOrEmpty(userIdClaim))
+        {
+            Console.WriteLine($"[MarkAsComplete DEBUG] userIdClaim is null or empty, redirecting to login");
+            return RedirectToAction("Login", "Account");
+        }
+
+        var userId = Convert.ToInt32(userIdClaim);
+        Console.WriteLine($"[MarkAsComplete DEBUG] userId: {userId}, lessonId: {lessonId}");
+
+        var lesson = await _context.Lessons.FindAsync(lessonId);
+        if (lesson == null)
+        {
+            Console.WriteLine($"[MarkAsComplete DEBUG] Lesson not found");
+            return NotFound();
+        }
+
+        var progress = await _context.UserLessonProgresses
+            .FirstOrDefaultAsync(ulp => ulp.UserId == userId && ulp.LessonId == lessonId);
+
+        if (progress == null)
+        {
+            progress = new UserLessonProgress
+            {
+                UserId = userId,
+                LessonId = lessonId,
+                IsCompleted = true,
+                CompletedAt = DateTime.UtcNow
+            };
+            _context.UserLessonProgresses.Add(progress);
+            Console.WriteLine($"[MarkAsComplete DEBUG] Creating new progress record");
+        }
+        else
+        {
+            progress.IsCompleted = true;
+            progress.CompletedAt = DateTime.UtcNow;
+            _context.UserLessonProgresses.Update(progress);
+            Console.WriteLine($"[MarkAsComplete DEBUG] Updating existing progress record");
+        }
+
+        await _context.SaveChangesAsync();
+        Console.WriteLine($"[MarkAsComplete DEBUG] Progress saved successfully");
+
+        return RedirectToAction("Details", new { id = lessonId });
     }
 
     public async Task<IActionResult> Create(int chapterId)
@@ -91,7 +166,7 @@ public class LessonsController : Controller
             return NotFound();
         }
 
-        viewModel.Lesson = new Lesson { ChapterId = chapterId, ContentType = "theory" };
+        viewModel.Lesson = new Lesson { ChapterId = chapterId, ContentType = "virtual_lab" };
         return View(viewModel);
     }
 
@@ -119,6 +194,7 @@ public class LessonsController : Controller
         var uploadedAttachment = await SaveFileAsync(attachmentFile, "attachments");
         if (uploadedAttachment != null) viewModel.Lesson.AttachmentPath = uploadedAttachment;
 
+        viewModel.Lesson.ContentType = "virtual_lab";
         viewModel.Lesson.CreatedAt = DateTime.Now;
         _context.Lessons.Add(viewModel.Lesson);
         await _context.SaveChangesAsync();
@@ -174,7 +250,7 @@ public class LessonsController : Controller
         var uploadedAttachment = await SaveFileAsync(attachmentFile, "attachments");
 
         dbLesson.Title = viewModel.Lesson.Title;
-        dbLesson.ContentType = viewModel.Lesson.ContentType;
+        dbLesson.ContentType = "virtual_lab";
         dbLesson.DocumentContent = viewModel.Lesson.DocumentContent;
         dbLesson.IsPreview = viewModel.Lesson.IsPreview;
         dbLesson.OrderIndex = viewModel.Lesson.OrderIndex;

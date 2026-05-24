@@ -1,0 +1,132 @@
+@{
+    // Focused experience layout for lesson viewer
+    // Sidebar with course outline, main content area with lesson content
+}
+<!DOCTYPE html>
+<html class="light h-full" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>@ViewData["Title"] - ChemLab</title>
+    <meta name="description" content="@ViewData["Description"]" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    @Html.Partial("_DesignSystem")
+    @RenderSection("Head", required: false)
+</head>
+<body class="bg-background text-on-background h-full flex flex-col md:flex-row overflow-hidden relative">
+
+    <!-- Mobile overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black/30 z-40 backdrop-blur-sm md:hidden" onclick="closeMobileSidebar()"></div>
+
+    <!-- LESSON SIDEBAR -->
+    <nav id="lesson-mobile-sidebar" class="w-full md:w-80 h-auto md:h-full bg-white border-r-2 border-slate-200 flex flex-col flex-shrink-0 z-20 glass-card rounded-r-xl fixed left-0 top-0 z-50 transition-transform duration-300 -translate-x-full md:translate-x-0 md:static">
+        <div class="p-6 border-b-2 border-slate-200 flex justify-between items-center bg-white/50 backdrop-blur-sm">
+            <div>
+                <h2 class="text-lg font-bold text-primary font-display mb-1">@ViewData["CourseTitle"]</h2>
+                <p class="text-sm text-slate-500 font-semibold">Lesson Viewer</p>
+            </div>
+            <button onclick="closeMobileSidebar()" class="md:hidden p-2 rounded-full hover:bg-slate-100">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto px-4 pb-6 space-y-2">
+            @RenderSection("LessonOutline", required: true)
+        </div>
+        <div class="p-4 border-t-2 border-slate-200 bg-white/50">
+            <a class="w-full flex items-center justify-center gap-2 p-3 text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors font-bold text-sm border-2 border-transparent hover:border-red-200" href="@ViewData["CourseDetailsUrl"]">
+                <span class="material-symbols-outlined">logout</span>
+                Exit to Course
+            </a>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col h-full bg-background relative overflow-y-auto">
+        <header class="flex justify-between items-center p-4 md:px-8 md:py-6 bg-white/90 backdrop-blur-md sticky top-0 z-10">
+            <div class="flex items-center gap-4">
+                <button onclick="openMobileSidebar()" class="md:hidden p-2 bg-slate-100 rounded-full text-primary border-2 border-primary/20 shadow-sm">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition-colors border-2 border-slate-200">
+                    <span class="material-symbols-outlined">help_outline</span>
+                </button>
+            </div>
+        </header>
+        <div class="flex-1 px-4 md:px-8 pb-24 max-w-5xl mx-auto w-full flex flex-col justify-center">
+            @RenderBody()
+        </div>
+        <div class="bg-white border-t-2 border-slate-200 p-4 md:p-6 sticky bottom-0 z-10 w-full">
+            <div class="max-w-5xl mx-auto flex justify-between items-center gap-4">
+                <a class="px-6 py-3 bg-slate-100 rounded-full text-slate-600 border-2 border-slate-200 hover:bg-slate-200 transition-colors flex items-center gap-2 font-bold text-sm" href="@ViewData["CourseDetailsUrl"]">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    <span class="hidden md:inline">Back to Course</span>
+                </a>
+                @{
+                    var isLessonCompleted = ViewData["IsLessonCompleted"] as bool? ?? false;
+                }
+                @if (isLessonCompleted)
+                {
+                    <button id="markCompleteBtn" class="flex-1 md:flex-none px-8 py-3 bg-green-500 text-white rounded-full border-2 border-green-500/30 transition-colors flex items-center justify-center gap-2 font-bold text-sm" disabled>
+                        <span class="material-symbols-outlined fill-1">check_circle</span>
+                        Completed
+                    </button>
+                }
+                else
+                {
+                    <button id="markCompleteBtn" class="flex-1 md:flex-none px-8 py-3 bg-primary text-white rounded-full border-2 border-primary/30 hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 font-bold text-sm btn-glow">
+                        <span class="material-symbols-outlined fill-1">check_circle</span>
+                        Mark as Complete
+                    </button>
+                }
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function openMobileSidebar() {
+            document.getElementById('lesson-mobile-sidebar').classList.remove('-translate-x-full');
+            document.getElementById('mobile-overlay').classList.remove('hidden');
+            document.getElementById('mobile-overlay').style.display = 'block';
+        }
+        function closeMobileSidebar() {
+            document.getElementById('lesson-mobile-sidebar').classList.add('-translate-x-full');
+            document.getElementById('mobile-overlay').classList.add('hidden');
+            document.getElementById('mobile-overlay').style.display = 'none';
+        }
+
+        // Mark as Complete button handler
+        document.getElementById('markCompleteBtn')?.addEventListener('click', function() {
+            const lessonId = @ViewData["LessonId"];
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+            fetch('/Lessons/MarkAsComplete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token
+                },
+                body: `lessonId=${lessonId}&__RequestVerificationToken=${encodeURIComponent(token)}`
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Có lỗi xảy ra khi đánh dấu hoàn thành');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi đánh dấu hoàn thành');
+            });
+        });
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

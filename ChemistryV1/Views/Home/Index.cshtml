@@ -104,27 +104,39 @@
         </div>
 
         <nav class="flex-1 space-y-1">
-            <a class="sidebar-active flex items-center gap-4 p-4 text-primary transition-all duration-300 rounded-l-xl" asp-controller="Home" asp-action="Index">
-                <span class="material-symbols-outlined fill-1">science</span>
-                <span class="font-semibold text-sm">Lab Bench</span>
-            </a>
-            <a class="text-slate-500 hover:text-primary flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5" asp-controller="Courses" asp-action="Library">
-                <span class="material-symbols-outlined">apps</span>
-                <span class="font-medium text-sm">Curriculum</span>
-            </a>
-            <a class="text-slate-500 hover:text-primary flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5" asp-controller="Profile" asp-action="Index">
-                <span class="material-symbols-outlined">stars</span>
-                <span class="font-medium text-sm">My Progress</span>
-            </a>
-            @if (User.IsInRole("Admin"))
+            
+           @if (User.IsInRole("Admin"))
             {
-                <a class="text-slate-500 hover:text-primary flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5" asp-controller="Dashboard" asp-action="Index">
+                <a class="text-slate-500 hover:text-primary flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5"
+                   asp-controller="Dashboard" asp-action="Index">
                     <span class="material-symbols-outlined">dashboard</span>
                     <span class="font-medium text-sm">Admin Dashboard</span>
                 </a>
-                <a class="text-slate-500 hover:text-primary flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5" asp-controller="TeacherCourses" asp-action="Index">
+
+                <a class="text-slate-500 hover:text-primary flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5"
+                   asp-controller="TeacherCourses" asp-action="Index">
                     <span class="material-symbols-outlined">auto_stories</span>
                     <span class="font-medium text-sm">Manage Courses</span>
+                </a>
+            }
+            else
+            {
+                <a class="sidebar-active flex items-center gap-4 p-4 text-primary transition-all duration-300 rounded-l-xl"
+                   asp-controller="Home" asp-action="Index">
+                    <span class="material-symbols-outlined fill-1">science</span>
+                    <span class="font-semibold text-sm">Lab Bench</span>
+                </a>
+
+                <a class="text-slate-500 hover:text-primary flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5"
+                   asp-controller="Courses" asp-action="Library">
+                    <span class="material-symbols-outlined">apps</span>
+                    <span class="font-medium text-sm">Curriculum</span>
+                </a>
+
+                <a class="text-slate-500 hover:text-primary flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5"
+                   asp-controller="Profile" asp-action="Index">
+                    <span class="material-symbols-outlined">stars</span>
+                    <span class="font-medium text-sm">My Progress</span>
                 </a>
             }
         </nav>

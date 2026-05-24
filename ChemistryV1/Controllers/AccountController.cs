@@ -64,11 +64,14 @@ public class AccountController : Controller
     {
         if (!ModelState.IsValid)
         {
+            Console.WriteLine($"[Login DEBUG] ModelState invalid: {string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage))}");
             return View(model);
         }
 
         var identity = model.Identity?.Trim();
         var password = model.Password ?? string.Empty;
+
+        Console.WriteLine($"[Login DEBUG] Attempting login for: {identity}");
 
         User? user = null;
 
@@ -84,12 +87,17 @@ public class AccountController : Controller
 
         if (user == null)
         {
+            Console.WriteLine($"[Login DEBUG] User not found for: {identity}");
             ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không đúng.");
             return View(model);
         }
 
-        if (user.EmailConfirmed != true)
+        Console.WriteLine($"[Login DEBUG] User found: {user.Username}, Role: {user.Role}, EmailConfirmed: {user.EmailConfirmed}");
+
+        // Skip OTP verification for admin accounts
+        if (user.EmailConfirmed != true && user.Role != "Admin")
         {
+            Console.WriteLine($"[Login DEBUG] Redirecting to VerifyEmail for user: {user.Username}");
             return RedirectToAction(nameof(VerifyEmail), new { userId = user.Id, returnUrl = model.ReturnUrl });
         }
 
@@ -102,11 +110,15 @@ public class AccountController : Controller
         {
             passwordVerification = PasswordVerificationResult.Failed;
         }
+
+        Console.WriteLine($"[Login DEBUG] Password verification result: {passwordVerification}");
+
         if (passwordVerification == PasswordVerificationResult.Failed)
         {
             // Backward compatibility for legacy plain-text rows.
             if (!string.Equals(user.Password, password, StringComparison.Ordinal))
             {
+                Console.WriteLine($"[Login DEBUG] Password mismatch for user: {user.Username}");
                 ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không đúng.");
                 return View(model);
             }
@@ -122,12 +134,30 @@ public class AccountController : Controller
             await _context.SaveChangesAsync();
         }
 
-        await SignInUserAsync(user);
+        try
+        {
+            await SignInUserAsync(user);
+            Console.WriteLine($"[Login DEBUG] Sign in successful for user: {user.Username}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Login DEBUG] Sign in failed: {ex.Message}");
+            ModelState.AddModelError("", "Lỗi đăng nhập. Vui lòng thử lại.");
+            return View(model);
+        }
 
         if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
         {
+            Console.WriteLine($"[Login DEBUG] Redirecting to ReturnUrl: {model.ReturnUrl}");
             return Redirect(model.ReturnUrl);
         }
+        if (user.Role == "Admin")
+        {
+            Console.WriteLine($"[Login DEBUG] Redirecting admin to Dashboard");
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        Console.WriteLine($"[Login DEBUG] Redirecting to Home");
         return RedirectToAction("Index", "Home");
     }
 

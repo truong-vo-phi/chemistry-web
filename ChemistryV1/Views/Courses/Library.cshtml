@@ -1,237 +1,89 @@
 @model ChemistryV1.ViewModels.CourseLibraryViewModel
 @{
-    Layout = null;
+    Layout = "_PublicLayout";
+    ViewData["Title"] = "Course Library | ChemLab";
+    ViewData["Description"] = "Discover the secrets of the universe through our interactive theory courses.";
     var placeholderImage = "https://via.placeholder.com/640x480?text=Course";
 }
-<!DOCTYPE html>
-<html class="light" lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Course Library | ChemLab</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link rel="stylesheet" href="~/css/academy.css" asp-append-version="true" />
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&amp;family=Quicksand:wght@500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        error: "#ba1a1a",
-                        "surface-variant": "#e4e3db",
-                        background: "#fbf9f1",
-                        surface: "#fbf9f1",
-                        "on-tertiary-container": "#fffbff",
-                        "on-tertiary": "#ffffff",
-                        "on-secondary-container": "#00714d",
-                        "on-surface": "#1b1c17",
-                        "surface-container-lowest": "#ffffff",
-                        "surface-bright": "#fbf9f1",
-                        secondary: "#006c49",
-                        "surface-tint": "#005ac2",
-                        "on-tertiary-fixed-variant": "#653e00",
-                        "on-secondary-fixed-variant": "#005236",
-                        outline: "#727785",
-                        "primary-fixed-dim": "#adc6ff",
-                        "surface-container-highest": "#e4e3db",
-                        "surface-container-high": "#eae8e0",
-                        "error-container": "#ffdad6",
-                        "on-secondary-fixed": "#002113",
-                        "on-secondary": "#ffffff",
-                        "primary-fixed": "#d8e2ff",
-                        "outline-variant": "#c2c6d6",
-                        "on-primary-fixed": "#001a42",
-                        "on-primary-container": "#fefcff",
-                        "on-primary": "#ffffff",
-                        "inverse-primary": "#adc6ff",
-                        "on-error-container": "#93000a",
-                        "on-background": "#1b1c17",
-                        "surface-container-low": "#f5f4ec",
-                        "inverse-surface": "#30312c",
-                        "surface-container": "#f0eee6",
-                        "secondary-fixed-dim": "#4edea3",
-                        "on-primary-fixed-variant": "#004395",
-                        "on-error": "#ffffff",
-                        "surface-dim": "#dcdad2",
-                        primary: "#0058be",
-                        "secondary-fixed": "#6ffbbe",
-                        "tertiary-container": "#a36700",
-                        "on-tertiary-fixed": "#2a1700",
-                        "on-surface-variant": "#424754",
-                        "inverse-on-surface": "#f3f1e9",
-                        "primary-container": "#2170e4",
-                        "tertiary-fixed-dim": "#ffb95f",
-                        "tertiary-fixed": "#ffddb8",
-                        "secondary-container": "#6cf8bb",
-                        tertiary: "#825100"
-                    },
-                    borderRadius: {
-                        DEFAULT: "1rem",
-                        lg: "2rem",
-                        xl: "3rem",
-                        full: "9999px"
-                    },
-                    spacing: {
-                        gutter: "24px",
-                        "margin-mobile": "16px",
-                        unit: "8px",
-                        "container-max": "1200px",
-                        "margin-desktop": "48px"
-                    },
-                    fontFamily: {
-                        "label-sm": ["Lexend"],
-                        "display-lg-mobile": ["Lexend"],
-                        "body-md": ["Quicksand"],
-                        "body-lg": ["Quicksand"],
-                        "display-lg": ["Lexend"],
-                        "headline-md": ["Lexend"]
-                    },
-                    fontSize: {
-                        "label-sm": ["14px", { lineHeight: "1.2", fontWeight: "600" }],
-                        "display-lg-mobile": ["32px", { lineHeight: "1.2", fontWeight: "700" }],
-                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "500" }],
-                        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "500" }],
-                        "display-lg": ["48px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }],
-                        "headline-md": ["24px", { lineHeight: "1.4", fontWeight: "600" }]
-                    }
+
+@Html.Partial("_PublicTopAppBar")
+
+<!-- Page Header -->
+<div class="mb-12">
+    <h2 class="text-4xl font-bold text-on-background mb-4 font-display leading-tight">Library of Elements</h2>
+    <p class="text-slate-500 text-lg leading-relaxed font-medium max-w-2xl">
+        Discover the secrets of the universe through our interactive theory courses. Each lesson is a step closer to becoming a Master Alchemist.
+    </p>
+</div>
+
+<!-- Main Content Grid -->
+<div class="flex flex-col lg:flex-row gap-8">
+    <!-- Sidebar Filters -->
+    <aside class="w-full lg:w-64 flex-shrink-0">
+        <div class="glass-card p-8 sticky top-28">
+            <h3 class="text-xl font-bold text-on-background font-display mb-6">Categories</h3>
+            <div class="flex flex-wrap lg:flex-col gap-3">
+                <a class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-sm transition-all @(Model.CategoryId == null ? "bg-primary text-white btn-glow" : "text-slate-500 hover:bg-primary/5")"
+                   asp-action="Library" asp-route-search="@Model.Search" asp-route-teacherId="@Model.TeacherId">
+                    <span class="material-symbols-outlined">all_inclusive</span> All Courses
+                </a>
+                @foreach (var category in Model.Categories)
+                {
+                    var isSelected = Model.CategoryId == category.Id;
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-sm transition-all @(isSelected ? "bg-primary text-white btn-glow" : "text-slate-500 hover:bg-primary/5")"
+                       asp-action="Library" asp-route-categoryId="@category.Id" asp-route-search="@Model.Search" asp-route-teacherId="@Model.TeacherId">
+                        <span class="material-symbols-outlined">science</span> @category.Name
+                    </a>
                 }
-            }
-        };
-    </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-        }
-        .squishy-button {
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
-        }
-        .squishy-button:active {
-            transform: translateY(2px);
-            box-shadow: 0 0px 0 rgba(0, 0, 0, 0.1);
-        }
-        .course-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .course-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 24px -10px rgba(0, 88, 190, 0.15);
-        }
-        body {
-            background-color: #fbf9f1;
-            font-family: 'Quicksand', sans-serif;
-        }
-    </style>
-</head>
-<body class="academy-shell bg-background text-on-surface">
-    <div class="flex min-h-screen">
-        <partial name="_AcademySidebar" />
-        <main class="flex-1 flex flex-col min-w-0 md:ml-64 overflow-x-hidden">
-            <header class="academy-topbar w-full top-0 sticky z-30 bg-background border-b-2 border-surface-variant shadow-sm flex justify-between items-center px-gutter py-4 w-full max-w-container-max mx-auto">
-                <form method="get" asp-action="Library" class="flex items-center gap-4 flex-1">
+                <div class="h-px bg-slate-200 my-4 hidden lg:block"></div>
+                <h3 class="text-xl font-bold text-on-background font-display mb-4 mt-2 hidden lg:block">Quản lý</h3>
+                <form method="get" asp-action="Library" class="w-full">
+                    <input type="hidden" name="search" value="@Model.Search" />
                     <input type="hidden" name="categoryId" value="@Model.CategoryId" />
-                    <input type="hidden" name="teacherId" value="@Model.TeacherId" />
-                    <div class="relative w-full max-w-md">
-                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-                        <input class="w-full bg-surface-container-high border-2 border-transparent focus:border-primary focus:ring-0 rounded-full pl-12 pr-4 py-2 text-body-md font-body-md outline-none transition-all" name="search" placeholder="Search magical theories..." type="text" value="@Model.Search" />
-                    </div>
-                </form>
-                <div class="flex items-center gap-4">
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <div class="flex items-center gap-3">
-                            <img alt="User profile avatar" class="w-10 h-10 rounded-full border-2 border-primary object-cover" src="@User.FindFirst("AvatarUrl")?.Value" />
-                            <div class="text-left hidden lg:block">
-                                <p class="text-xs font-bold text-on-surface leading-tight">@User.Identity.Name</p>
-                                <p class="text-[9px] uppercase font-bold text-primary tracking-wider leading-none">@User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</p>
-                            </div>
-                            <form asp-controller="Account" asp-action="Logout" method="post" class="ml-2">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="text-xs font-bold text-error hover:bg-error-container/20 px-3 py-1.5 rounded-full border border-error/20 transition-all">Đăng xuất</button>
-                            </form>
-                        </div>
-                    }
-                    else
-                    {
-                        <a class="bg-primary text-on-primary px-6 py-2 rounded-full font-bold squishy-button" asp-controller="Account" asp-action="Login">Đăng nhập</a>
-                    }
-                </div>
-            </header>
-            <div class="p-gutter max-w-container-max mx-auto w-full min-w-0">
-                <div class="mb-8">
-                    <h2 class="font-display-lg text-display-lg text-primary mb-2">Library of Elements</h2>
-                    <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Discover the secrets of the universe through our interactive theory courses. Each lesson is a step closer to becoming a Master Alchemist.</p>
-                </div>
-                <div class="flex flex-col lg:flex-row gap-8">
-                    <aside class="w-full lg:w-64 flex-shrink-0">
-                        <div class="bg-surface-container-low rounded-lg p-6 border-2 border-surface-variant sticky top-28">
-                            <h3 class="font-headline-md text-headline-md text-on-surface mb-4">Categories</h3>
-                            <div class="flex flex-wrap lg:flex-col gap-2">
-                                <a class="flex items-center gap-2 px-4 py-2 rounded-full font-bold text-label-sm squishy-button border-2 @(Model.CategoryId == null ? "bg-primary text-white border-primary-container" : "text-on-surface-variant border-transparent hover:border-surface-variant hover:bg-white")"
-                                   asp-action="Library" asp-route-search="@Model.Search" asp-route-teacherId="@Model.TeacherId">
-                                    <span class="material-symbols-outlined text-[18px]">all_inclusive</span> All Courses
-                                </a>
-                                @foreach (var category in Model.Categories)
-                                {
-                                    var isSelected = Model.CategoryId == category.Id;
-                                    <a class="flex items-center gap-2 px-4 py-2 rounded-full text-on-surface-variant transition-all font-label-sm text-label-sm border-2 @(isSelected ? "bg-primary text-white border-primary-container" : "border-transparent hover:border-surface-variant hover:bg-white")"
-                                       asp-action="Library" asp-route-categoryId="@category.Id" asp-route-search="@Model.Search" asp-route-teacherId="@Model.TeacherId">
-                                        <span class="material-symbols-outlined text-[18px]">science</span> @category.Name
-                                    </a>
-                                }
-                                <div class="h-px bg-surface-variant my-2 hidden lg:block"></div>
-                                <h3 class="font-headline-md text-headline-md text-on-surface mb-2 mt-2 hidden lg:block">Quản lý</h3>
-                                <form method="get" asp-action="Library" class="w-full">
-                                    <input type="hidden" name="search" value="@Model.Search" />
-                                    <input type="hidden" name="categoryId" value="@Model.CategoryId" />
-                                    <select class="w-full rounded-full border-2 border-surface-variant bg-white px-3 py-2 text-body-md" name="teacherId" onchange="this.form.submit()">
-                                        <option value="">Tất cả quản lý</option>
-                                        @foreach (var teacher in Model.Teachers)
-                                        {
-                                            <option value="@teacher.Id" selected="@(Model.TeacherId == teacher.Id)">@teacher.FullName</option>
-                                        }
-                                    </select>
-                                </form>
-                            </div>
-                        </div>
-                    </aside>
-                    <div class="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 min-w-0">
-                        @foreach (var course in Model.Courses)
+                    <select class="w-full bg-white/60 backdrop-blur-sm border border-white rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-primary/20 transition-all" name="teacherId" onchange="this.form.submit()">
+                        <option value="">Tất cả quản lý</option>
+                        @foreach (var teacher in Model.Teachers)
                         {
-                            var categoryName = course.CourseCategories.FirstOrDefault()?.Category?.Name ?? "Uncategorized";
-                            <a class="course-card bg-white rounded-lg border-2 border-primary-fixed p-4 flex flex-col cursor-pointer" asp-action="Details" asp-route-id="@course.Id">
-                                <div class="w-full h-48 bg-primary-fixed rounded-lg mb-4 overflow-hidden relative">
-                                    <img class="w-full h-full object-cover mix-blend-multiply opacity-80" alt="Course cover" src="@(course.ThumbnailUrl ?? placeholderImage)" />
-                                    <span class="absolute top-3 right-3 bg-secondary text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">@categoryName</span>
-                                </div>
-                                <h4 class="font-headline-md text-headline-md text-on-surface mb-1">@course.Title</h4>
-                                <p class="text-on-surface-variant text-body-md font-body-md mb-4 flex-1">@course.Description</p>
-                                <div class="flex items-center justify-between mt-auto pt-4 border-t border-surface-container">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden">
-                                            <img alt="Quản lý" class="w-full h-full" src="@(course.Teacher?.AvatarUrl ?? "https://via.placeholder.com/32")" />
-                                        </div>
-                                        <span class="font-label-sm text-label-sm text-on-surface">@course.Teacher?.FullName</span>
-                                    </div>
-                                    <div class="flex items-center gap-1 text-on-surface-variant">
-                                        <span class="material-symbols-outlined text-sm">group</span>
-                                        <span class="text-xs font-bold">@course.CourseEnrollments.Count</span>
-                                    </div>
-                                </div>
-                            </a>
+                            <option value="@teacher.Id" selected="@(Model.TeacherId == teacher.Id)">@teacher.FullName</option>
                         }
+                    </select>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Course Grid -->
+    <div class="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 min-w-0">
+        @foreach (var course in Model.Courses)
+        {
+            var categoryName = course.CourseCategories.FirstOrDefault()?.Category?.Name ?? "Uncategorized";
+            <a class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col hover:border-primary/30 transition-all group hover:scale-[1.02] cursor-pointer collectible-border" asp-action="Details" asp-route-id="@course.Id">
+                <div class="w-full h-48 bg-primary/10 rounded-2xl mb-6 overflow-hidden relative">
+                    <img class="w-full h-full object-cover opacity-80" alt="Course cover" src="@(course.ThumbnailUrl ?? placeholderImage)" />
+                    <span class="absolute top-3 right-3 bg-secondary text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">@categoryName</span>
+                </div>
+                <h4 class="text-xl font-bold text-on-background mb-2 font-display leading-tight line-clamp-2">@course.Title</h4>
+                <p class="text-slate-500 text-sm mb-6 flex-1 line-clamp-3">@course.Description</p>
+                <div class="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                            <img alt="Quản lý" class="w-full h-full object-cover" src="@(course.Teacher?.AvatarUrl ?? "https://via.placeholder.com/32")" />
+                        </div>
+                        <span class="font-semibold text-sm text-slate-700">@course.Teacher?.FullName</span>
+                    </div>
+                    <div class="flex items-center gap-1 text-slate-500">
+                        <span class="material-symbols-outlined text-sm">group</span>
+                        <span class="text-xs font-bold">@course.CourseEnrollments.Count</span>
                     </div>
                 </div>
-            </div>
-            <footer class="mt-auto py-8 px-gutter border-t border-surface-variant text-center">
-                <p class="mt-4 text-label-sm font-label-sm text-on-surface-variant opacity-60">© 2026 ChemLab Magical Academy. All elements are property of the alchemical council.</p>
-            </footer>
-        </main>
+            </a>
+        }
     </div>
+</div>
+
+@section Scripts {
     <script>
-        document.querySelectorAll('.course-card').forEach(card => {
+        document.querySelectorAll('.collectible-border').forEach(card => {
             card.addEventListener('click', () => {
                 card.style.transform = "scale(0.98)";
                 setTimeout(() => {
@@ -240,5 +92,4 @@
             });
         });
     </script>
-</body>
-</html>
+}

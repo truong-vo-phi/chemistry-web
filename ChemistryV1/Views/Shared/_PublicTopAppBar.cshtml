@@ -1,0 +1,35 @@
+@{
+    var userName = User.Identity?.Name ?? "Guest";
+    var avatarUrl = User.FindFirst("AvatarUrl")?.Value ?? "https://via.placeholder.com/40";
+}
+<header class="flex justify-between items-center w-full mb-12">
+    <div class="flex items-center gap-6">
+        <!-- Mobile menu toggle -->
+        <button onclick="openMobileSidebar()" class="p-3 bg-white rounded-2xl border border-slate-100 shadow-sm lg:hidden">
+            <span class="material-symbols-outlined text-primary">menu</span>
+        </button>
+        <!-- Search -->
+        <form asp-controller="Courses" asp-action="Library" method="get" class="hidden lg:flex items-center gap-3 bg-white/60 backdrop-blur-sm px-5 py-3 rounded-2xl border border-white w-[400px] focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+            <span class="material-symbols-outlined text-slate-400">search</span>
+            <input name="search" class="border-none focus:ring-0 bg-transparent text-sm w-full font-medium outline-none" placeholder="Tìm thí nghiệm, bài học, nguyên tố..." type="text" />
+        </form>
+    </div>
+    <div class="flex items-center gap-4">
+        <button class="relative p-3 bg-white/60 backdrop-blur-sm rounded-2xl border border-white text-slate-500 hover:text-primary transition-colors" title="Thông báo">
+            <span class="material-symbols-outlined">notifications</span>
+        </button>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a asp-controller="Profile" asp-action="Index" class="flex items-center gap-3 bg-white p-1.5 pr-5 rounded-full border border-slate-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                <img alt="@userName" class="w-10 h-10 rounded-full object-cover shadow-sm" src="@avatarUrl" />
+                <span class="font-bold text-sm hidden sm:block text-slate-700">@userName</span>
+            </a>
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="Login" class="bg-primary text-white px-6 py-3 rounded-2xl font-bold text-sm btn-glow">
+                Đăng nhập
+            </a>
+        }
+    </div>
+</header>

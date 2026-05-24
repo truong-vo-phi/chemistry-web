@@ -1,494 +1,273 @@
 @{
-    Layout = null;
-    var controller = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLowerInvariant() ?? "";
-    var isDashboard = controller == "dashboard";
-    var isTeacherCourses = controller == "teachercourses" || controller == "lessons" || controller == "chapters";
-    var isCourses = controller == "courses";
-    var isCategories = controller == "categories";
-    var isProfile = controller == "profile";
-    var isHome = controller == "home";
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Admin Command Center - ChemLab";
+    ViewData["Description"] = "Admin dashboard for managing users, courses, and system.";
 }
-<!DOCTYPE html>
-<html class="light" lang="vi">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Command Center - ChemLab</title>
-    <meta name="description" content="Bảng điều khiển quản trị ChemLab - quản lý người dùng, khóa học và hệ thống." />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        error: "#ba1a1a",
-                        "surface-variant": "#e4e3db",
-                        background: "#fbf9f1",
-                        surface: "#fbf9f1",
-                        "on-secondary-container": "#00714d",
-                        "on-surface": "#1b1c17",
-                        "surface-container-lowest": "#ffffff",
-                        secondary: "#006c49",
-                        "on-secondary": "#ffffff",
-                        "primary-fixed": "#d8e2ff",
-                        "outline-variant": "#c2c6d6",
-                        "on-primary-container": "#fefcff",
-                        "on-primary": "#ffffff",
-                        "on-error-container": "#93000a",
-                        "on-background": "#1b1c17",
-                        "surface-container-low": "#f5f4ec",
-                        "surface-container": "#f0eee6",
-                        "on-primary-fixed-variant": "#004395",
-                        "on-error": "#ffffff",
-                        primary: "#0058be",
-                        "secondary-fixed": "#6ffbbe",
-                        "secondary-container": "#6cf8bb",
-                        "on-surface-variant": "#424754",
-                        "primary-container": "#2170e4",
-                        "tertiary": "#825100",
-                        "surface-container-high": "#eae8e0",
-                        outline: "#727785"
-                    },
-                    borderRadius: {
-                        DEFAULT: "1rem",
-                        lg: "2rem",
-                        xl: "3rem",
-                        full: "9999px"
-                    },
-                    spacing: {
-                        gutter: "24px",
-                        "margin-mobile": "16px",
-                        unit: "8px",
-                        "container-max": "1200px",
-                        "margin-desktop": "48px"
-                    },
-                    fontFamily: {
-                        "label-sm": ["Lexend"],
-                        "body-md": ["Quicksand"],
-                        "display-lg": ["Lexend"],
-                        "headline-md": ["Lexend"]
-                    }
+
+<!-- Page Header -->
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-on-background font-display">Academy Dashboard</h1>
+    <p class="text-slate-500 mt-1">
+        Welcome back, <strong>@User.Identity?.Name</strong>. System is operating normally.
+    </p>
+</div>
+
+<!-- Stats Row -->
+<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+    <!-- Total Users -->
+    <div class="glass-card p-5 hover:shadow-md transition-all group">
+        <div class="flex items-start justify-between mb-3">
+            <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-lg">group</span>
+            </div>
+            @if (ViewBag.UserGrowth is string ug)
+            {
+                <span class="text-[10px] text-secondary font-bold bg-secondary/10 px-2 py-0.5 rounded-full">@ug</span>
+            }
+        </div>
+        <p class="text-2xl font-bold text-on-background">@ViewBag.TotalUsers</p>
+        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Total Users</p>
+    </div>
+    <!-- Active Students -->
+    <div class="glass-card p-5 hover:shadow-md transition-all group">
+        <div class="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary mb-3 group-hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-lg">school</span>
+        </div>
+        <p class="text-2xl font-bold text-on-background">@ViewBag.TotalStudents</p>
+        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Active Students</p>
+    </div>
+    <!-- Total Courses -->
+    <div class="glass-card p-5 hover:shadow-md transition-all group">
+        <div class="w-10 h-10 bg-tertiary/10 rounded-xl flex items-center justify-center text-tertiary mb-3 group-hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-lg">auto_stories</span>
+        </div>
+        <p class="text-2xl font-bold text-on-background">@ViewBag.TotalCourses</p>
+        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Total Courses</p>
+    </div>
+    <!-- Total Lessons -->
+    <div class="glass-card p-5 hover:shadow-md transition-all group">
+        <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-3 group-hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-lg">menu_book</span>
+        </div>
+        <p class="text-2xl font-bold text-on-background">@ViewBag.TotalLessons</p>
+        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Total Lessons</p>
+    </div>
+    <!-- Total Enrollments -->
+    <div class="glass-card p-5 hover:shadow-md transition-all group">
+        <div class="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary mb-3 group-hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-lg">person_add</span>
+        </div>
+        <p class="text-2xl font-bold text-on-background">@ViewBag.TotalEnrollments</p>
+        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Enrollments</p>
+    </div>
+    <!-- Categories -->
+    <div class="glass-card p-5 hover:shadow-md transition-all group">
+        <div class="w-10 h-10 bg-tertiary/10 rounded-xl flex items-center justify-center text-tertiary mb-3 group-hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-lg">category</span>
+        </div>
+        <p class="text-2xl font-bold text-on-background">@ViewBag.TotalCategories</p>
+        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Categories</p>
+    </div>
+    <div class="glass-card p-5 hover:shadow-md transition-all group">
+        <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-3 group-hover:scale-110 transition-transform">
+            <span class="material-symbols-outlined text-lg">admin_panel_settings</span>
+        </div>
+        <p class="text-2xl font-bold text-on-background">@ViewBag.AdminUsers</p>
+        <p class="text-[11px] text-slate-500 font-semibold mt-0.5">Admins</p>
+    </div>
+</div>
+
+<!-- Main Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+    <!-- Weekly Activity Chart -->
+    <div class="lg:col-span-8 glass-card p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h3 class="font-bold text-lg text-on-background font-display">Weekly Login Activity</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Login count by day this week</p>
+            </div>
+            <span class="text-xs bg-primary/10 border border-primary/20 text-primary px-3 py-1.5 rounded-full font-bold">Last 7 Days</span>
+        </div>
+        <!-- Bar Chart -->
+        <div class="h-48 flex items-end gap-3 border-b border-slate-200 pb-2">
+            @{
+                var days = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+                var heights = ViewBag.WeeklyActivity as int[] ?? new[] { 30, 55, 45, 80, 60, 95, 75 };
+            }
+            @for (int i = 0; i < days.Length; i++)
+            {
+                var h = heights[i];
+                var isPeak = h == heights.Max();
+                var barBg = isPeak ? "bg-secondary" : "bg-primary/20 hover:bg-primary/40";
+                <div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+                    <div class="w-full @barBg rounded-t-lg transition-all bar-animated cursor-pointer relative group" style="height:@h%">
+                        <div class="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-700 text-white text-[10px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">@h logins</div>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-500">@days[i]</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Right Stats -->
+    <div class="lg:col-span-4 space-y-4">
+        <!-- Mission Completion Rate -->
+        <div class="glass-card p-6">
+            <h4 class="font-bold text-sm text-on-background mb-4 font-display">Mission Completion Rate</h4>
+            <div class="flex items-center justify-center">
+                <div class="relative w-28 h-28">
+                    <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="#e4e3db" stroke-width="12" />
+                        @{
+                            var completionRate = ViewBag.CompletionRate is int cr ? cr : 82;
+                            var dashVal = (int)(2.51327 * completionRate);
+                            var gapVal = 251 - dashVal;
+                        }
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="#006c49" stroke-width="12"
+                            stroke-dasharray="@dashVal @gapVal" stroke-linecap="round" class="donut-ring" />
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <span class="text-2xl font-bold text-secondary font-display">@completionRate%</span>
+                        <span class="text-[9px] text-slate-500 font-bold uppercase">Success</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="glass-card p-6">
+            <h4 class="font-bold text-sm text-on-background mb-4 font-display">Quick Actions</h4>
+            <div class="grid grid-cols-2 gap-3">
+                <a asp-controller="TeacherCourses" asp-action="Create" class="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-2xl hover:bg-primary/10 hover:text-primary transition-all text-slate-600 group text-center">
+                    <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-primary text-lg">add</span>
+                    </div>
+                    <span class="text-[10px] font-bold">New Course</span>
+                </a>
+                <a asp-controller="Categories" asp-action="Index" class="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-2xl hover:bg-secondary/10 hover:text-secondary transition-all text-slate-600 group text-center">
+                    <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-secondary text-lg">category</span>
+                    </div>
+                    <span class="text-[10px] font-bold">Categories</span>
+                </a>
+                <a asp-controller="AdminMissions" asp-action="Index" class="flex flex-col items-center gap-2 p-3 bg-slate-50 rounded-2xl hover:bg-tertiary/10 hover:text-tertiary transition-all text-slate-600 group text-center">
+                    <div class="w-10 h-10 rounded-xl bg-tertiary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-tertiary text-lg">assignment</span>
+                    </div>
+                    <span class="text-[10px] font-bold">Missions</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lower Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Recent Courses -->
+    <div class="lg:col-span-8 glass-card p-6">
+        <div class="flex justify-between items-center mb-5">
+            <h3 class="font-bold text-lg text-on-background font-display">Recent Courses</h3>
+            <a asp-controller="Courses" asp-action="Library" class="text-primary text-sm font-bold hover:underline">View All</a>
+        </div>
+        <div class="space-y-3">
+            @if (ViewBag.RecentCourses is List<ChemistryV1.Models.Course> courses && courses.Any())
+            {
+                @foreach (var course in courses)
+                {
+                    <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-primary/20 transition-all group">
+                        <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined">auto_stories</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-sm text-on-background truncate">@course.Title</p>
+                            <p class="text-[11px] text-slate-500">@(course.Teacher?.FullName ?? course.Teacher?.Username ?? "Unknown") • @(course.Status ?? "draft")</p>
+                        </div>
+                        <a asp-controller="Courses" asp-action="Details" asp-route-id="@course.Id" class="text-[11px] bg-primary/10 text-primary px-3 py-1 rounded-full font-bold hover:bg-primary hover:text-white transition-all">
+                            View
+                        </a>
+                    </div>
                 }
             }
-        };
-    </script>
+            else
+            {
+                <div class="text-center py-10 text-slate-400">
+                    <span class="material-symbols-outlined text-4xl mb-2 block opacity-30">auto_stories</span>
+                    <p class="text-sm">No courses yet.</p>
+                    <a asp-controller="TeacherCourses" asp-action="Create" class="mt-3 inline-block text-primary font-bold text-sm hover:underline">Create one</a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- System Health -->
+    <div class="lg:col-span-4 space-y-4">
+        <div class="glass-card p-6">
+            <h4 class="font-bold text-sm text-on-background mb-4 font-display">System Health</h4>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 bg-secondary rounded-full"></div>
+                        <span class="text-sm font-semibold">Authentication</span>
+                    </div>
+                    <span class="text-[10px] text-secondary font-bold bg-secondary/10 px-2 py-0.5 rounded-full">ONLINE</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 bg-secondary rounded-full"></div>
+                        <span class="text-sm font-semibold">Database</span>
+                    </div>
+                    <span class="text-[10px] text-secondary font-bold bg-secondary/10 px-2 py-0.5 rounded-full">ONLINE</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 bg-secondary rounded-full"></div>
+                        <span class="text-sm font-semibold">Storage</span>
+                    </div>
+                    <span class="text-[10px] text-secondary font-bold bg-secondary/10 px-2 py-0.5 rounded-full">ONLINE</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- DB Metrics -->
+        <div class="glass-card p-6">
+            <h4 class="font-bold text-sm text-on-background mb-4 font-display">Database Metrics</h4>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-500">Total Courses</span>
+                    <span class="font-bold text-primary">@ViewBag.TotalCourses</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-primary rounded-full" style="width:@(Math.Min(100, (int)(ViewBag.TotalCourses ?? 0) * 4))%;"></div>
+                </div>
+                <div class="flex justify-between items-center text-sm mt-2">
+                    <span class="text-slate-500">Total Lessons</span>
+                    <span class="font-bold text-secondary">@ViewBag.TotalLessons</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-secondary rounded-full" style="width:@(Math.Min(100, (int)(ViewBag.TotalLessons ?? 0) * 2))%;"></div>
+                </div>
+                <div class="flex justify-between items-center text-sm mt-2">
+                    <span class="text-slate-500">Categories</span>
+                    <span class="font-bold text-tertiary">@ViewBag.TotalCategories</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-tertiary rounded-full" style="width:@(Math.Min(100, (int)(ViewBag.TotalCategories ?? 0) * 10))%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Head {
     <style>
-        body { background-color: #fbf9f1; font-family: "Quicksand", sans-serif; }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .glass-morphism { background: rgba(255,255,255,0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 8px 32px 0 rgba(0,88,190,0.05); }
-        .squishy-btn { transition: transform 0.2s, box-shadow 0.2s; }
-        .squishy-btn:active { transform: translateY(2px) scale(0.98); }
-        .radial-progress { position: relative; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .radial-progress::after { content: ""; position: absolute; width: 68px; height: 68px; background: #fff; border-radius: 50%; }
-        .sidebar-item { @@apply flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all cursor-pointer; }
-        #mobile-overlay { display: none; }
-        #mobile-overlay.active { display: block; }
-        #admin-mobile-sidebar.open { transform: translateX(0); }
         @@keyframes bar-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
         .bar-animated { transform-origin: bottom; animation: bar-grow 0.6s ease-out forwards; }
         .donut-ring { transition: stroke-dasharray 1s ease-out; }
     </style>
-</head>
-<body class="text-on-surface min-h-screen">
+}
 
-    <!-- Mobile overlay -->
-    <div id="mobile-overlay" class="fixed inset-0 bg-black/30 z-40 backdrop-blur-sm md:hidden" onclick="closeMobileSidebar()"></div>
-
-    <!-- ADMIN SIDEBAR -->
-    <aside id="admin-mobile-sidebar" class="flex flex-col h-screen w-64 bg-surface-container-low border-r-2 border-secondary-container shadow-md fixed left-0 top-0 z-50 transition-transform duration-300 -translate-x-full md:translate-x-0">
-        <!-- Brand -->
-        <div class="flex items-center gap-3 px-6 py-6 border-b border-secondary-container/30">
-            <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white flex-shrink-0">
-                <span class="material-symbols-outlined text-xl">science</span>
-            </div>
-            <div>
-                <h1 class="font-bold text-primary text-base leading-tight" style="font-family:Lexend,sans-serif;">ChemLab</h1>
-                <p class="text-[10px] text-on-surface-variant font-semibold">Admin Command Center</p>
-            </div>
-        </div>
-
-        <!-- Admin Info -->
-        <div class="flex items-center gap-3 px-4 py-4 mx-4 mt-4 bg-white/60 rounded-xl border border-white shadow-sm">
-            <img alt="Admin" class="w-10 h-10 rounded-full object-cover border-2 border-primary/20" src="@(User.FindFirst("AvatarUrl")?.Value ?? "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop")" />
-            <div class="min-w-0">
-                <p class="font-bold text-sm text-on-surface truncate leading-tight">@User.Identity?.Name</p>
-                <p class="text-[10px] text-primary font-bold uppercase tracking-wider">@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Admin")</p>
-            </div>
-        </div>
-
-        <!-- Navigation -->
-        <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-            <a asp-controller="Dashboard" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(isDashboard ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-sm" : "text-on-surface-variant hover:bg-secondary-container/40 hover:text-secondary")">
-                <span class="material-symbols-outlined @(isDashboard ? "filled" : "")">dashboard</span>
-                Overview
-            </a>
-            <a asp-controller="AdminUsers" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all text-on-surface-variant hover:bg-secondary-container/40 hover:text-secondary">
-                <span class="material-symbols-outlined">group</span>
-                User Management
-            </a>
-            <a asp-controller="TeacherCourses" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(isTeacherCourses ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-sm" : "text-on-surface-variant hover:bg-secondary-container/40 hover:text-secondary")">
-                <span class="material-symbols-outlined @(isTeacherCourses ? "filled" : "")">auto_stories</span>
-                Course Management
-            </a>
-            <a asp-controller="Courses" asp-action="Library" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(isCourses ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-sm" : "text-on-surface-variant hover:bg-secondary-container/40 hover:text-secondary")">
-                <span class="material-symbols-outlined">school</span>
-                Course Library
-            </a>
-            @if (User.IsInRole("Admin"))
-            {
-                <a asp-controller="Categories" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(isCategories ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-sm" : "text-on-surface-variant hover:bg-secondary-container/40 hover:text-secondary")">
-                    <span class="material-symbols-outlined">menu_book</span>
-                    Categories
-                </a>
-            }
-            <div class="my-3 border-t border-outline-variant/30"></div>
-            <a asp-controller="Home" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all text-on-surface-variant hover:bg-secondary-container/40 hover:text-secondary">
-                <span class="material-symbols-outlined">person</span>
-                Student View
-            </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all text-on-surface-variant hover:bg-secondary-container/40 hover:text-secondary">
-                <span class="material-symbols-outlined">settings</span>
-                Settings
-            </a>
-        </nav>
-
-        <!-- Bottom -->
-        <div class="px-4 pb-6 space-y-2">
-            <form asp-controller="Account" asp-action="Logout" method="post">
-                @Html.AntiForgeryToken()
-                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-error/80 hover:bg-red-50 transition-all">
-                    <span class="material-symbols-outlined">logout</span>
-                    Đăng xuất
-                </button>
-            </form>
-            <a asp-controller="TeacherCourses" asp-action="Create" class="w-full flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold text-sm squishy-btn hover:bg-primary-container transition-all">
-                <span class="material-symbols-outlined">add</span>
-                New Experiment
-            </a>
-        </div>
-    </aside>
-
-    <!-- TOPBAR -->
-    <header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20 h-16 flex items-center md:pl-64">
-        <div class="flex justify-between items-center w-full px-4 md:px-8 gap-4">
-            <div class="flex items-center gap-4">
-                <!-- Mobile toggle -->
-                <button onclick="openMobileSidebar()" class="md:hidden p-2 rounded-xl hover:bg-surface-container transition-all">
-                    <span class="material-symbols-outlined text-on-surface-variant">menu</span>
-                </button>
-                <!-- Search -->
-                <form asp-controller="Courses" asp-action="Library" method="get" class="hidden md:flex items-center gap-3 bg-surface-container-lowest border-2 border-outline-variant/40 rounded-full px-4 py-2 w-72 focus-within:border-primary transition-all">
-                    <span class="material-symbols-outlined text-on-surface-variant text-xl">search</span>
-                    <input name="search" class="bg-transparent text-sm w-full outline-none font-medium" placeholder="Tìm kiếm..." type="text" />
-                </form>
-            </div>
-            <div class="flex items-center gap-3">
-                <!-- Branding center (mobile) -->
-                <span class="md:hidden font-bold text-primary text-lg" style="font-family:Lexend,sans-serif;">ChemLab</span>
-                <div class="flex items-center gap-3">
-                    <button class="relative p-2 rounded-full hover:bg-surface-container transition-all" title="Thông báo">
-                        <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
-                        @if (ViewBag.PendingReports is int pr && pr > 0)
-                        {
-                            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full border border-white"></span>
-                        }
-                    </button>
-                    <button class="p-2 rounded-full hover:bg-surface-container transition-all" title="Cài đặt">
-                        <span class="material-symbols-outlined text-on-surface-variant">settings</span>
-                    </button>
-                    <div class="flex items-center gap-2 pl-3 border-l border-outline-variant/30">
-                        <img alt="Admin" class="w-9 h-9 rounded-full object-cover border-2 border-primary/20" src="@(User.FindFirst("AvatarUrl")?.Value ?? "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop")" />
-                        <div class="hidden lg:block">
-                            <p class="text-xs font-bold text-on-surface leading-tight">@User.Identity?.Name</p>
-                            <p class="text-[9px] uppercase font-bold text-primary tracking-wider">@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value)</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- MAIN CONTENT -->
-    <main class="md:pl-64 pb-16">
-        <div class="max-w-[1400px] mx-auto px-4 md:px-8 py-8">
-
-            <!-- Page Header -->
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-on-surface" style="font-family:Lexend,sans-serif;">Academy Dashboard</h1>
-                <p class="text-on-surface-variant mt-1">
-                    Xin chào, <strong>@User.Identity?.Name</strong>. Hệ thống đang hoạt động bình thường.
-                </p>
-            </div>
-
-            <!-- Stats Row -->
-            <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
-                <!-- Total Users -->
-                <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group">
-                    <div class="flex items-start justify-between mb-3">
-                        <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-lg">group</span>
-                        </div>
-                        @if (ViewBag.UserGrowth is string ug)
-                        {
-                            <span class="text-[10px] text-secondary font-bold bg-secondary/10 px-2 py-0.5 rounded-full">@ug</span>
-                        }
-                    </div>
-                    <p class="text-2xl font-bold text-on-surface">@ViewBag.TotalUsers</p>
-                    <p class="text-[11px] text-on-surface-variant font-semibold mt-0.5">Total Users</p>
-                </div>
-                <!-- Active Students -->
-                <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary mb-3 group-hover:scale-110 transition-transform">
-                        <span class="material-symbols-outlined text-lg">school</span>
-                    </div>
-                    <p class="text-2xl font-bold text-on-surface">@ViewBag.TotalStudents</p>
-                    <p class="text-[11px] text-on-surface-variant font-semibold mt-0.5">Active Students</p>
-                </div>
-                <!-- Total Courses -->
-                <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-10 h-10 bg-tertiary/10 rounded-xl flex items-center justify-center text-tertiary mb-3 group-hover:scale-110 transition-transform">
-                        <span class="material-symbols-outlined text-lg">auto_stories</span>
-                    </div>
-                    <p class="text-2xl font-bold text-on-surface">@ViewBag.TotalCourses</p>
-                    <p class="text-[11px] text-on-surface-variant font-semibold mt-0.5">Total Courses</p>
-                </div>
-                <!-- Total Lessons -->
-                <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-3 group-hover:scale-110 transition-transform">
-                        <span class="material-symbols-outlined text-lg">menu_book</span>
-                    </div>
-                    <p class="text-2xl font-bold text-on-surface">@ViewBag.TotalLessons</p>
-                    <p class="text-[11px] text-on-surface-variant font-semibold mt-0.5">Total Lessons</p>
-                </div>
-                <!-- Total Enrollments -->
-                <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary mb-3 group-hover:scale-110 transition-transform">
-                        <span class="material-symbols-outlined text-lg">person_add</span>
-                    </div>
-                    <p class="text-2xl font-bold text-on-surface">@ViewBag.TotalEnrollments</p>
-                    <p class="text-[11px] text-on-surface-variant font-semibold mt-0.5">Enrollments</p>
-                </div>
-                <!-- Categories -->
-                <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-10 h-10 bg-tertiary/10 rounded-xl flex items-center justify-center text-tertiary mb-3 group-hover:scale-110 transition-transform">
-                        <span class="material-symbols-outlined text-lg">category</span>
-                    </div>
-                    <p class="text-2xl font-bold text-on-surface">@ViewBag.TotalCategories</p>
-                    <p class="text-[11px] text-on-surface-variant font-semibold mt-0.5">Categories</p>
-                </div>
-                <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-3 group-hover:scale-110 transition-transform">
-                        <span class="material-symbols-outlined text-lg">admin_panel_settings</span>
-                    </div>
-                    <p class="text-2xl font-bold text-on-surface">@ViewBag.AdminUsers</p>
-                    <p class="text-[11px] text-on-surface-variant font-semibold mt-0.5">Admins</p>
-                </div>
-            </div>
-
-            <!-- Main Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
-                <!-- Weekly Activity Chart -->
-                <div class="lg:col-span-8 bg-surface-container-lowest border border-outline-variant/20 rounded-3xl p-6 shadow-sm">
-                    <div class="flex justify-between items-center mb-6">
-                        <div>
-                            <h3 class="font-bold text-lg text-on-surface" style="font-family:Lexend,sans-serif;">Weekly Login Activity</h3>
-                            <p class="text-xs text-on-surface-variant mt-0.5">Số lượt đăng nhập theo ngày trong tuần này</p>
-                        </div>
-                        <span class="text-xs bg-primary/10 border border-primary/20 text-primary px-3 py-1.5 rounded-full font-bold">Last 7 Days</span>
-                    </div>
-                    <!-- Bar Chart -->
-                    <div class="h-48 flex items-end gap-3 border-b border-outline-variant/20 pb-2">
-                        @{
-                            var days = new[] { "T2", "T3", "T4", "T5", "T6", "T7", "CN" };
-                            var heights = ViewBag.WeeklyActivity as int[] ?? new[] { 30, 55, 45, 80, 60, 95, 75 };
-                        }
-                        @for (int i = 0; i < days.Length; i++)
-                        {
-                            var h = heights[i];
-                            var isPeak = h == heights.Max();
-                            var barBg = isPeak ? "bg-secondary" : "bg-primary/20 hover:bg-primary/40";
-                            <div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
-                                <div class="w-full @barBg rounded-t-lg transition-all bar-animated cursor-pointer relative group" style="height:@h%">
-                                    <div class="absolute -top-7 left-1/2 -translate-x-1/2 bg-on-surface text-surface-container-lowest text-[10px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">@h logins</div>
-                                </div>
-                                <span class="text-[10px] font-bold text-on-surface-variant">@days[i]</span>
-                            </div>
-                        }
-                    </div>
-                </div>
-
-                <!-- Right Stats -->
-                <div class="lg:col-span-4 space-y-4">
-                    <!-- Mission Completion Rate -->
-                    <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-3xl p-6 shadow-sm">
-                        <h4 class="font-bold text-sm text-on-surface mb-4" style="font-family:Lexend,sans-serif;">Mission Completion Rate</h4>
-                        <div class="flex items-center justify-center">
-                            <div class="relative w-28 h-28">
-                                <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
-                                    <circle cx="50" cy="50" r="40" fill="none" stroke="#e4e3db" stroke-width="12" />
-                                    @{
-                                        var completionRate = ViewBag.CompletionRate is int cr ? cr : 82;
-                                        var dashVal = (int)(2.51327 * completionRate);
-                                        var gapVal = 251 - dashVal;
-                                    }
-                                    <circle cx="50" cy="50" r="40" fill="none" stroke="#006c49" stroke-width="12"
-                                            stroke-dasharray="@dashVal @gapVal" stroke-linecap="round" class="donut-ring" />
-                                </svg>
-                                <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                    <span class="text-2xl font-bold text-secondary" style="font-family:Lexend,sans-serif;">@completionRate%</span>
-                                    <span class="text-[9px] text-on-surface-variant font-bold uppercase">Success</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Actions -->
-                    <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-3xl p-6 shadow-sm">
-                        <h4 class="font-bold text-sm text-on-surface mb-4" style="font-family:Lexend,sans-serif;">Quick Actions</h4>
-                        <div class="grid grid-cols-2 gap-3">
-                            <a asp-controller="TeacherCourses" asp-action="Create" class="flex flex-col items-center gap-2 p-3 bg-surface-container rounded-2xl hover:bg-primary/10 hover:text-primary transition-all text-on-surface-variant group text-center">
-                                <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <span class="material-symbols-outlined text-primary text-lg">add</span>
-                                </div>
-                                <span class="text-[10px] font-bold">New Course</span>
-                            </a>
-                            <a asp-controller="Categories" asp-action="Index" class="flex flex-col items-center gap-2 p-3 bg-surface-container rounded-2xl hover:bg-secondary/10 hover:text-secondary transition-all text-on-surface-variant group text-center">
-                                <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <span class="material-symbols-outlined text-secondary text-lg">category</span>
-                                </div>
-                                <span class="text-[10px] font-bold">Categories</span>
-                            </a>
-                            <a asp-controller="AdminMissions" asp-action="Index" class="flex flex-col items-center gap-2 p-3 bg-surface-container rounded-2xl hover:bg-tertiary/10 hover:text-tertiary transition-all text-on-surface-variant group text-center">
-                                <div class="w-10 h-10 rounded-xl bg-tertiary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                    <span class="material-symbols-outlined text-tertiary text-lg">assignment</span>
-                                </div>
-                                <span class="text-[10px] font-bold">Missions</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Lower Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Recent Courses -->
-                <div class="lg:col-span-8 bg-surface-container-lowest border border-outline-variant/20 rounded-3xl p-6 shadow-sm">
-                    <div class="flex justify-between items-center mb-5">
-                        <h3 class="font-bold text-lg text-on-surface" style="font-family:Lexend,sans-serif;">Recent Courses</h3>
-                        <a asp-controller="Courses" asp-action="Library" class="text-primary text-sm font-bold hover:underline">View All</a>
-                    </div>
-                    <div class="space-y-3">
-                        @if (ViewBag.RecentCourses is List<ChemistryV1.Models.Course> courses && courses.Any())
-                        {
-                            @foreach (var course in courses)
-                            {
-                                <div class="flex items-center gap-4 p-4 bg-surface rounded-2xl border border-outline-variant/10 hover:border-primary/20 transition-all group">
-                                    <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0 group-hover:scale-110 transition-transform">
-                                        <span class="material-symbols-outlined">auto_stories</span>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="font-bold text-sm text-on-surface truncate">@course.Title</p>
-                                        <p class="text-[11px] text-on-surface-variant">@(course.Teacher?.FullName ?? course.Teacher?.Username ?? "Unknown") • @(course.Status ?? "draft")</p>
-                                    </div>
-                                    <a asp-controller="Courses" asp-action="Details" asp-route-id="@course.Id" class="text-[11px] bg-primary/10 text-primary px-3 py-1 rounded-full font-bold hover:bg-primary hover:text-white transition-all">
-                                        Xem
-                                    </a>
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <div class="text-center py-10 text-on-surface-variant">
-                                <span class="material-symbols-outlined text-4xl mb-2 block opacity-30">auto_stories</span>
-                                <p class="text-sm">Chưa có khóa học nào.</p>
-                                <a asp-controller="TeacherCourses" asp-action="Create" class="mt-3 inline-block text-primary font-bold text-sm hover:underline">Tạo ngay</a>
-                            </div>
-                        }
-                    </div>
-                </div>
-
-                <!-- System Health -->
-                <div class="lg:col-span-4 space-y-4">
-                    <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-3xl p-6 shadow-sm">
-                        <h4 class="font-bold text-sm text-on-surface mb-4" style="font-family:Lexend,sans-serif;">Nexus Health</h4>
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between p-3 bg-surface rounded-xl">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-2 h-2 bg-secondary rounded-full"></div>
-                                    <span class="text-sm font-semibold">Authentication</span>
-                                </div>
-                                <span class="text-[10px] text-secondary font-bold bg-secondary/10 px-2 py-0.5 rounded-full">ONLINE</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-surface rounded-xl">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-2 h-2 bg-secondary rounded-full"></div>
-                                    <span class="text-sm font-semibold">Database</span>
-                                </div>
-                                <span class="text-[10px] text-secondary font-bold bg-secondary/10 px-2 py-0.5 rounded-full">ONLINE</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-surface rounded-xl">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-2 h-2 bg-secondary rounded-full"></div>
-                                    <span class="text-sm font-semibold">Storage</span>
-                                </div>
-                                <span class="text-[10px] text-secondary font-bold bg-secondary/10 px-2 py-0.5 rounded-full">ONLINE</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- DB Metrics -->
-                    <div class="bg-surface-container-lowest border border-outline-variant/20 rounded-3xl p-6 shadow-sm">
-                        <h4 class="font-bold text-sm text-on-surface mb-4" style="font-family:Lexend,sans-serif;">Database Metrics</h4>
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-on-surface-variant">Total Courses</span>
-                                <span class="font-bold text-primary">@ViewBag.TotalCourses</span>
-                            </div>
-                            <div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
-                                <div class="h-full bg-primary rounded-full" style="width:@(Math.Min(100, (int)(ViewBag.TotalCourses ?? 0) * 4))%;"></div>
-                            </div>
-                            <div class="flex justify-between items-center text-sm mt-2">
-                                <span class="text-on-surface-variant">Total Lessons</span>
-                                <span class="font-bold text-secondary">@ViewBag.TotalLessons</span>
-                            </div>
-                            <div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
-                                <div class="h-full bg-secondary rounded-full" style="width:@(Math.Min(100, (int)(ViewBag.TotalLessons ?? 0) * 2))%;"></div>
-                            </div>
-                            <div class="flex justify-between items-center text-sm mt-2">
-                                <span class="text-on-surface-variant">Categories</span>
-                                <span class="font-bold text-tertiary">@ViewBag.TotalCategories</span>
-                            </div>
-                            <div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
-                                <div class="h-full bg-tertiary rounded-full" style="width:@(Math.Min(100, (int)(ViewBag.TotalCategories ?? 0) * 10))%;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="md:pl-64 bg-surface-container-lowest border-t border-outline-variant/20 py-6 px-8">
-        <div class="max-w-[1400px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <span class="font-bold text-primary" style="font-family:Lexend,sans-serif;">ChemLab</span>
-            <span class="text-on-surface-variant text-xs">© 2024 ChemLab. Admin Command Center.</span>
-        </div>
-    </footer>
-
+@section Scripts {
     <script>
-        function openMobileSidebar() {
-            document.getElementById('admin-mobile-sidebar').classList.add('open');
-            document.getElementById('mobile-overlay').classList.add('active');
-        }
-        function closeMobileSidebar() {
-            document.getElementById('admin-mobile-sidebar').classList.remove('open');
-            document.getElementById('mobile-overlay').classList.remove('active');
-        }
         // Animate bars on load
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.bar-animated').forEach((bar, i) => {
@@ -496,5 +275,4 @@
             });
         });
     </script>
-</body>
-</html>
+}

@@ -131,17 +131,46 @@ namespace ChemistryV1.Controllers
             var continueCourseSource = recentProgress.FirstOrDefault()?.Lesson?.Chapter?.Course
                 ?? recentEnrollments.FirstOrDefault()?.Course;
 
-            var continueCourse = continueCourseSource == null ? null : new HomeCourseCardViewModel
+            HomeCourseCardViewModel? continueCourse = null;
+            if (continueCourseSource != null)
             {
-                Id = continueCourseSource.Id,
-                Title = continueCourseSource.Title ?? "Khóa học mới",
-                Description = continueCourseSource.Description,
-                ThumbnailUrl = continueCourseSource.ThumbnailUrl,
-                TeacherName = continueCourseSource.Teacher?.FullName ?? continueCourseSource.Teacher?.Username,
-                Status = continueCourseSource.Status,
-                CreatedAt = continueCourseSource.CreatedAt,
-                ProgressPercent = totalEnrollments > 0 ? Math.Min(100, 20 + totalCompletedLessons * 10) : 0
-            };
+                // Calculate progress based on completed lessons in this specific course
+                var courseLessons = await _context.Lessons
+                    .AsNoTracking()
+                    .Include(l => l.Chapter)
+                    .Where(l => l.Chapter != null && l.Chapter.CourseId == continueCourseSource.Id)
+                    .ToListAsync();
+
+                var totalLessonsInCourse = courseLessons.Count;
+                var completedLessonsInCourse = 0;
+
+                if (userId > 0 && totalLessonsInCourse > 0)
+                {
+                    var completedLessonIdsInCourse = await _context.UserLessonProgresses
+                        .AsNoTracking()
+                        .Where(p => p.UserId == userId && p.IsCompleted == true)
+                        .Select(p => p.LessonId)
+                        .ToListAsync();
+
+                    completedLessonsInCourse = courseLessons.Count(l => completedLessonIdsInCourse.Contains(l.Id));
+                }
+
+                var progressPercent = totalLessonsInCourse > 0
+                    ? (int)Math.Round((double)completedLessonsInCourse / totalLessonsInCourse * 100)
+                    : 0;
+
+                continueCourse = new HomeCourseCardViewModel
+                {
+                    Id = continueCourseSource.Id,
+                    Title = continueCourseSource.Title ?? "Khóa học mới",
+                    Description = continueCourseSource.Description,
+                    ThumbnailUrl = continueCourseSource.ThumbnailUrl,
+                    TeacherName = continueCourseSource.Teacher?.FullName ?? continueCourseSource.Teacher?.Username,
+                    Status = continueCourseSource.Status,
+                    CreatedAt = continueCourseSource.CreatedAt,
+                    ProgressPercent = progressPercent
+                };
+            }
 
             var activeMissions = await _context.SystemMissions
                 .AsNoTracking()
