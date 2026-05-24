@@ -3,7 +3,7 @@
     Layout = "_PublicLayout";
     ViewData["Title"] = "Course Library | ChemLab";
     ViewData["Description"] = "Discover the secrets of the universe through our interactive theory courses.";
-    var placeholderImage = "https://via.placeholder.com/640x480?text=Course";
+    var placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='480'%3E%3Crect fill='%23e2e8f0' width='640' height='480'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='24' fill='%2364748b'%3ECourse%3C/text%3E%3C/svg%3E";
 }
 
 @Html.Partial("_PublicTopAppBar")
@@ -67,7 +67,7 @@
                 <div class="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-                            <img alt="Quản lý" class="w-full h-full object-cover" src="@(course.Teacher?.AvatarUrl ?? "https://via.placeholder.com/32")" />
+                            <img alt="Quản lý" class="w-full h-full object-cover" src="@(course.Teacher?.AvatarUrl ?? "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Crect fill='%23e2e8f0' width='32' height='32'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%2364748b'%3E?%3C/text%3E%3C/svg%3E")" />
                         </div>
                         <span class="font-semibold text-sm text-slate-700">@course.Teacher?.FullName</span>
                     </div>

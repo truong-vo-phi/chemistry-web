@@ -98,35 +98,42 @@ public class LessonsController : Controller
     }
 
     [HttpPost]
+    [AllowAnonymous]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> MarkAsComplete(int lessonId)
     {
-        Console.WriteLine($"[MarkAsComplete DEBUG] User.Identity?.IsAuthenticated: {User.Identity?.IsAuthenticated}");
-        Console.WriteLine($"[MarkAsComplete DEBUG] User.Identity?.Name: {User.Identity?.Name}");
+        var lessonDetailsUrl = Url.Action("Details", new { id = lessonId })!;
 
         if (User.Identity?.IsAuthenticated != true)
         {
-            Console.WriteLine($"[MarkAsComplete DEBUG] User not authenticated, redirecting to login");
-            return RedirectToAction("Login", "Account");
+            return RedirectToAction("Login", "Account", new { returnUrl = lessonDetailsUrl });
         }
 
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        Console.WriteLine($"[MarkAsComplete DEBUG] userIdClaim: {userIdClaim}");
-
         if (string.IsNullOrEmpty(userIdClaim))
         {
-            Console.WriteLine($"[MarkAsComplete DEBUG] userIdClaim is null or empty, redirecting to login");
-            return RedirectToAction("Login", "Account");
+            return RedirectToAction("Login", "Account", new { returnUrl = lessonDetailsUrl });
         }
 
         var userId = Convert.ToInt32(userIdClaim);
-        Console.WriteLine($"[MarkAsComplete DEBUG] userId: {userId}, lessonId: {lessonId}");
 
-        var lesson = await _context.Lessons.FindAsync(lessonId);
-        if (lesson == null)
+        var lesson = await _context.Lessons
+            .Include(l => l.Chapter)
+            .FirstOrDefaultAsync(l => l.Id == lessonId);
+        if (lesson == null || lesson.ChapterId == null)
         {
-            Console.WriteLine($"[MarkAsComplete DEBUG] Lesson not found");
             return NotFound();
+        }
+
+        if (lesson.IsPreview != true && !User.IsInRole("Admin"))
+        {
+            var courseId = lesson.Chapter!.CourseId;
+            var isEnrolled = await _context.CourseEnrollments.AnyAsync(ce => ce.CourseId == courseId && ce.StudentId == userId);
+            if (!isEnrolled)
+            {
+                TempData["EnrollError"] = "Bạn cần đăng ký tham gia khóa học này để hoàn thành bài học.";
+                return RedirectToAction("Details", "Courses", new { id = courseId });
+            }
         }
 
         var progress = await _context.UserLessonProgresses
@@ -142,18 +149,15 @@ public class LessonsController : Controller
                 CompletedAt = DateTime.UtcNow
             };
             _context.UserLessonProgresses.Add(progress);
-            Console.WriteLine($"[MarkAsComplete DEBUG] Creating new progress record");
         }
         else
         {
             progress.IsCompleted = true;
             progress.CompletedAt = DateTime.UtcNow;
             _context.UserLessonProgresses.Update(progress);
-            Console.WriteLine($"[MarkAsComplete DEBUG] Updating existing progress record");
         }
 
         await _context.SaveChangesAsync();
-        Console.WriteLine($"[MarkAsComplete DEBUG] Progress saved successfully");
 
         return RedirectToAction("Details", new { id = lessonId });
     }

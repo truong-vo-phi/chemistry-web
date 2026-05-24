@@ -34,7 +34,7 @@
         {
             <div class="flex items-center gap-4 p-4 mb-8 bg-white/60 rounded-2xl border border-white/80 shadow-sm">
                 <div class="relative flex-shrink-0">
-                    <img alt="@User.Identity.Name" class="w-12 h-12 rounded-full object-cover border-2 border-primary/20" src="@(User.FindFirst("AvatarUrl")?.Value ?? "https://via.placeholder.com/48")" />
+                    <img alt="@User.Identity.Name" class="w-12 h-12 rounded-full object-cover border-2 border-primary/20" src="@(User.FindFirst("AvatarUrl")?.Value ?? "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Crect fill='%23e2e8f0' width='48' height='48'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%2364748b'%3E?%3C/text%3E%3C/svg%3E")" />
                     <div class="absolute bottom-0 right-0 w-3 h-3 bg-secondary border-2 border-white rounded-full"></div>
                 </div>
                 <div class="min-w-0">
