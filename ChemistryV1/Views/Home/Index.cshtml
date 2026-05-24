@@ -10,7 +10,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>ChemLab | Futuristic Academy Dashboard</title>
-    <meta name="description" content="Bﬂ¶˙ng -Êiﬂ+¸u khiﬂ+‚n hﬂ+Ïc tﬂ¶°p ChemLab - theo d+¶i tiﬂ¶+n -Êﬂ+÷, nhiﬂ+Ám vﬂ+— v+· th+·nh t+°ch cﬂ+∫a bﬂ¶Ìn." />
+    <meta name="description" content="B·∫£ng ƒëi·ªÅu khi·ªÉn h·ªçc t·∫≠p ChemLab - theo d√µi ti·∫øn ƒë·ªô, nhi·ªám v·ª• v√† th√†nh t√≠ch c·ªßa b·∫°n." />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
@@ -146,7 +146,7 @@
                 @Html.AntiForgeryToken()
                 <button type="submit" class="w-full text-slate-500 hover:text-error flex items-center gap-3 p-3 rounded-2xl hover:bg-red-50 transition-all text-sm font-semibold">
                     <span class="material-symbols-outlined text-lg">logout</span>
-                    -…-‚ng xuﬂ¶—t
+                    ƒêƒÉng xu·∫•t
                 </button>
             </form>
             <a asp-controller="Courses" asp-action="Library" class="w-full bg-primary text-white font-bold text-sm py-4 rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98] btn-glow">
@@ -168,11 +168,11 @@
                 <!-- Search -->
                 <form asp-controller="Courses" asp-action="Library" method="get" class="hidden lg:flex items-center gap-3 bg-white/60 backdrop-blur-sm px-5 py-3 rounded-2xl border border-white w-[400px] focus-within:ring-2 focus-within:ring-primary/20 transition-all">
                     <span class="material-symbols-outlined text-slate-400">search</span>
-                    <input name="search" class="border-none focus:ring-0 bg-transparent text-sm w-full font-medium outline-none" placeholder="T+ºm th+° nghiﬂ+Ám, b+·i hﬂ+Ïc, nguy+¨n tﬂ+Ê..." type="text" />
+                    <input name="search" class="border-none focus:ring-0 bg-transparent text-sm w-full font-medium outline-none" placeholder="T√¨m th√≠ nghi·ªám, b√†i h·ªçc, nguy√™n t·ªë..." type="text" />
                 </form>
             </div>
             <div class="flex items-center gap-4">
-                <button class="relative p-3 bg-white/60 backdrop-blur-sm rounded-2xl border border-white text-slate-500 hover:text-primary transition-colors" title="Th+¶ng b+Ìo">
+                <button class="relative p-3 bg-white/60 backdrop-blur-sm rounded-2xl border border-white text-slate-500 hover:text-primary transition-colors" title="Th√¥ng b√°o">
                     <span class="material-symbols-outlined">notifications</span>
                     @if (Model.DayStreak > 0)
                     {
@@ -207,7 +207,7 @@
                 <!-- Hero Text -->
                 <div class="relative z-10 flex-1 w-full text-center md:text-left">
                     <h2 class="text-4xl font-bold text-on-background mb-4 font-display leading-tight">
-                        Ch+·o mﬂ+Ωng, <span class="text-primary">@Model.UserName.Split(' ').FirstOrDefault()</span>!
+                        Ch√†o m·ª´ng, <span class="text-primary">@Model.UserName.Split(' ').FirstOrDefault()</span>!
                     </h2>
                     @{
                         var xpToNext = Model.NextGoalTarget - Model.NextGoalCurrent;
@@ -215,18 +215,18 @@
                     <p class="text-slate-500 text-lg mb-8 leading-relaxed font-medium">
                         @if (xpToNext > 0)
                         {
-                            <span>Bﬂ¶Ìn chﬂ+Î c+¶n <span class="text-primary font-bold">@xpToNext.ToString("N0") XP</span> -Êﬂ+‚ -Êﬂ¶Ìt mﬂ+—c ti+¨u "<strong>@Model.NextGoalLabel</strong>". H+˙y bﬂ¶ªt -Êﬂ¶∫u n+·o!</span>
+                            <span>B·∫°n ch·ªâ c√≤n <span class="text-primary font-bold">@xpToNext.ToString("N0") XP</span> ƒë·ªÉ ƒë·∫°t m·ª•c ti√™u "<strong>@Model.NextGoalLabel</strong>". H√£y b·∫Øt ƒë·∫ßu n√†o!</span>
                         }
                         else
                         {
-                            <span>Xuﬂ¶—t sﬂ¶ªc! Bﬂ¶Ìn -Ê+˙ -Êﬂ¶Ìt mﬂ+—c ti+¨u <strong>@Model.NextGoalLabel</strong>. Tiﬂ¶+p tﬂ+—c ph+Ì -Êﬂ¶˙o! =ÉƒÎ</span>
+                            <span>Xu·∫•t s·∫Øc! B·∫°n ƒë√£ ƒë·∫°t m·ª•c ti√™u <strong>@Model.NextGoalLabel</strong>. Ti·∫øp t·ª•c ph√° ƒë·∫£o! üéâ</span>
                         }
                     </p>
                     <!-- XP Bar -->
                     <div class="space-y-3">
                         <div class="flex justify-between font-bold text-xs text-slate-400 px-1">
                             <span>@Model.NextGoalCurrent.ToString("N0") XP</span>
-                            <span class="text-primary">Mﬂ+—c ti+¨u: @Model.NextGoalTarget.ToString("N0") XP</span>
+                            <span class="text-primary">M·ª•c ti√™u: @Model.NextGoalTarget.ToString("N0") XP</span>
                         </div>
                         <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden border border-white relative shadow-inner">
                             <div class="bg-gradient-to-r from-primary to-blue-400 h-full rounded-full xp-glow transition-all duration-1000" style="width:@goalPercent%;"></div>
@@ -243,7 +243,7 @@
                     </div>
                     <div>
                         <p class="text-3xl font-bold text-on-background">@Model.TotalCompletedLessons</p>
-                        <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">B+·i -…+˙ Hﬂ+Ïc</p>
+                        <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">B√†i ƒê√£ H·ªçc</p>
                     </div>
                 </div>
                 <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:border-secondary/30 transition-all group hover:scale-[1.02]">
@@ -252,7 +252,7 @@
                     </div>
                     <div>
                         <p class="text-3xl font-bold text-on-background">@Model.TotalQuizResults</p>
-                        <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">B+·i Kiﬂ+‚m Tra</p>
+                        <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">B√†i Ki·ªÉm Tra</p>
                     </div>
                 </div>
                 <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:border-tertiary/30 transition-all group hover:scale-[1.02]">
@@ -261,7 +261,7 @@
                     </div>
                     <div>
                         <p class="text-3xl font-bold text-on-background">@Model.DayStreak</p>
-                        <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">Ng+·y Li+¨n Tiﬂ¶+p</p>
+                        <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">Ng√†y Li√™n Ti·∫øp</p>
                     </div>
                 </div>
                 <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:border-primary/30 transition-all group hover:scale-[1.02]">
@@ -270,7 +270,7 @@
                     </div>
                     <div>
                         <p class="text-3xl font-bold text-on-background">@Model.TotalXp.ToString("N0")</p>
-                        <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">Tﬂ+Úng XP</p>
+                        <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">T·ªïng XP</p>
                     </div>
                 </div>
             </section>
@@ -281,11 +281,11 @@
             <!-- Daily Mission Panel -->
             <section class="xl:col-span-4 flex flex-col">
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-bold text-on-background font-display">Nhiﬂ+Ám Vﬂ+— H+¶m Nay</h3>
+                    <h3 class="text-xl font-bold text-on-background font-display">Nhi·ªám V·ª• H√¥m Nay</h3>
                     <div class="flex items-center gap-1.5 px-3 py-1 bg-secondary/10 text-secondary rounded-full text-[11px] font-bold">
                         <span class="material-symbols-outlined text-sm">schedule</span>
                         @{ var hoursLeft = 23 - DateTime.Now.Hour; }
-                        @hoursLeft giﬂ+• c+¶n lﬂ¶Ìi
+                        @hoursLeft gi·ªù c√≤n l·∫°i
                     </div>
                 </div>
                 <div class="glass-card p-8 border-primary/10 shadow-xl flex-1 flex flex-col relative overflow-hidden">
@@ -303,7 +303,7 @@
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <p class="font-bold text-sm text-slate-700">@mission.Title</p>
-                                        <p class="text-[11px] text-secondary font-bold tracking-wide">@mission.RewardText G£Ù</p>
+                                        <p class="text-[11px] text-secondary font-bold tracking-wide">@mission.RewardText ‚úì</p>
                                     </div>
                                 </div>
                             }
@@ -327,12 +327,12 @@
                         {
                             <div class="text-center py-8 text-slate-400">
                                 <span class="material-symbols-outlined text-4xl mb-2 block">assignment</span>
-                                <p class="text-sm">Kh+¶ng c+¶ nhiﬂ+Ám vﬂ+— h+¶m nay.</p>
+                                <p class="text-sm">Kh√¥ng c√≥ nhi·ªám v·ª• h√¥m nay.</p>
                             </div>
                         }
                     </div>
                     <a asp-controller="Courses" asp-action="Library" class="w-full bg-gradient-to-r from-primary to-blue-600 text-white py-5 rounded-2xl font-bold text-sm flex items-center justify-center gap-3 transition-all hover:scale-[1.03] active:scale-[0.98] btn-glow shadow-xl shadow-primary/30 mt-auto">
-                        Bﬂ¶ªt -…ﬂ¶∫u Ngay
+                        B·∫Øt ƒê·∫ßu Ngay
                         <span class="material-symbols-outlined">bolt</span>
                     </a>
                 </div>
@@ -340,7 +340,7 @@
 
             <!-- Continue Learning -->
             <section class="xl:col-span-8">
-                <h3 class="text-xl font-bold text-on-background font-display mb-6">Tiﬂ¶+p Tﬂ+—c Hﬂ+Ïc</h3>
+                <h3 class="text-xl font-bold text-on-background font-display mb-6">Ti·∫øp T·ª•c H·ªçc</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <!-- Main Progress Card -->
                     @if (Model.ContinueCourse != null)
@@ -348,11 +348,11 @@
                         <div class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm flex flex-col hover:border-primary/20 transition-all group">
                             <div class="flex justify-between items-start mb-8">
                                 <div>
-                                    <p class="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mb-2">-…ang hﬂ+Ïc</p>
+                                    <p class="text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mb-2">ƒêang h·ªçc</p>
                                     <h4 class="text-2xl font-bold text-on-background leading-tight line-clamp-2">@Model.ContinueCourse.Title</h4>
                                     @if (!string.IsNullOrEmpty(Model.ContinueCourse.TeacherName))
                                     {
-                                        <p class="text-slate-400 text-xs mt-1">Quﬂ¶˙n l++: @Model.ContinueCourse.TeacherName</p>
+                                        <p class="text-slate-400 text-xs mt-1">Qu·∫£n l√Ω: @Model.ContinueCourse.TeacherName</p>
                                     }
                                 </div>
                                 <div class="w-16 h-16 rounded-3xl bg-blue-50 flex items-center justify-center text-primary shadow-inner border border-white flex-shrink-0">
@@ -361,7 +361,7 @@
                             </div>
                             <div class="flex-1 mb-8 space-y-3">
                                 <div class="flex justify-between text-xs font-bold text-slate-600 px-1">
-                                    <span>Tiﬂ¶+n -Êﬂ+÷ kh+¶a hﬂ+Ïc</span>
+                                    <span>Ti·∫øn ƒë·ªô kh√≥a h·ªçc</span>
                                     <span class="text-primary">@Model.ContinueCourse.ProgressPercent%</span>
                                 </div>
                                 <div class="h-3.5 bg-slate-100 rounded-full overflow-hidden border border-white shadow-inner">
@@ -369,7 +369,7 @@
                                 </div>
                             </div>
                             <a asp-controller="Courses" asp-action="Details" asp-route-id="@Model.ContinueCourse.Id" class="bg-primary text-white py-4 px-8 rounded-2xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 btn-glow">
-                                Hﬂ+Ïc tiﬂ¶+p
+                                H·ªçc ti·∫øp
                                 <span class="material-symbols-outlined">play_arrow</span>
                             </a>
                         </div>
@@ -378,10 +378,10 @@
                     {
                         <div class="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center hover:border-primary/20 transition-all">
                             <span class="material-symbols-outlined text-5xl text-slate-200 mb-4">school</span>
-                            <h4 class="text-lg font-bold text-slate-400 mb-2">Ch¶¶a c+¶ kh+¶a hﬂ+Ïc</h4>
-                            <p class="text-sm text-slate-400 mb-6">-…-‚ng k++ kh+¶a hﬂ+Ïc -Êﬂ¶∫u ti+¨n cﬂ+∫a bﬂ¶Ìn</p>
+                            <h4 class="text-lg font-bold text-slate-400 mb-2">Ch∆∞a c√≥ kh√≥a h·ªçc</h4>
+                            <p class="text-sm text-slate-400 mb-6">ƒêƒÉng k√Ω kh√≥a h·ªçc ƒë·∫ßu ti√™n c·ªßa b·∫°n</p>
                             <a asp-controller="Courses" asp-action="Library" class="bg-primary text-white py-3 px-6 rounded-2xl font-bold text-sm btn-glow">
-                                Kh+Ìm ph+Ì
+                                Kh√°m ph√°
                             </a>
                         </div>
                     }
@@ -390,7 +390,7 @@
                     <div class="grid grid-rows-3 gap-4">
                         @foreach (var course in Model.RecentCourses.Take(3))
                         {
-                            var difficultyLabel = course.ProgressPercent == 0 ? "Mﬂ+¢i" : course.ProgressPercent >= 75 ? "Gﬂ¶∫n xong" : "-…ang hﬂ+Ïc";
+                            var difficultyLabel = course.ProgressPercent == 0 ? "M·ªõi" : course.ProgressPercent >= 75 ? "G·∫ßn xong" : "ƒêang h·ªçc";
                             var diffColor = course.ProgressPercent == 0 ? "error" : course.ProgressPercent >= 75 ? "secondary" : "tertiary";
                             var borderColor = diffColor == "error" ? "border-l-red-400" : diffColor == "secondary" ? "border-l-emerald-400" : "border-l-amber-400";
                             var iconName = diffColor == "error" ? "priority_high" : diffColor == "secondary" ? "check_circle" : "hourglass_empty";
@@ -403,7 +403,7 @@
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <p class="font-bold text-sm text-slate-700 truncate">@course.Title</p>
-                                    <p class="text-[10px] @textColor font-bold uppercase tracking-wider mt-0.5">@difficultyLabel G«Û @course.ProgressPercent%</p>
+                                    <p class="text-[10px] @textColor font-bold uppercase tracking-wider mt-0.5">@difficultyLabel ‚Ä¢ @course.ProgressPercent%</p>
                                 </div>
                                 <span class="material-symbols-outlined text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0">chevron_right</span>
                             </a>
@@ -412,8 +412,8 @@
                         {
                             <div class="col-span-1 row-span-3 bg-white/60 rounded-2xl p-6 border border-white flex flex-col items-center justify-center text-center gap-3">
                                 <span class="material-symbols-outlined text-4xl text-slate-300">school</span>
-                                <p class="text-sm text-slate-400">Ch¶¶a c+¶ gﬂ+˙i ++ kh+¶a hﬂ+Ïc</p>
-                                <a asp-controller="Courses" asp-action="Library" class="text-primary text-sm font-bold hover:underline">Kh+Ìm ph+Ì ngay</a>
+                                <p class="text-sm text-slate-400">Ch∆∞a c√≥ g·ª£i √Ω kh√≥a h·ªçc</p>
+                                <a asp-controller="Courses" asp-action="Library" class="text-primary text-sm font-bold hover:underline">Kh√°m ph√° ngay</a>
                             </div>
                         }
                     </div>
@@ -425,22 +425,22 @@
         <section class="mb-16 glass-card p-10 md:p-12 flex flex-col md:flex-row items-center justify-between gap-10 relative overflow-hidden border-blue-100 shadow-xl shadow-blue-500/[0.03]">
             <div class="absolute left-0 top-0 w-full h-full bg-gradient-to-br from-blue-50/50 to-transparent pointer-events-none"></div>
             <div class="relative z-10 max-w-xl text-center md:text-left">
-                <h3 class="text-3xl md:text-4xl font-bold text-on-background mb-6 font-display leading-tight">Nﬂ¶ªm Vﬂ+ªng C+Ìc Nguy+¨n Tﬂ+Ê</h3>
+                <h3 class="text-3xl md:text-4xl font-bold text-on-background mb-6 font-display leading-tight">N·∫Øm V·ªØng C√°c Nguy√™n T·ªë</h3>
                 <p class="text-slate-500 text-base md:text-lg mb-10 leading-relaxed font-medium">
-                    Kh+Ìm ph+Ì b+° ﬂ¶¨n cﬂ+∫a v+¨ trﬂ+— th+¶ng qua h+¶a hﬂ+Ïc thﬂ+¶c tﬂ¶+ ﬂ¶˙o. Mﬂ+˘i th+° nghiﬂ+Ám ho+·n th+·nh sﬂ¶+ gi+¶p bﬂ¶Ìn tiﬂ¶+n gﬂ¶∫n h¶Ìn tﬂ+¢i danh hiﬂ+Áu "Gold Alchemist".
+                    Kh√°m ph√° b√≠ ·∫©n c·ªßa v≈© tr·ª• th√¥ng qua h√≥a h·ªçc th·ª±c t·∫ø ·∫£o. M·ªói th√≠ nghi·ªám ho√†n th√†nh s·∫Ω gi√∫p b·∫°n ti·∫øn g·∫ßn h∆°n t·ªõi danh hi·ªáu "Gold Alchemist".
                 </p>
                 <div class="flex flex-wrap justify-center md:justify-start gap-6">
                     <a asp-controller="Courses" asp-action="Library" class="flex items-center gap-3 font-bold text-sm text-primary group cursor-pointer">
                         <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                             <span class="material-symbols-outlined">explore</span>
                         </div>
-                        Kh+Ìm Ph+Ì Lab ﬂ¶Ûo
+                        Kh√°m Ph√° Lab ·∫¢o
                     </a>
                     <a asp-controller="Profile" asp-action="Index" class="flex items-center gap-3 font-bold text-sm text-tertiary group cursor-pointer">
                         <div class="w-10 h-10 rounded-xl bg-tertiary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                             <span class="material-symbols-outlined">auto_fix_high</span>
                         </div>
-                        Xem Th+·nh T+°ch
+                        Xem Th√†nh T√≠ch
                     </a>
                 </div>
             </div>
@@ -456,8 +456,8 @@
             <!-- Achievements full width -->
             <section class="xl:col-span-12">
                 <div class="flex items-center justify-between mb-8">
-                    <h3 class="text-xl font-bold text-on-background font-display">Th+·nh T+°ch Gﬂ¶∫n -…+Ûy</h3>
-                    <a asp-controller="Profile" asp-action="Index" class="text-primary font-bold text-sm hover:underline underline-offset-8">Xem Bﬂ+÷ S¶¶u Tﬂ¶°p</a>
+                    <h3 class="text-xl font-bold text-on-background font-display">Th√†nh T√≠ch G·∫ßn ƒê√¢y</h3>
+                    <a asp-controller="Profile" asp-action="Index" class="text-primary font-bold text-sm hover:underline underline-offset-8">Xem B·ªô S∆∞u T·∫≠p</a>
                 </div>
                 <div class="flex gap-6 overflow-x-auto pb-6 custom-scrollbar px-1">
                     @foreach (var achievement in Model.Achievements)
@@ -480,7 +480,7 @@
                                     <span class="material-symbols-outlined text-3xl text-slate-300">lock</span>
                                 </div>
                                 <p class="font-bold text-xs text-center text-slate-400 leading-tight">@achievement.Title</p>
-                                <p class="text-[9px] text-slate-300 mt-2 font-bold uppercase tracking-widest">Kh+¶a</p>
+                                <p class="text-[9px] text-slate-300 mt-2 font-bold uppercase tracking-widest">Kh√≥a</p>
                             </div>
                         }
                     }
@@ -489,7 +489,7 @@
 
             <!-- Recent Activity -->
             <section class="xl:col-span-12">
-                <h3 class="text-xl font-bold text-on-background font-display mb-6">Hoﬂ¶Ìt -…ﬂ+÷ng Gﬂ¶∫n -…+Ûy</h3>
+                <h3 class="text-xl font-bold text-on-background font-display mb-6">Ho·∫°t ƒê·ªông G·∫ßn ƒê√¢y</h3>
                 <div class="bg-white/60 backdrop-blur-sm rounded-[32px] p-8 border border-white space-y-5 shadow-sm">
                     @foreach (var item in Model.RecentActivity)
                     {
@@ -506,7 +506,7 @@
                     {
                         <div class="text-center py-8 text-slate-400">
                             <span class="material-symbols-outlined text-4xl mb-2 block">history</span>
-                            <p class="text-sm">Ch¶¶a c+¶ hoﬂ¶Ìt -Êﬂ+÷ng n+·o. H+˙y bﬂ¶ªt -Êﬂ¶∫u hﬂ+Ïc!</p>
+                            <p class="text-sm">Ch∆∞a c√≥ ho·∫°t ƒë·ªông n√†o. H√£y b·∫Øt ƒë·∫ßu h·ªçc!</p>
                         </div>
                     }
                 </div>
@@ -522,20 +522,20 @@
         </a>
         <a asp-controller="Courses" asp-action="Library" class="flex flex-col items-center p-3 text-slate-400 transition-transform active:scale-90">
             <span class="material-symbols-outlined">apps</span>
-            <span class="text-[9px] font-bold uppercase tracking-wider mt-1">Kh+¶a hﬂ+Ïc</span>
+            <span class="text-[9px] font-bold uppercase tracking-wider mt-1">Kh√≥a h·ªçc</span>
         </a>
         <a asp-controller="Courses" asp-action="Library" class="flex flex-col items-center p-4 bg-primary text-white rounded-2xl -mt-16 shadow-xl shadow-primary/40 border-4 border-white transition-transform active:scale-95">
             <span class="material-symbols-outlined text-2xl">add</span>
         </a>
         <a asp-controller="Profile" asp-action="Index" class="flex flex-col items-center p-3 text-slate-400 transition-transform active:scale-90">
             <span class="material-symbols-outlined">stars</span>
-            <span class="text-[9px] font-bold uppercase tracking-wider mt-1">Tiﬂ¶+n -Êﬂ+÷</span>
+            <span class="text-[9px] font-bold uppercase tracking-wider mt-1">Ti·∫øn ƒë·ªô</span>
         </a>
         <form asp-controller="Account" asp-action="Logout" method="post" class="flex flex-col items-center">
             @Html.AntiForgeryToken()
             <button type="submit" class="flex flex-col items-center p-3 text-slate-400 transition-transform active:scale-90">
                 <span class="material-symbols-outlined">logout</span>
-                <span class="text-[9px] font-bold uppercase tracking-wider mt-1">Tho+Ìt</span>
+                <span class="text-[9px] font-bold uppercase tracking-wider mt-1">Tho√°t</span>
             </button>
         </form>
     </nav>
@@ -545,11 +545,11 @@
         <div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
             <div class="text-2xl font-bold text-primary font-display">ChemLab</div>
             <div class="flex flex-wrap justify-center gap-8">
-                <a class="text-slate-500 hover:text-primary transition-all font-bold text-xs uppercase tracking-widest" href="#">H¶¶ﬂ+¢ng Dﬂ¶Ωn An To+·n</a>
-                <a asp-controller="Courses" asp-action="Library" class="text-slate-500 hover:text-primary transition-all font-bold text-xs uppercase tracking-widest">Ch¶¶¶Ìng Tr+ºnh</a>
-                <a asp-controller="Profile" asp-action="Index" class="text-slate-500 hover:text-primary transition-all font-bold text-xs uppercase tracking-widest">Hﬂ+Ù S¶Ì</a>
+                <a class="text-slate-500 hover:text-primary transition-all font-bold text-xs uppercase tracking-widest" href="#">H∆∞·ªõng D·∫´n An To√†n</a>
+                <a asp-controller="Courses" asp-action="Library" class="text-slate-500 hover:text-primary transition-all font-bold text-xs uppercase tracking-widest">Ch∆∞∆°ng Tr√¨nh</a>
+                <a asp-controller="Profile" asp-action="Index" class="text-slate-500 hover:text-primary transition-all font-bold text-xs uppercase tracking-widest">H·ªì S∆°</a>
             </div>
-            <div class="text-slate-400 font-bold text-[10px] uppercase tracking-widest">-¨ 2024 ChemLab Academy</div>
+            <div class="text-slate-400 font-bold text-[10px] uppercase tracking-widest">¬© 2024 ChemLab Academy</div>
         </div>
     </footer>
 

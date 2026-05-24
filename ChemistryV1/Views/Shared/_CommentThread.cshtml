@@ -5,7 +5,7 @@
     int? currentUserId = !string.IsNullOrEmpty(currentUserIdClaim) ? Convert.ToInt32(currentUserIdClaim) : null;
     bool isAuthenticated = User.Identity?.IsAuthenticated == true;
     bool isAuthor = currentUserId.HasValue && Model.UserId == currentUserId.Value;
-    bool canDelete = isAuthor || User.IsInRole("Admin") || User.IsInRole("Teacher");
+    bool canDelete = isAuthor || User.IsInRole("Admin");
     
     // Choose badge style based on role
     var role = Model.User?.Role ?? "Student";
@@ -17,10 +17,10 @@
         badgeClass = "bg-error-container/80 text-error border-error/20 font-bold";
         badgeText = "👑 Admin";
     }
-    else if (role.Equals("Teacher", StringComparison.OrdinalIgnoreCase))
+    else if (role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
     {
         badgeClass = "bg-secondary-container/80 text-on-secondary-container border-secondary/20 font-bold";
-        badgeText = "🎓 Teacher";
+        badgeText = "🎓 Quản trị";
     }
 }
 
@@ -109,7 +109,6 @@
             {
                 <form id="reply-form-@Model.Id" class="hidden mt-4 p-4 rounded-xl bg-surface/50 border border-outline-variant/20 flex-col gap-2 w-full transition-all" asp-controller="Comments" asp-action="Create" method="post">
                     <input type="hidden" name="lessonId" value="@Model.LessonId" />
-                    <input type="hidden" name="missionId" value="@Model.MissionId" />
                     <input type="hidden" name="parentId" value="@Model.Id" />
                     <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider block mb-1">Gửi phản hồi cho @(Model.User?.FullName ?? Model.User?.Username)</label>
                     <textarea name="content" class="w-full bg-surface-container-lowest border border-outline-variant/40 focus:border-primary/50 focus:ring-0 rounded-xl text-sm p-3 font-medium outline-none resize-none min-h-[80px]" placeholder="Viết phản hồi..."></textarea>
