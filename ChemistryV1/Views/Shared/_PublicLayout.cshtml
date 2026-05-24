@@ -57,6 +57,10 @@
                 <span class="material-symbols-outlined">stars</span>
                 <span class="font-medium text-sm">My Progress</span>
             </a>
+            <a class="@(controller == "leaderboard" ? "sidebar-active" : "text-slate-500 hover:text-primary") flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5" asp-controller="Leaderboard" asp-action="Index">
+                <span class="material-symbols-outlined">emoji_events</span>
+                <span class="font-medium text-sm">Leaderboard</span>
+            </a>
             @if (User.IsInRole("Admin"))
             {
                 <a class="@(controller == "dashboard" ? "sidebar-active" : "text-slate-500 hover:text-primary") flex items-center gap-4 p-4 transition-all hover:translate-x-2 rounded-l-xl hover:bg-primary/5" asp-controller="Dashboard" asp-action="Index">

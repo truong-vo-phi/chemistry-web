@@ -19,6 +19,24 @@ public partial class Comment
 
     public DateTime? CreatedAt { get; set; }
 
+    // Report/Flag fields
+    public bool IsReported { get; set; } = false;
+
+    public int ReportCount { get; set; } = 0;
+
+    public string? ReportReason { get; set; }
+
+    public DateTime? ReportedAt { get; set; }
+
+    // Admin action
+    public string? AdminAction { get; set; } // "warning", "delete", "hidden", null
+
+    public string? AdminActionReason { get; set; }
+
+    public int? AdminActionBy { get; set; }
+
+    public DateTime? ActionTakenAt { get; set; }
+
     public virtual ICollection<Comment> InverseParent { get; set; } = new List<Comment>();
 
     public virtual Lesson? Lesson { get; set; }
