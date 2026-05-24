@@ -1,0 +1,161 @@
+@{
+    // Admin layout with sidebar navigation for admin pages
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLowerInvariant() ?? "";
+    var isDashboard = controller == "dashboard";
+    var isTeacherCourses = controller == "teachercourses" || controller == "lessons" || controller == "chapters";
+    var isCourses = controller == "courses";
+    var isCategories = controller == "categories";
+    var isProfile = controller == "profile";
+    var isHome = controller == "home";
+}
+<!DOCTYPE html>
+<html class="light" lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ChemLab Admin</title>
+    <meta name="description" content="@ViewData["Description"]" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    @Html.Partial("_DesignSystem")
+    @RenderSection("Head", required: false)
+</head>
+<body class="text-on-background min-h-screen flex flex-col">
+
+    <!-- Mobile overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black/30 z-40 backdrop-blur-sm md:hidden" onclick="closeMobileSidebar()"></div>
+
+    <!-- ADMIN SIDEBAR -->
+    <aside id="admin-mobile-sidebar" class="flex flex-col h-screen w-64 bg-slate-50 border-r-2 border-slate-200 shadow-md fixed left-0 top-0 z-50 transition-transform duration-300 -translate-x-full md:translate-x-0">
+        <!-- Brand -->
+        <div class="flex items-center gap-3 px-6 py-6 border-b border-slate-200">
+            <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white flex-shrink-0">
+                <span class="material-symbols-outlined text-xl">science</span>
+            </div>
+            <div>
+                <h1 class="font-bold text-primary text-base leading-tight font-display">ChemLab</h1>
+                <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Admin Command</p>
+            </div>
+        </div>
+
+        <!-- Admin Info -->
+        <div class="flex items-center gap-3 px-4 py-4 mx-4 mt-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+            <img alt="Admin" class="w-10 h-10 rounded-full object-cover border-2 border-primary/20" src="@(User.FindFirst("AvatarUrl")?.Value ?? "https://via.placeholder.com/64")" />
+            <div class="min-w-0">
+                <p class="font-bold text-sm text-slate-700 truncate leading-tight">@User.Identity?.Name</p>
+                <p class="text-[10px] text-primary font-bold uppercase tracking-wider">@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Admin")</p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+            <a asp-controller="Dashboard" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(isDashboard ? "bg-secondary/10 text-secondary border border-secondary/20 shadow-sm" : "text-slate-600 hover:bg-slate-100")">
+                <span class="material-symbols-outlined @(isDashboard ? "fill-1" : "")">dashboard</span>
+                Overview
+            </a>
+            <a asp-controller="AdminUsers" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:bg-slate-100">
+                <span class="material-symbols-outlined">group</span>
+                User Management
+            </a>
+            <a asp-controller="TeacherCourses" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(isTeacherCourses ? "bg-secondary/10 text-secondary border border-secondary/20 shadow-sm" : "text-slate-600 hover:bg-slate-100")">
+                <span class="material-symbols-outlined @(isTeacherCourses ? "fill-1" : "")">auto_stories</span>
+                Course Management
+            </a>
+            
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-controller="Categories" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(isCategories ? "bg-secondary/10 text-secondary border border-secondary/20 shadow-sm" : "text-slate-600 hover:bg-slate-100")">
+                    <span class="material-symbols-outlined">menu_book</span>
+                    Categories
+                </a>
+            }
+            <div class="my-3 border-t border-slate-200"></div>
+            
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:bg-slate-100">
+                <span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+        </nav>
+
+        <!-- Bottom -->
+        <div class="px-4 pb-6 space-y-2">
+            <form asp-controller="Account" asp-action="Logout" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 transition-all">
+                    <span class="material-symbols-outlined">logout</span>
+                    Logout
+                </button>
+            </form>
+            <a asp-controller="TeacherCourses" asp-action="Create" class="w-full flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold text-sm btn-glow hover:scale-[1.02] active:scale-[0.98] transition-all">
+                <span class="material-symbols-outlined">add</span>
+                New Course
+            </a>
+        </div>
+    </aside>
+
+    <!-- TOPBAR -->
+    <header class="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200 h-16 flex items-center md:pl-64">
+        <div class="flex justify-between items-center w-full px-4 md:px-8 gap-4">
+            <div class="flex items-center gap-4">
+                <!-- Mobile toggle -->
+                <button onclick="openMobileSidebar()" class="md:hidden p-2 rounded-xl hover:bg-slate-100 transition-all">
+                    <span class="material-symbols-outlined text-slate-600">menu</span>
+                </button>
+                
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Branding center (mobile) -->
+                <span class="md:hidden font-bold text-primary text-lg font-display">ChemLab</span>
+                <div class="flex items-center gap-3">
+                    <button class="relative p-2 rounded-full hover:bg-slate-100 transition-all" title="Notifications">
+                        <span class="material-symbols-outlined text-slate-600">notifications</span>
+                        @if (ViewBag.PendingReports is int pr && pr > 0)
+                        {
+                            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+                        }
+                    </button>
+                    <button class="p-2 rounded-full hover:bg-slate-100 transition-all" title="Settings">
+                        <span class="material-symbols-outlined text-slate-600">settings</span>
+                    </button>
+                    <div class="flex items-center gap-2 pl-3 border-l border-slate-200">
+                        <img alt="Admin" class="w-9 h-9 rounded-full object-cover border-2 border-primary/20" src="@(User.FindFirst("AvatarUrl")?.Value ?? "https://via.placeholder.com/64")" />
+                        <div class="hidden lg:block">
+                            <p class="text-xs font-bold text-slate-700 leading-tight">@User.Identity?.Name</p>
+                            <p class="text-[9px] uppercase font-bold text-primary tracking-wider">@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="md:pl-64 pt-16 pb-16 flex-1">
+        <div class="max-w-[1400px] mx-auto px-4 md:px-8 py-8">
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="md:pl-64 bg-slate-50 border-t border-slate-200 py-6 px-8">
+        <div class="max-w-[1400px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <span class="font-bold text-primary font-display">ChemLab</span>
+            <span class="text-slate-500 text-xs">© 2026 ChemLab. Admin Command Center.</span>
+        </div>
+    </footer>
+
+    <script>
+        function openMobileSidebar() {
+            document.getElementById('admin-mobile-sidebar').classList.add('open');
+            document.getElementById('mobile-overlay').classList.add('active');
+        }
+        function closeMobileSidebar() {
+            document.getElementById('admin-mobile-sidebar').classList.remove('open');
+            document.getElementById('mobile-overlay').classList.remove('active');
+        }
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
