@@ -180,6 +180,53 @@ public class CommentsController : Controller
         }
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Report(int commentId, string reason)
+    {
+        var comment = await _context.Comments.FindAsync(commentId);
+        if (comment == null)
+            return NotFound();
+
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim))
+            return Challenge();
+
+        var userId = Convert.ToInt32(userIdClaim);
+
+        // Cannot report own comment
+        if (comment.UserId == userId)
+        {
+            TempData["CommentError"] = "Bạn không thể báo cáo bình luận của chính mình.";
+            return RedirectBack(comment);
+        }
+
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            TempData["CommentError"] = "Vui lòng chọn lý do báo cáo.";
+            return RedirectBack(comment);
+        }
+
+        comment.IsReported = true;
+        comment.ReportCount++;
+        comment.ReportReason = reason;
+        comment.ReportedAt = DateTime.UtcNow;
+
+        _context.Comments.Update(comment);
+        await _context.SaveChangesAsync();
+
+        TempData["CommentSuccess"] = "Báo cáo bình luận đã được gửi. Cảm ơn đã giúp cộng đồng an toàn!";
+        return RedirectBack(comment);
+    }
+
+    private IActionResult RedirectBack(Comment comment)
+    {
+        if (comment.LessonId.HasValue)
+            return Redirect($"{Url.Action("Details", "Lessons", new { id = comment.LessonId.Value })}#comment-{comment.Id}");
+        else
+            return Redirect($"{Url.Action("Details", "Missions", new { id = comment.MissionId!.Value })}#comment-{comment.Id}");
+    }
+
     private async Task DeleteCommentAndRepliesAsync(int commentId)
     {
         var comment = await _context.Comments
