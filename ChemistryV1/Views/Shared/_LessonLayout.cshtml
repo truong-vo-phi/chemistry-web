@@ -70,17 +70,21 @@
                 }
                 @if (isLessonCompleted)
                 {
-                    <button id="markCompleteBtn" class="flex-1 md:flex-none px-8 py-3 bg-green-500 text-white rounded-full border-2 border-green-500/30 transition-colors flex items-center justify-center gap-2 font-bold text-sm" disabled>
+                    <button class="flex-1 md:flex-none px-8 py-3 bg-green-500 text-white rounded-full border-2 border-green-500/30 transition-colors flex items-center justify-center gap-2 font-bold text-sm" disabled>
                         <span class="material-symbols-outlined fill-1">check_circle</span>
                         Completed
                     </button>
                 }
                 else
                 {
-                    <button id="markCompleteBtn" class="flex-1 md:flex-none px-8 py-3 bg-primary text-white rounded-full border-2 border-primary/30 hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 font-bold text-sm btn-glow">
-                        <span class="material-symbols-outlined fill-1">check_circle</span>
-                        Mark as Complete
-                    </button>
+                    <form asp-controller="Lessons" asp-action="MarkAsComplete" method="post" class="flex-1 md:flex-none">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="lessonId" value="@ViewData["LessonId"]" />
+                        <button type="submit" class="w-full px-8 py-3 bg-primary text-white rounded-full border-2 border-primary/30 hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 font-bold text-sm btn-glow">
+                            <span class="material-symbols-outlined fill-1">check_circle</span>
+                            Mark as Complete
+                        </button>
+                    </form>
                 }
             </div>
         </div>
@@ -97,34 +101,6 @@
             document.getElementById('mobile-overlay').classList.add('hidden');
             document.getElementById('mobile-overlay').style.display = 'none';
         }
-
-        // Mark as Complete button handler
-        document.getElementById('markCompleteBtn')?.addEventListener('click', function() {
-            const lessonId = @ViewData["LessonId"];
-            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-
-            fetch('/Lessons/MarkAsComplete', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'RequestVerificationToken': token
-                },
-                body: `lessonId=${lessonId}&__RequestVerificationToken=${encodeURIComponent(token)}`
-            })
-            .then(response => {
-                if (response.redirected) {
-                    window.location.href = response.url;
-                } else if (response.ok) {
-                    window.location.reload();
-                } else {
-                    alert('Có lỗi xảy ra khi đánh dấu hoàn thành');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Có lỗi xảy ra khi đánh dấu hoàn thành');
-            });
-        });
     </script>
 
     @RenderSection("Scripts", required: false)
