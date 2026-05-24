@@ -216,21 +216,21 @@ public class TeacherCoursesController : Controller
 
         // 1. Break self-referencing FK in Comments to avoid constraint errors during deletion
         await _context.Comments
-            .Where(c => c.Lesson.Chapter.CourseId == id)
+            .Where(c => c.Lesson!.Chapter!.CourseId == id)
             .ExecuteUpdateAsync(s => s.SetProperty(c => c.ParentId, (int?)null));
 
         // 2. Delete all Lesson-dependent entities
-        await _context.Comments.Where(c => c.Lesson.Chapter.CourseId == id).ExecuteDeleteAsync();
-        await _context.UserLessonProgresses.Where(p => p.Lesson.Chapter.CourseId == id).ExecuteDeleteAsync();
-        await _context.LessonSubmissions.Where(s => s.Lesson.Chapter.CourseId == id).ExecuteDeleteAsync();
+        await _context.Comments.Where(c => c.Lesson!.Chapter!.CourseId == id).ExecuteDeleteAsync();
+        await _context.UserLessonProgresses.Where(p => p.Lesson!.Chapter!.CourseId == id).ExecuteDeleteAsync();
+        await _context.LessonSubmissions.Where(s => s.Lesson!.Chapter!.CourseId == id).ExecuteDeleteAsync();
         
         // 3. Delete Lessons and Chapters
-        await _context.Lessons.Where(l => l.Chapter.CourseId == id).ExecuteDeleteAsync();
+        await _context.Lessons.Where(l => l.Chapter!.CourseId == id).ExecuteDeleteAsync();
         await _context.Chapters.Where(c => c.CourseId == id).ExecuteDeleteAsync();
 
         // 4. Delete Quiz/Revision-dependent entities
-        await _context.QuizDetailedAnswers.Where(q => q.Question.CourseId == id).ExecuteDeleteAsync();
-        await _context.QuizResults.Where(q => q.Revision.CourseId == id).ExecuteDeleteAsync();
+        await _context.QuizDetailedAnswers.Where(q => q.Question!.CourseId == id).ExecuteDeleteAsync();
+        await _context.QuizResults.Where(q => q.Revision!.CourseId == id).ExecuteDeleteAsync();
         await _context.Questions.Where(q => q.CourseId == id).ExecuteDeleteAsync();
         await _context.Revisions.Where(r => r.CourseId == id).ExecuteDeleteAsync();
 

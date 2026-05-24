@@ -1,6 +1,7 @@
 using System;
 using ChemistryV1.Models;
 using ChemistryV1.ViewModels;
+using ChemistryV1.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
@@ -10,10 +11,12 @@ namespace ChemistryV1.Controllers;
 public class CoursesController : Controller
 {
     private readonly ElearningDbContext _context;
+    private readonly IAiCourseAssistantService _aiCourseAssistantService;
 
-    public CoursesController(ElearningDbContext context)
+    public CoursesController(ElearningDbContext context, IAiCourseAssistantService aiCourseAssistantService)
     {
         _context = context;
+        _aiCourseAssistantService = aiCourseAssistantService;
     }
 
     public async Task<IActionResult> Library(string? search, int? categoryId, int? teacherId)
@@ -97,6 +100,31 @@ public class CoursesController : Controller
         };
 
         return View(viewModel);
+    }
+
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AskAi(int id, [FromBody] CourseAiAskRequest request, CancellationToken cancellationToken)
+    {
+        var question = request?.Question?.Trim();
+        if (string.IsNullOrWhiteSpace(question))
+        {
+            return Json(new CourseAiAskResponse
+            {
+                Success = false,
+                Error = "Vui lòng nhập câu hỏi."
+            });
+        }
+
+        var answer = await _aiCourseAssistantService.AskAsync(id, question, cancellationToken);
+
+        return Json(new CourseAiAskResponse
+        {
+            Success = true,
+            Answer = answer.Answer,
+            Sources = answer.Sources
+        });
     }
 
     [HttpPost]

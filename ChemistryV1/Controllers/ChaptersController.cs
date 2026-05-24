@@ -99,13 +99,13 @@ public class ChaptersController : Controller
 
         // 1. Break self-referencing FK in Comments
         await _context.Comments
-            .Where(c => c.Lesson.ChapterId == id)
+            .Where(c => c.Lesson!.ChapterId == id)
             .ExecuteUpdateAsync(s => s.SetProperty(c => c.ParentId, (int?)null));
 
         // 2. Delete all Lesson-dependent entities
-        await _context.Comments.Where(c => c.Lesson.ChapterId == id).ExecuteDeleteAsync();
-        await _context.UserLessonProgresses.Where(p => p.Lesson.ChapterId == id).ExecuteDeleteAsync();
-        await _context.LessonSubmissions.Where(s => s.Lesson.ChapterId == id).ExecuteDeleteAsync();
+        await _context.Comments.Where(c => c.Lesson!.ChapterId == id).ExecuteDeleteAsync();
+        await _context.UserLessonProgresses.Where(p => p.Lesson!.ChapterId == id).ExecuteDeleteAsync();
+        await _context.LessonSubmissions.Where(s => s.Lesson!.ChapterId == id).ExecuteDeleteAsync();
         
         // 3. Delete Lessons and Chapter
         await _context.Lessons.Where(l => l.ChapterId == id).ExecuteDeleteAsync();

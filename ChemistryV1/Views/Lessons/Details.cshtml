@@ -173,7 +173,7 @@
                 @if (Model.Lesson.ContentType == "virtual_lab" && Model.Lesson.VirtualLabId.HasValue)
                 {
                     <div class="w-full aspect-video bg-surface-container rounded-lg border-2 border-primary/20 flex items-center justify-center relative overflow-hidden">
-                        <iframe src="@Model.Lesson.VirtualLab.Url"
+                        <iframe src="@Model.Lesson.VirtualLab?.Url"
                                 class="absolute inset-0 w-full h-full border-0"
                                 allowfullscreen></iframe>
                     </div>

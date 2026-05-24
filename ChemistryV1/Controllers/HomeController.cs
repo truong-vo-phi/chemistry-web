@@ -83,7 +83,7 @@ namespace ChemistryV1.Controllers
             var recentLessons = await _context.Lessons
                 .AsNoTracking()
                 .Include(l => l.Chapter)
-                .ThenInclude(ch => ch.Course)
+                .ThenInclude(ch => ch!.Course)
                 .OrderByDescending(l => l.CreatedAt)
                 .Take(3)
                 .ToListAsync();
@@ -98,7 +98,7 @@ namespace ChemistryV1.Controllers
                 ? await _context.QuizResults
                     .AsNoTracking()
                     .Include(q => q.Revision)
-                    .ThenInclude(r => r.Course)
+                    .ThenInclude(r => r!.Course)
                     .Where(q => q.StudentId == userId)
                     .OrderByDescending(q => q.CompletedAt)
                     .Take(3)
@@ -109,8 +109,8 @@ namespace ChemistryV1.Controllers
                 ? await _context.UserLessonProgresses
                     .AsNoTracking()
                     .Include(p => p.Lesson)
-                    .ThenInclude(l => l.Chapter)
-                    .ThenInclude(ch => ch.Course)
+                    .ThenInclude(l => l!.Chapter)
+                    .ThenInclude(ch => ch!.Course)
                     .Where(p => p.UserId == userId && p.IsCompleted == true)
                     .OrderByDescending(p => p.CompletedAt)
                     .Take(3)

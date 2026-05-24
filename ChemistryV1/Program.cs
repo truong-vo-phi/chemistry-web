@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using ChemistryV1.Infrastructure;
 
@@ -6,9 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+var connectionString = builder.Configuration.GetConnectionString("ElearningDb")
+    ?? throw new InvalidOperationException("Missing connection string 'ConnectionStrings:ElearningDb' in configuration.");
 builder.Services.AddDbContext<ChemistryV1.Models.ElearningDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ElearningDb")));
+    options.UseSqlServer(connectionString));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+builder.Services.Configure<AiCourseAssistantOptions>(builder.Configuration.GetSection("AiAssistant"));
+builder.Services.AddScoped<IAiCourseAssistantService, AiCourseAssistantService>();
 builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -26,8 +31,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
+try
 {
+    using var scope = app.Services.CreateScope();
     var context = scope.ServiceProvider.GetRequiredService<ChemistryV1.Models.ElearningDbContext>();
     var dbConnection = context.Database.GetDbConnection();
     await dbConnection.OpenAsync();
@@ -50,7 +56,7 @@ using (var scope = app.Services.CreateScope())
                 url NVARCHAR(MAX) NOT NULL,
                 created_at DATETIME DEFAULT GETDATE()
             );
-            INSERT INTO VirtualLabs (title, description, url) 
+            INSERT INTO VirtualLabs (title, description, url)
             VALUES (N'Thí nghiệm: Chuẩn độ Axit - Bazo', N'Game thực hành ảo mô phỏng', '/mock-games/titration.html');
         END
         IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[Lessons]') AND name = 'virtual_lab_id')
@@ -104,6 +110,13 @@ using (var scope = app.Services.CreateScope())
         END
     ";
     await command.ExecuteNonQueryAsync();
+}
+catch (SqlException ex)
+{
+    throw new InvalidOperationException(
+        "Cannot connect to SQL Server using 'ConnectionStrings:ElearningDb'. " +
+        "Please verify SQL Server instance is running and the Server value is correct (for example '.\\\\SQLEXPRESS' or '(localdb)\\\\MSSQLLocalDB').",
+        ex);
 }
 
 // Configure the HTTP request pipeline.

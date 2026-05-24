@@ -4,6 +4,8 @@
     var isAdminCourses = controller == "teachercourses" || controller == "lessons" || controller == "chapters";
     var isCourses = controller == "courses";
     var isCategories = controller == "categories";
+    var isAchievements = controller == "achievements";
+    var isPracticeQuestions = controller == "practicequestions";
 }
 
 <aside class="academy-sidebar hidden md:flex flex-col h-screen w-64 rounded-r-lg bg-surface-container-low border-r-2 border-secondary-container shadow-md p-unit gap-gutter fixed left-0 top-0 z-50">
@@ -44,11 +46,11 @@
         </a>
         @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Student")))
         {
-            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" href="#">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isAchievements ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="Achievements" asp-action="Index">
                 <span class="material-symbols-outlined">local_library</span> Achievements
             </a>
 
-            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20" href="#">
+            <a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-sm text-label-sm transition-colors @(isPracticeQuestions ? "bg-secondary-container text-on-secondary-container border border-secondary/30 shadow-[0_2px_10px_rgba(0,108,73,0.12)] font-bold" : "text-on-surface-variant hover:text-secondary hover:bg-secondary-fixed-dim/20")" asp-controller="PracticeQuestions" asp-action="Index">
                 <span class="material-symbols-outlined">quiz</span> Practice questions
             </a>
         }
