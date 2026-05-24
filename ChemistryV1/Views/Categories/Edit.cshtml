@@ -1,0 +1,395 @@
+@model ChemistryV1.ViewModels.CategoryCreateEditViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Edit Category - @Model.Category.Name</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="~/css/academy.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&amp;family=Quicksand:wght@500;600&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "surface-variant": "#e4e3db",
+                "surface": "#fbf9f1",
+                "tertiary": "#825100",
+                "surface-container-high": "#eae8e0",
+                "on-background": "#1b1c17",
+                "inverse-on-surface": "#f3f1e9",
+                "surface-tint": "#005ac2",
+                "surface-container-lowest": "#ffffff",
+                "on-surface": "#1b1c17",
+                "on-error": "#ffffff",
+                "tertiary-container": "#a36700",
+                "on-primary": "#ffffff",
+                "surface-container": "#f0eee6",
+                "secondary-container": "#6cf8bb",
+                "on-secondary-container": "#00714d",
+                "secondary": "#006c49",
+                "inverse-surface": "#30312c",
+                "primary-fixed-dim": "#adc6ff",
+                "on-primary-container": "#fefcff",
+                "surface-dim": "#dcdad2",
+                "on-secondary-fixed": "#002113",
+                "on-error-container": "#93000a",
+                "secondary-fixed": "#6ffbbe",
+                "on-primary-fixed-variant": "#004395",
+                "primary-fixed": "#d8e2ff",
+                "surface-bright": "#fbf9f1",
+                "primary": "#0058be",
+                "on-surface-variant": "#424754",
+                "on-tertiary-fixed-variant": "#653e00",
+                "on-primary-fixed": "#001a42",
+                "inverse-primary": "#adc6ff",
+                "on-secondary-fixed-variant": "#005236",
+                "surface-container-low": "#f5f4ec",
+                "error-container": "#ffdad6",
+                "primary-container": "#2170e4",
+                "background": "#fbf9f1",
+                "secondary-fixed-dim": "#4edea3",
+                "outline": "#727785",
+                "on-tertiary-fixed": "#2a1700",
+                "tertiary-fixed-dim": "#ffb95f",
+                "on-tertiary-container": "#fffbff",
+                "on-secondary": "#ffffff",
+                "outline-variant": "#c2c6d6",
+                "tertiary-fixed": "#ffddb8",
+                "surface-container-highest": "#e4e3db",
+                "on-tertiary": "#ffffff",
+                "error": "#ba1a1a"
+              },
+              "borderRadius": {
+                "DEFAULT": "1rem",
+                "lg": "2rem",
+                "xl": "3rem",
+                "full": "9999px"
+              },
+              "spacing": {
+                "margin-mobile": "16px",
+                "gutter": "24px",
+                "container-max": "1200px",
+                "unit": "8px",
+                "margin-desktop": "48px"
+              },
+              "fontFamily": {
+                "label-sm": ["Lexend"],
+                "display-lg": ["Lexend"],
+                "display-lg-mobile": ["Lexend"],
+                "body-md": ["Quicksand"],
+                "headline-md": ["Lexend"],
+                "body-lg": ["Quicksand"]
+              },
+              "fontSize": {
+                "label-sm": ["14px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "display-lg-mobile": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "500"}],
+                "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "500"}]
+              }
+            },
+          },
+        }
+    </script>
+    <style>
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+
+        .squishy-btn {
+            transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+        }
+
+        .squishy-btn:active {
+            transform: translateY(3px) scale(0.98);
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .primary-glow:hover {
+            box-shadow: 0 0 20px rgba(0, 88, 190, 0.3);
+            filter: brightness(1.1);
+        }
+
+        .floating-tile {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .floating-tile:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 88, 190, 0.1);
+        }
+
+        .progress-circle {
+            --percent: 0;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: conic-gradient(var(--tw-gradient-from) calc(var(--percent) * 1%), #e4e3db 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-circle::after {
+            content: "";
+            width: 52px;
+            height: 52px;
+            background: #ffffff;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c2c6d6;
+            border-radius: 10px;
+        }
+
+        .icon-aura-active {
+            background: #0058be;
+            color: #ffffff;
+            box-shadow: 0 10px 20px -5px rgba(0, 88, 190, 0.3);
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="academy-shell bg-surface font-body-md text-on-surface">
+    <partial name="_AcademySidebar" />
+
+    <header class="w-full sticky top-0 z-40 bg-surface/60 backdrop-blur-xl border-b border-outline-variant/20 h-20 md:pl-64">
+        <div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop h-full">
+            <div class="flex items-center gap-4">
+                <button class="md:hidden p-2 rounded-full hover:bg-surface-container-high">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <h2 class="font-headline-md text-headline-md text-primary">Edit Category</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="hidden sm:flex items-center gap-1 bg-surface-container-high px-4 py-2 rounded-full border border-outline-variant/20">
+                    <span class="material-symbols-outlined text-secondary text-sm">auto_awesome</span>
+                    <span class="font-label-sm text-on-surface">Academy Level</span>
+                </div>
+                <button class="p-2 rounded-full hover:bg-primary-container/20 transition-all active:scale-90">
+                    <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+                </button>
+                <div class="w-10 h-10 rounded-full border-2 border-primary-container/30 overflow-hidden shadow-sm">
+                    <span class="material-symbols-outlined text-on-primary-container">person</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="md:pl-64 pb-24 md:pb-12">
+        <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-gutter">
+            <form asp-action="Edit" asp-route-id="@Model.Category.Id" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Category.Id" />
+                <input type="hidden" id="category-icon" name="Category.Icon" value="@Model.Category.Icon" />
+                <input type="hidden" id="category-isactive" name="Category.IsActive" value="@Model.Category.IsActive.ToString().ToLower()" />
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+                    <div class="lg:col-span-5 space-y-gutter">
+                        <section class="glass-form glass-morphism rounded-3xl p-gutter border border-white/40 overflow-hidden relative">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                            <h3 class="font-headline-md text-on-surface mb-8 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">edit_note</span>
+                                Category Details
+                            </h3>
+                            <div class="space-y-8 relative z-10">
+                                <div class="space-y-3">
+                                    <label class="font-label-sm text-on-surface-variant ml-2 uppercase tracking-widest text-[10px]">Category Name</label>
+                                    <input class="w-full h-14 bg-white/50 border border-outline-variant/40 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-2xl px-6 font-body-lg text-on-surface transition-all shadow-inner" type="text" asp-for="Category.Name" oninput="generateSlug(this.value)" required />
+                                    <span class="text-error text-xs">@Html.ValidationMessageFor(m => m.Category.Name)</span>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <label class="font-label-sm text-on-surface-variant ml-2 uppercase tracking-widest text-[10px]">Slug</label>
+                                    <input class="w-full h-14 bg-white/50 border border-outline-variant/40 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-2xl px-6 font-body-md text-on-surface transition-all shadow-inner cursor-not-allowed" type="text" id="cat-slug" asp-for="Category.Slug" readonly required />
+                                    <span class="text-error text-xs">@Html.ValidationMessageFor(m => m.Category.Slug)</span>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <label class="font-label-sm text-on-surface-variant ml-2 uppercase tracking-widest text-[10px]">Assigned Icon</label>
+                                    <div id="category-icon-grid" class="grid grid-cols-4 gap-4 p-5 bg-surface-container-low/40 rounded-2xl border border-outline-variant/20 backdrop-blur-sm">
+                                        @foreach (var icon in Model.AvailableIcons)
+                                        {
+                                            <button type="button" class="flex flex-col items-center justify-center p-3 rounded-xl border border-transparent overflow-hidden transition-all group active:scale-95 @(Model.Category.Icon == icon ? "icon-aura-active" : "bg-white/40 hover:bg-white hover:shadow-md text-on-surface-variant")" onclick="setIcon('@icon', this)">
+                                                <span class="material-symbols-outlined block leading-none text-[28px]">@icon</span>
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <label class="font-label-sm text-on-surface-variant ml-2 uppercase tracking-widest text-[10px]">Description</label>
+                                    <textarea class="w-full bg-white/50 border border-outline-variant/40 focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-2xl px-6 py-4 font-body-md text-on-surface transition-all shadow-inner resize-none" rows="4" asp-for="Category.Description"></textarea>
+                                </div>
+
+                                <div class="flex flex-col gap-4 pt-4">
+                                    <button type="submit" class="squishy-button button-confirm primary-glow h-16 w-full text-on-primary rounded-2xl font-label-sm flex items-center justify-center gap-3">
+                                        <span class="material-symbols-outlined">save</span>
+                                        Save Changes
+                                    </button>
+                                    <a class="squishy-button button-cancel red-glass h-16 w-full text-error rounded-2xl font-label-sm flex items-center justify-center gap-3" asp-action="Delete" asp-route-id="@Model.Category.Id">
+                                        <span class="material-symbols-outlined">delete</span>
+                                        Delete Category
+                                    </a>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="bg-surface-container-lowest border border-outline-variant/20 rounded-3xl p-8 shadow-sm overflow-hidden relative group">
+                            <h4 class="font-headline-md text-on-surface-variant mb-8 flex items-center gap-3">
+                                <span class="material-symbols-outlined text-secondary">analytics</span>
+                                Category Engagement
+                            </h4>
+                            <div class="grid grid-cols-2 gap-8">
+                                <div class="flex flex-col items-center text-center space-y-3">
+                                    <div class="progress-circle from-primary to-primary-container relative" style="--percent: 100">
+                                        <span class="font-bold text-primary text-sm z-10">100%</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-label-sm text-outline uppercase text-[10px]">Visibility</p>
+                                        <p class="font-display-lg-mobile text-primary leading-tight">Public</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-center text-center space-y-3">
+                                    <div class="progress-circle from-secondary to-secondary-container relative" style="--percent: @(Model.CourseCount > 0 ? 100 : 0)">
+                                        <span class="font-bold text-secondary text-sm z-10">@Model.CourseCount</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-label-sm text-outline uppercase text-[10px]">Courses</p>
+                                        <p class="font-display-lg-mobile text-secondary leading-tight">Linked</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="lg:col-span-7">
+                        <section class="bg-surface-container-lowest border border-outline-variant/20 rounded-3xl shadow-sm h-full flex flex-col overflow-hidden">
+                            <div class="p-8 border-b border-outline-variant/10 flex justify-between items-center bg-gradient-to-r from-surface-bright to-white">
+                                <div>
+                                    <h3 class="font-headline-md text-on-surface">Category Status</h3>
+                                    <p class="font-label-sm text-on-surface-variant opacity-60">Control accessibility for students</p>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <span class="font-label-sm text-on-surface-variant uppercase tracking-widest text-xs" id="status-label">@(Model.Category.IsActive ? "Active" : "Draft")</span>
+                                    <button class="relative inline-flex h-10 w-16 items-center rounded-full @(Model.Category.IsActive ? "bg-secondary" : "bg-outline-variant/30") transition-colors focus:outline-none shadow-inner" id="status-toggle" onclick="toggleStatus()" type="button">
+                                        <span class="inline-block h-7 w-7 @(Model.Category.IsActive ? "translate-x-7" : "translate-x-1") transform rounded-full bg-white shadow-md transition-transform" id="toggle-circle"></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="p-8 flex-grow custom-scrollbar overflow-y-auto">
+                                <div class="bg-primary-container/10 p-6 rounded-2xl border border-primary/10">
+                                    <h4 class="font-bold text-primary mb-2 flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-sm">info</span>
+                                        Didactic Tip
+                                    </h4>
+                                    <p class="text-sm text-on-surface-variant leading-relaxed">
+                                        Grouping your experiments into clear categories helps students progress 40% faster through the Master Alchemist curriculum. Ensure your names are evocative and descriptive!
+                                    </p>
+                                </div>
+                                
+                                <div class="mt-8">
+                                    <h4 class="font-label-sm text-outline uppercase tracking-widest text-[10px] mb-4">Metadata</h4>
+                                    <div class="space-y-4">
+                                        <div class="flex justify-between items-center p-4 bg-surface rounded-xl border border-outline-variant/10">
+                                            <span class="text-sm font-medium">Created On</span>
+                                            <span class="text-sm font-bold text-on-surface">@Model.CreatedDate?.ToString("MMM dd, yyyy")</span>
+                                        </div>
+                                        <div class="flex justify-between items-center p-4 bg-surface rounded-xl border border-outline-variant/10">
+                                            <span class="text-sm font-medium">Last Updated</span>
+                                            <span class="text-sm font-bold text-on-surface">@Model.Category.UpdatedAt?.ToString("MMM dd, yyyy HH:mm")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+ 
+    <script>
+        let isActive = @Model.Category.IsActive.ToString().ToLower();
+        function toggleStatus() {
+            isActive = !isActive;
+            const toggle = document.getElementById('status-toggle');
+            const circle = document.getElementById('toggle-circle');
+            const label = document.getElementById('status-label');
+            const hiddenInput = document.getElementById('category-isactive');
+            
+            hiddenInput.value = isActive;
+            label.textContent = isActive ? "Active" : "Draft";
+ 
+            if (isActive) {
+                toggle.classList.remove('bg-outline-variant/30');
+                toggle.classList.add('bg-secondary');
+                circle.classList.add('translate-x-7');
+                circle.classList.remove('translate-x-1');
+            } else {
+                toggle.classList.remove('bg-secondary');
+                toggle.classList.add('bg-outline-variant/30');
+                circle.classList.add('translate-x-1');
+                circle.classList.remove('translate-x-7');
+            }
+        }
+
+        function setIcon(icon, btn) {
+            const iconGrid = document.getElementById('category-icon-grid');
+            iconGrid.querySelectorAll('button').forEach(b => {
+                b.classList.remove('icon-aura-active');
+                b.classList.add('bg-white/40', 'text-on-surface-variant');
+                b.classList.remove('bg-primary', 'text-on-primary');
+            });
+            btn.classList.add('icon-aura-active');
+            btn.classList.remove('bg-white/40', 'text-on-surface-variant');
+            document.getElementById('category-icon').value = icon;
+        }
+
+        function generateSlug(name) {
+            let str = name.toLowerCase();
+            str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+            str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+            str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+            str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+            str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+            str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+            str = str.replace(/đ/g, "d");
+            
+            str = str.replace(/[^a-z0-9\s-]/g, "");
+            str = str.replace(/\s+/g, "-");
+            str = str.replace(/-+/g, "-");
+            str = str.trim().replace(/^-+|-+$/g, "");
+            
+            document.getElementById('cat-slug').value = str;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const nameInput = document.getElementById('Category_Name');
+            generateSlug(nameInput ? nameInput.value : '');
+        });
+    </script>
+</body>
+</html>

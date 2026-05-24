@@ -1,0 +1,156 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using ChemistryV1.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+
+namespace ChemistryV1.Controllers;
+
+[Authorize]
+public class CommentsController : Controller
+{
+    private readonly ElearningDbContext _context;
+
+    public CommentsController(ElearningDbContext context)
+    {
+        _context = context;
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(int lessonId, int? parentId, string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            TempData["CommentError"] = "Nội dung bình luận không được để trống.";
+            return RedirectToAction("Details", "Lessons", new { id = lessonId });
+        }
+
+        var lesson = await _context.Lessons.FindAsync(lessonId);
+        if (lesson == null)
+        {
+            return NotFound();
+        }
+
+        if (lesson.CommentsEnabled == false)
+        {
+            TempData["CommentError"] = "Diễn đàn thảo luận của bài học này đã bị khóa.";
+            return RedirectToAction("Details", "Lessons", new { id = lessonId });
+        }
+
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim))
+        {
+            return Challenge();
+        }
+
+        var comment = new Comment
+        {
+            LessonId = lessonId,
+            ParentId = parentId,
+            UserId = Convert.ToInt32(userIdClaim),
+            Content = content.Trim(),
+            CreatedAt = DateTime.Now
+        };
+
+        _context.Comments.Add(comment);
+        await _context.SaveChangesAsync();
+
+        TempData["CommentSuccess"] = "Đã gửi bình luận thành công.";
+        return Redirect($"{Url.Action("Details", "Lessons", new { id = lessonId })}#comment-{comment.Id}");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, string content)
+    {
+        var comment = await _context.Comments.FindAsync(id);
+        if (comment == null)
+        {
+            return NotFound();
+        }
+
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim))
+        {
+            return Challenge();
+        }
+
+        var userId = Convert.ToInt32(userIdClaim);
+
+        // Only creator can edit their own comment
+        if (comment.UserId != userId)
+        {
+            return Forbid();
+        }
+
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            TempData["CommentError"] = "Nội dung bình luận không được để trống.";
+            return Redirect($"{Url.Action("Details", "Lessons", new { id = comment.LessonId })}#comment-{comment.Id}");
+        }
+
+        comment.Content = content.Trim();
+        _context.Comments.Update(comment);
+        await _context.SaveChangesAsync();
+
+        TempData["CommentSuccess"] = "Cập nhật bình luận thành công.";
+        return Redirect($"{Url.Action("Details", "Lessons", new { id = comment.LessonId })}#comment-{comment.Id}");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var comment = await _context.Comments.FindAsync(id);
+        if (comment == null)
+        {
+            return NotFound();
+        }
+
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim))
+        {
+            return Challenge();
+        }
+
+        var userId = Convert.ToInt32(userIdClaim);
+
+        // Creator or Admin can delete
+        bool canDelete = comment.UserId == userId || User.IsInRole("Admin");
+        if (!canDelete)
+        {
+            return Forbid();
+        }
+
+        int lessonId = comment.LessonId ?? 0;
+
+        // Perform recursive deletion to bypass foreign key constraint of ParentId self-reference
+        await DeleteCommentAndRepliesAsync(comment.Id);
+        await _context.SaveChangesAsync();
+
+        TempData["CommentSuccess"] = "Đã xóa bình luận thành công.";
+        return RedirectToAction("Details", "Lessons", new { id = lessonId });
+    }
+
+    private async Task DeleteCommentAndRepliesAsync(int commentId)
+    {
+        var comment = await _context.Comments
+            .Include(c => c.InverseParent)
+            .FirstOrDefaultAsync(c => c.Id == commentId);
+            
+        if (comment != null)
+        {
+            var childrenIds = comment.InverseParent.Select(c => c.Id).ToList();
+            foreach (var childId in childrenIds)
+            {
+                await DeleteCommentAndRepliesAsync(childId);
+            }
+            
+            _context.Comments.Remove(comment);
+        }
+    }
+}
