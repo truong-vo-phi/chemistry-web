@@ -66,7 +66,7 @@ public class AdminMissionsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Upsert(AdminMissionFormViewModel model)
+    public async Task<IActionResult> Upsert([Bind(Prefix = "Form")] AdminMissionFormViewModel model)
     {
         if (string.IsNullOrWhiteSpace(model.Title) || string.IsNullOrWhiteSpace(model.MetricKey))
         {

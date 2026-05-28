@@ -6,11 +6,12 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>@ViewData["Title"] - Neon Lab</title>
+    <title>@ViewData["Title"] - Chemistry Lab</title>
     <meta name="description" content="@ViewData["Description"]" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     @Html.Partial("_StudentDesignSystem")
+    <script src="https://unpkg.com/@@hotwired/turbo@8.0.4/dist/turbo.es2017-umd.js" defer></script>
     @RenderSection("Head", required: false)
 </head>
 <body class="neon-lab-shell min-h-screen">
@@ -22,7 +23,10 @@
 
     <aside id="mobile-sidebar" class="neon-sidebar flex flex-col w-72 fixed left-0 top-0 h-full z-50 lg:flex py-10 px-8 transition-transform duration-300 -translate-x-full lg:translate-x-0">
         <div class="mb-10">
-            <a asp-controller="Home" asp-action="Index" class="text-3xl font-bold text-primary tracking-tight font-display block text-glow-primary">Neon Lab</a>
+            <a asp-controller="Home" asp-action="Index" class="flex items-center gap-3 text-3xl font-bold text-primary tracking-tight font-display block text-glow-primary">
+                <img src="/images/LogoChemistry.png" alt="Chemistry Lab Logo" class="w-10 h-10" />
+                Chemistry Lab
+            </a>
             <p class="text-[10px] font-label text-on-surface-variant mt-1">ChemLab Adventure</p>
         </div>
 
@@ -65,7 +69,7 @@
                 <span class="material-symbols-outlined">style</span>
                 <span class="font-medium text-sm">Luyện tập Flashcard</span>
             </a>
-            @if (User.IsInRole("Admin"))
+            @if (User.IsInRole("admin"))
             {
                 <div class="my-3 border-t border-outline/50"></div>
                 <a class="neon-nav-link flex items-center gap-4 p-4 transition-all rounded-l-xl" asp-controller="Dashboard" asp-action="Index">

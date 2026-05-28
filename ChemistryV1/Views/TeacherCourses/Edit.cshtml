@@ -27,7 +27,7 @@
 </div>
 
 <!-- Form Layout -->
-<form id="course-form" asp-action="Edit" method="post" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<form id="course-form" asp-action="Edit" method="post" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
     <input type="hidden" asp-for="Id" />
     <div class="lg:col-span-8 space-y-6">
         <!-- Course Details Card -->
@@ -76,13 +76,22 @@
                 <span class="material-symbols-outlined">image</span>
                 Ảnh bìa
             </h2>
-            <div class="relative w-full h-64 bg-slate-50 rounded-2xl border-4 border-dashed border-primary/30 flex flex-col items-center justify-center transition-all group overflow-hidden">
-                <div class="absolute inset-0 opacity-20 bg-cover bg-center transition-transform group-hover:scale-105 duration-500" style="background-image: url('@(Model.ThumbnailUrl ?? "https://lh3.googleusercontent.com/aida-public/AB6AXuBuzYyPxBIHzRjakSddvr7Be3JXTj0TYC5S788E-VUztNu3Nt-hmAarj4bpimXojbWkrNtU6aITXLcp8Y9JpAYftz9Kmyq4d6kU3pp6NUC3jBrreJykkinIpFuNi1s3hsMBWKx-TZuyXviHS2oI5lRNWBT0k4NYvWCEPof-41uWCG-9MUhyu4f513AaxsrBuBJeYeFNP-jNXbUH5xwrWJLHo7yYd2wKUqU-movkTsueZ_cIVAgQMnDkDEv2P5iqNFL3kyGP7X0VCSg")');">
+            <div class="space-y-4">
+                <!-- File Upload Option -->
+                <div class="relative w-full h-64 bg-slate-50 rounded-2xl border-4 border-dashed border-primary/30 flex flex-col items-center justify-center transition-all group overflow-hidden cursor-pointer" onclick="document.getElementById('thumbnailFile').click()">
+                    <div id="imagePreview" class="absolute inset-0 opacity-20 bg-cover bg-center transition-transform group-hover:scale-105 duration-500" style="background-image: url('@(Model.ThumbnailUrl ?? "https://lh3.googleusercontent.com/aida-public/AB6AXuBuzYyPxBIHzRjakSddvr7Be3JXTj0TYC5S788E-VUztNu3Nt-hmAarj4bpimXojbWkrNtU6aITXLcp8Y9JpAYftz9Kmyq4d6kU3pp6NUC3jBrreJykkinIpFuNi1s3hsMBWKx-TZuyXviHS2oI5lRNWBT0k4NYvWCEPof-41uWCG-9MUhyu4f513AaxsrBuBJeYeFNP-jNXbUH5xwrWJLHo7yYd2wKUqU-movkTsueZ_cIVAgQMnDkDEv2P5iqNFL3kyGP7X0VCSg")');">
+                    </div>
+                    <div class="z-10 flex flex-col items-center text-center p-4 bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-slate-200 shadow-sm">
+                        <span class="material-symbols-outlined text-4xl text-primary mb-2">upload_file</span>
+                        <p class="text-xs font-bold text-slate-600 uppercase tracking-widest">Tải ảnh từ máy tính</p>
+                        <p class="text-xs text-slate-500 mt-1">hoặc nhập URL bên dưới</p>
+                    </div>
+                    <input type="file" id="thumbnailFile" name="ThumbnailFile" accept="image/*" class="hidden" onchange="previewImage(this)" />
                 </div>
-                <div class="z-10 flex flex-col items-center text-center p-4 bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-slate-200 shadow-sm">
-                    <span class="material-symbols-outlined text-4xl text-primary mb-2">upload_file</span>
-                    <p class="text-xs font-bold text-slate-600 uppercase tracking-widest">URL ảnh bìa</p>
-                    <input asp-for="ThumbnailUrl" class="mt-3 w-full bg-white border-2 border-slate-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/5 transition-all" placeholder="https://..." type="text" />
+                <!-- URL Input Option -->
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                    <span class="font-semibold">Hoặc nhập URL ảnh:</span>
+                    <input asp-for="ThumbnailUrl" class="flex-1 bg-white border-2 border-slate-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/5 transition-all" placeholder="https://..." type="text" onchange="updateImagePreview(this.value)" />
                 </div>
             </div>
         </div>
@@ -125,3 +134,21 @@
         </div>
     </div>
 </form>
+
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('imagePreview').style.backgroundImage = `url('${e.target.result}')`;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function updateImagePreview(url) {
+        if (url) {
+            document.getElementById('imagePreview').style.backgroundImage = `url('${url}')`;
+        }
+    }
+</script>

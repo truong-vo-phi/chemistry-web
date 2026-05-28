@@ -4,7 +4,7 @@ using ChemistryV1.Models;
 using ChemistryV1.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authorization;
 
 namespace ChemistryV1.Controllers;
@@ -13,10 +13,12 @@ namespace ChemistryV1.Controllers;
 public class TeacherCoursesController : Controller
 {
     private readonly ElearningDbContext _context;
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public TeacherCoursesController(ElearningDbContext context)
+    public TeacherCoursesController(ElearningDbContext context, IWebHostEnvironment webHostEnvironment)
     {
         _context = context;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     public async Task<IActionResult> Index(string? search, int? teacherId)
@@ -176,10 +178,32 @@ public class TeacherCoursesController : Controller
             return NotFound();
         }
 
+        // Xử lý file upload ảnh bìa
+        if (viewModel.ThumbnailFile != null && viewModel.ThumbnailFile.Length > 0)
+        {
+            var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "thumbnails");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(viewModel.ThumbnailFile.FileName);
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await viewModel.ThumbnailFile.CopyToAsync(stream);
+            }
+
+            // Ghi đường dẫn tương đối vào DB (để hiển thị trên web)
+            course.ThumbnailUrl = "/uploads/thumbnails/" + uniqueFileName;
+        }
+        else if (!string.IsNullOrWhiteSpace(viewModel.ThumbnailUrl))
+        {
+            // Nếu không upload file, nhưng có nhập URL text thì dùng URL đó
+            course.ThumbnailUrl = viewModel.ThumbnailUrl;
+        }
+
         course.Title = viewModel.Title;
         course.Slug = viewModel.Slug;
         course.Description = viewModel.Description;
-        course.ThumbnailUrl = viewModel.ThumbnailUrl;
         course.Status = viewModel.Status ?? "draft";
         course.TeacherId = viewModel.TeacherId;
 

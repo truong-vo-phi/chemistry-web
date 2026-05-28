@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using System.IO.Compression;
 
 namespace ChemistryV1.Controllers;
 
@@ -91,6 +92,13 @@ public class LessonsController : Controller
                     .Where(ulp => ulp.UserId == userId && ulp.IsCompleted == true)
                     .Select(ulp => ulp.LessonId)
                     .ToListAsync();
+
+                var submission = await _context.LessonSubmissions
+                    .FirstOrDefaultAsync(s => s.LessonId == lesson.Id && s.StudentId == userId);
+                if (submission != null)
+                {
+                    viewModel.HighestScore = submission.Score;
+                }
             }
         }
 
@@ -176,7 +184,7 @@ public class LessonsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(LessonEditorViewModel viewModel, IFormFile? videoFile, IFormFile? pdfFile, IFormFile? attachmentFile)
+    public async Task<IActionResult> Create(LessonEditorViewModel viewModel, IFormFile? videoFile, IFormFile? pdfFile, IFormFile? attachmentFile, IFormFile? gameZipFile)
     {
         if (viewModel.Lesson == null || viewModel.Lesson.ChapterId == null)
         {
@@ -197,6 +205,15 @@ public class LessonsController : Controller
 
         var uploadedAttachment = await SaveFileAsync(attachmentFile, "attachments");
         if (uploadedAttachment != null) viewModel.Lesson.AttachmentPath = uploadedAttachment;
+
+        if (gameZipFile != null)
+        {
+            var virtualLabId = await SaveGameZipAsync(gameZipFile, viewModel.Lesson.Title ?? "New Virtual Lab");
+            if (virtualLabId != null)
+            {
+                viewModel.Lesson.VirtualLabId = virtualLabId;
+            }
+        }
 
         viewModel.Lesson.ContentType = "virtual_lab";
         viewModel.Lesson.CreatedAt = DateTime.Now;
@@ -226,7 +243,7 @@ public class LessonsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, LessonEditorViewModel viewModel, IFormFile? videoFile, IFormFile? pdfFile, IFormFile? attachmentFile)
+    public async Task<IActionResult> Edit(int id, LessonEditorViewModel viewModel, IFormFile? videoFile, IFormFile? pdfFile, IFormFile? attachmentFile, IFormFile? gameZipFile)
     {
         if (viewModel.Lesson == null || id != viewModel.Lesson.Id)
         {
@@ -260,6 +277,15 @@ public class LessonsController : Controller
         dbLesson.OrderIndex = viewModel.Lesson.OrderIndex;
         dbLesson.CommentsEnabled = viewModel.Lesson.CommentsEnabled;
         dbLesson.VirtualLabId = viewModel.Lesson.VirtualLabId;
+
+        if (gameZipFile != null)
+        {
+            var virtualLabId = await SaveGameZipAsync(gameZipFile, dbLesson.Title ?? "Updated Virtual Lab");
+            if (virtualLabId != null)
+            {
+                dbLesson.VirtualLabId = virtualLabId;
+            }
+        }
 
         if (uploadedVideo != null) dbLesson.VideoUrl = uploadedVideo;
         else if (!string.IsNullOrWhiteSpace(viewModel.Lesson.VideoUrl)) dbLesson.VideoUrl = viewModel.Lesson.VideoUrl;
@@ -295,6 +321,59 @@ public class LessonsController : Controller
         }
 
         return $"/uploads/{subfolder}/{fileName}";
+    }
+
+    private async Task<int?> SaveGameZipAsync(IFormFile zipFile, string lessonTitle)
+    {
+        if (zipFile == null || zipFile.Length == 0) return null;
+
+        var gamesFolder = Path.Combine(_webHostEnvironment.WebRootPath, "games");
+        if (!Directory.Exists(gamesFolder))
+        {
+            Directory.CreateDirectory(gamesFolder);
+        }
+
+        var gameFolderName = Guid.NewGuid().ToString();
+        var extractPath = Path.Combine(gamesFolder, gameFolderName);
+        Directory.CreateDirectory(extractPath);
+
+        var tempZipPath = Path.Combine(Path.GetTempPath(), $"{gameFolderName}.zip");
+        using (var fileStream = new FileStream(tempZipPath, FileMode.Create))
+        {
+            await zipFile.CopyToAsync(fileStream);
+        }
+
+        try
+        {
+            ZipFile.ExtractToDirectory(tempZipPath, extractPath, true);
+        }
+        finally
+        {
+            if (System.IO.File.Exists(tempZipPath))
+            {
+                System.IO.File.Delete(tempZipPath);
+            }
+        }
+
+        string indexHtmlRelativePath = $"/games/{gameFolderName}/index.html";
+        var indexFiles = Directory.GetFiles(extractPath, "index.html", SearchOption.AllDirectories);
+        if (indexFiles.Length > 0)
+        {
+            var indexFilePath = indexFiles[0];
+            var relativePath = indexFilePath.Substring(gamesFolder.Length).Replace("\\", "/");
+            indexHtmlRelativePath = $"/games{relativePath}";
+        }
+
+        var virtualLab = new VirtualLab
+        {
+            Title = $"{lessonTitle} - Game",
+            Url = indexHtmlRelativePath,
+            CreatedAt = DateTime.Now
+        };
+        _context.VirtualLabs.Add(virtualLab);
+        await _context.SaveChangesAsync();
+
+        return virtualLab.Id;
     }
 
     public async Task<IActionResult> Delete(int id)

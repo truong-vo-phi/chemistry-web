@@ -76,6 +76,8 @@ namespace ChemistryV1.Controllers
             var recentCourses = await _context.Courses
                 .AsNoTracking()
                 .Include(c => c.Teacher)
+                .Include(c => c.Chapters)
+                    .ThenInclude(ch => ch.Lessons)
                 .OrderByDescending(c => c.CreatedAt)
                 .Take(3)
                 .ToListAsync();
@@ -324,16 +326,35 @@ namespace ChemistryV1.Controllers
                 }).ToList(),
                 Achievements = achievements,
                 RecentActivity = activity,
-                RecentCourses = recentCourses.Select(course => new HomeCourseCardViewModel
+                RecentCourses = recentCourses.Select(course =>
                 {
-                    Id = course.Id,
-                    Title = course.Title ?? "Untitled course",
-                    Description = course.Description,
-                    ThumbnailUrl = course.ThumbnailUrl,
-                    TeacherName = course.Teacher?.FullName ?? course.Teacher?.Username,
-                    Status = course.Status,
-                    CreatedAt = course.CreatedAt,
-                    ProgressPercent = course.CourseEnrollments.Count > 0 ? 35 : 0
+                    // Calculate actual progress for each course
+                    var totalLessons = course.Chapters.SelectMany(ch => ch.Lessons).Count();
+                    var completedLessons = 0;
+
+                    if (userId > 0 && totalLessons > 0)
+                    {
+                        var lessonIds = course.Chapters.SelectMany(ch => ch.Lessons).Select(l => l.Id).ToList();
+                        completedLessons = _context.UserLessonProgresses
+                            .AsNoTracking()
+                            .Count(p => p.UserId == userId && p.IsCompleted == true && lessonIds.Contains(p.LessonId));
+                    }
+
+                    var progressPercent = totalLessons > 0
+                        ? (int)Math.Round((double)completedLessons / totalLessons * 100)
+                        : 0;
+
+                    return new HomeCourseCardViewModel
+                    {
+                        Id = course.Id,
+                        Title = course.Title ?? "Untitled course",
+                        Description = course.Description,
+                        ThumbnailUrl = course.ThumbnailUrl,
+                        TeacherName = course.Teacher?.FullName ?? course.Teacher?.Username,
+                        Status = course.Status,
+                        CreatedAt = course.CreatedAt,
+                        ProgressPercent = progressPercent
+                    };
                 }).ToList(),
                 RecentNews = recentNews.Select(news => new HomeNewsCardViewModel
                 {
