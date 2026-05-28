@@ -1,33 +1,44 @@
 @model ChemistryV1.ViewModels.LessonViewerViewModel
 @{
     Layout = "_LessonLayout";
-    ViewData["Title"] = "@Model.Lesson.Title - ChemLab";
+    ViewData["Title"] = "ChemLab";
     ViewData["Description"] = "Học hóa học với các bài học tương tác và phòng thí nghiệm ảo.";
     ViewData["CourseTitle"] = Model.Course.Title;
-    ViewData["CourseDetailsUrl"] = Url.Action("Details", "Courses", new { id = Model.Course.Id });
+    var isTeacherOrAdmin = User.IsInRole("Admin") || User.IsInRole("Teacher");
+    ViewData["CourseDetailsUrl"] = isTeacherOrAdmin 
+        ? Url.Action("Content", "TeacherCourses", new { id = Model.Course.Id }) 
+        : Url.Action("Details", "Courses", new { id = Model.Course.Id });
     ViewData["IsLessonCompleted"] = Model.CompletedLessonIds.Contains(Model.Lesson.Id);
     ViewData["LessonId"] = Model.Lesson.Id;
     var chapters = Model.Chapters.OrderBy(c => c.OrderIndex).ToList();
 }
 
 @section LessonOutline {
+    <div class="space-y-1">
+    @{
+        var isFirstChapter = true;
+    }
     @foreach (var chapter in chapters)
     {
-        <div class="mt-4 text-xs uppercase tracking-widest text-on-surface-variant font-label font-bold">@chapter.Title</div>
+        <div class="@(isFirstChapter ? "pt-0" : "pt-3") pb-1 text-[10px] uppercase tracking-widest text-on-surface-variant font-label font-bold px-1">@chapter.Title</div>
+        {
+            isFirstChapter = false;
+        }
         @foreach (var lesson in chapter.Lessons.OrderBy(l => l.OrderIndex))
         {
             var isActive = lesson.Id == Model.Lesson.Id;
             var isCompleted = Model.CompletedLessonIds.Contains(lesson.Id);
-            <a class="flex items-center gap-3 @(isActive ? "bg-primary/15 text-primary border border-primary/40 shadow-neon-blue" : "text-on-surface-variant hover:bg-surface-container-high border border-transparent") rounded-xl p-3 cursor-pointer transition-colors" asp-controller="Lessons" asp-action="Details" asp-route-id="@lesson.Id">
-                <span class="material-symbols-outlined fill-1">@(isActive ? "play_circle" : "article")</span>
-                <span class="text-sm flex-1 font-semibold">@lesson.Title</span>
+            <a class="lesson-outline-item flex items-center gap-2 min-h-[2.75rem] @(isActive ? "lesson-outline-item--active bg-primary/15 text-primary border border-primary/40 shadow-neon-blue" : "text-on-surface-variant hover:bg-surface-container-high border border-transparent hover:border-outline/40") rounded-lg px-2.5 py-2 cursor-pointer transition-colors" asp-controller="Lessons" asp-action="Details" asp-route-id="@lesson.Id">
+                <span class="material-symbols-outlined text-[20px] shrink-0 fill-1">@(isActive ? "play_circle" : "article")</span>
+                <span class="text-xs leading-snug flex-1 min-w-0 font-semibold line-clamp-2">@lesson.Title</span>
                 @if (isCompleted)
                 {
-                    <span class="material-symbols-outlined text-secondary fill-1">check_circle</span>
+                    <span class="material-symbols-outlined text-secondary text-[18px] shrink-0 fill-1">check_circle</span>
                 }
             </a>
         }
     }
+    </div>
 }
 
 <!-- Lesson Content Card -->
@@ -40,10 +51,15 @@
 
     @if (Model.Lesson.ContentType == "virtual_lab" && Model.Lesson.VirtualLabId.HasValue)
     {
-        <div class="w-full aspect-video bg-surface-container rounded-xl border border-primary/30 flex items-center justify-center relative overflow-hidden">
-            <iframe src="@Model.Lesson.VirtualLab.Url"
-                    class="absolute inset-0 w-full h-full border-0"
-                    allowfullscreen></iframe>
+        <div class="relative group">
+            <button onclick="toggleFullScreen('lab-iframe')" class="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 hover:bg-black/80 text-white rounded-lg flex items-center justify-center backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 shadow-md" title="Phóng to toàn màn hình">
+                <span class="material-symbols-outlined text-[24px]">fullscreen</span>
+            </button>
+            <div class="w-full aspect-video bg-surface-container rounded-xl border border-primary/30 flex items-center justify-center relative overflow-hidden">
+                <iframe id="lab-iframe" src="@Model.Lesson.VirtualLab.Url"
+                        class="absolute inset-0 w-full h-full border-0"
+                        allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"></iframe>
+            </div>
         </div>
     }
     else if (!string.IsNullOrWhiteSpace(Model.Lesson.VideoUrl))
@@ -54,6 +70,24 @@
                href="@Model.Lesson.VideoUrl" target="_blank">
                 <span class="material-symbols-outlined fill-1 text-5xl">play_arrow</span>
             </a>
+        </div>
+    }
+
+    @if (Model.HighestScore.HasValue)
+    {
+        <div class="mt-6 p-4 bg-primary/10 border-2 border-primary/20 rounded-xl flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+                    <span class="material-symbols-outlined text-[20px]">emoji_events</span>
+                </div>
+                <div>
+                    <h4 class="font-bold text-primary m-0 text-sm">Điểm số thực hành cao nhất</h4>
+                    <p class="text-xs text-slate-500 m-0">Điểm số đã được lưu vào hệ thống</p>
+                </div>
+            </div>
+            <div class="text-2xl font-black text-primary drop-shadow-sm">
+                @Model.HighestScore.Value <span class="text-sm font-bold text-primary/70 uppercase">điểm</span>
+            </div>
         </div>
     }
 
@@ -293,5 +327,27 @@
                 .catch(err => console.error('Error submitting practice score:', err));
             }
         });
+
+        // Hàm phóng to toàn màn hình
+        function toggleFullScreen(elementId) {
+            var elem = document.getElementById(elementId);
+            if (!document.fullscreenElement) {
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) { /* Safari */
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) { /* IE11 */
+                    elem.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) { /* Safari */
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { /* IE11 */
+                    document.msExitFullscreen();
+                }
+            }
+        }
     </script>
 }

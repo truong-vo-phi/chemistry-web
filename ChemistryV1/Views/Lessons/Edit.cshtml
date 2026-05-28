@@ -26,7 +26,7 @@
         <span class="text-xs text-slate-500 flex items-center gap-1 mr-2">
             <span class="material-symbols-outlined text-[14px]">cloud_done</span> Đã lưu vừa xong
         </span>
-        <a class="px-5 py-2 bg-white text-slate-600 rounded-full border-2 border-slate-200 hover:bg-slate-100 transition-colors text-sm" asp-controller="Lessons" asp-action="Details" asp-route-id="@Model.Lesson.Id">
+        <a class="px-5 py-2 bg-white text-slate-600 rounded-full border-2 border-slate-200 hover:bg-slate-100 transition-colors text-sm" asp-controller="Lessons" asp-action="Details" asp-route-id="@Model.Lesson.Id" data-turbo="false">
             Xem trước
         </a>
         <button form="lesson-form" class="px-5 py-2 bg-secondary text-white rounded-full border-2 border-secondary/30 hover:bg-secondary/90 transition-all btn-glow text-sm flex items-center gap-2" type="submit">
@@ -137,6 +137,17 @@
                             }
                         }
                     </select>
+
+                    <div class="mt-4 flex items-center gap-4 w-full">
+                        <div class="h-[1px] flex-1 bg-slate-200"></div>
+                        <span class="text-xs font-bold text-slate-400 uppercase">Hoặc tải lên thư mục WebGL (File .zip)</span>
+                        <div class="h-[1px] flex-1 bg-slate-200"></div>
+                    </div>
+
+                    <div class="mt-4">
+                        <input type="file" name="gameZipFile" accept=".zip" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer" />
+                        <p class="text-xs text-slate-500 mt-2">Nén toàn bộ thư mục Build WebGL của Unity (chứa index.html) thành file .zip để tải lên. Sẽ ghi đè game hiện tại.</p>
+                    </div>
                 </div>
             </div>
         </form>

@@ -97,13 +97,13 @@
                         <span class="material-symbols-outlined text-[14px]">article</span> Bài học
                     </span>
                     <div class="flex items-center gap-3 group">
-                        <h2 class="text-2xl font-bold text-on-background">@activeLesson?.Title ?? "Chọn một bài học"</h2>
+                        <h2 class="text-2xl font-bold text-on-background">@(activeLesson?.Title ?? "Select a lesson")</h2>
                     </div>
                 </div>
                 @if (activeLesson != null)
                 {
                     <div class="flex gap-2">
-                        <a class="p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors" asp-controller="Lessons" asp-action="Details" asp-route-id="@activeLesson.Id" title="Xem trước bài học">
+                        <a class="p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors" asp-controller="Lessons" asp-action="Details" asp-route-id="@activeLesson.Id" title="Xem trước bài học" data-turbo="false">
                             <span class="material-symbols-outlined">visibility</span>
                         </a>
                         <a class="p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors" asp-controller="Lessons" asp-action="Edit" asp-route-id="@activeLesson.Id" title="Cài đặt bài học">

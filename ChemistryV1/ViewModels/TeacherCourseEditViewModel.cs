@@ -1,4 +1,5 @@
 using ChemistryV1.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace ChemistryV1.ViewModels;
 
@@ -13,6 +14,8 @@ public class TeacherCourseEditViewModel
     public string? Description { get; set; }
 
     public string? ThumbnailUrl { get; set; }
+
+    public IFormFile? ThumbnailFile { get; set; }
 
     public int? TeacherId { get; set; }
 

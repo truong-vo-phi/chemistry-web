@@ -42,13 +42,7 @@
                     </button>
                 </form>
             }
-            <div class="flex items-center gap-3">
-                <img alt="Teacher avatar" class="w-12 h-12 rounded-full border-2 border-white shadow-sm object-cover" src="@(course.Teacher?.AvatarUrl ?? "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect fill='%23e2e8f0' width='64' height='64'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='16' fill='%2364748b'%3E?%3C/text%3E%3C/svg%3E")" />
-                <div>
-                    <p class="text-sm opacity-80">Giảng viên</p>
-                    <p class="font-bold">@course.Teacher?.FullName</p>
-                </div>
-            </div>
+            
         </div>
     </div>
     <div class="absolute top-1/2 right-0 -translate-y-1/2 opacity-10 pointer-events-none transform scale-150">

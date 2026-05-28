@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using ChemistryV1.Infrastructure;
-
+using Microsoft.AspNetCore.StaticFiles;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -197,7 +197,40 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
+
+// Configure Static Files for Unity WebGL
+var provider = new FileExtensionContentTypeProvider();
+provider.Mappings[".data"] = "application/octet-stream";
+provider.Mappings[".wasm"] = "application/wasm";
+provider.Mappings[".br"] = "application/octet-stream";
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    ContentTypeProvider = provider,
+    OnPrepareResponse = ctx =>
+    {
+        // Add Content-Encoding header for Brotli compressed files so browser decompresses them
+        if (ctx.File.Name.EndsWith(".br"))
+        {
+            ctx.Context.Response.Headers.Append("Content-Encoding", "br");
+            
+            // Set correct MIME type underneath the compression
+            if (ctx.File.Name.EndsWith(".wasm.br"))
+            {
+                ctx.Context.Response.ContentType = "application/wasm";
+            }
+            else if (ctx.File.Name.EndsWith(".js.br"))
+            {
+                ctx.Context.Response.ContentType = "application/javascript";
+            }
+            else if (ctx.File.Name.EndsWith(".data.br"))
+            {
+                ctx.Context.Response.ContentType = "application/octet-stream";
+            }
+        }
+    }
+});
 
 app.UseRouting();
 

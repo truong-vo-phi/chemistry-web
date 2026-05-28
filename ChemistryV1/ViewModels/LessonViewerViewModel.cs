@@ -11,4 +11,6 @@ public class LessonViewerViewModel
     public Lesson Lesson { get; set; } = null!;
 
     public List<int> CompletedLessonIds { get; set; } = new List<int>();
+
+    public double? HighestScore { get; set; }
 }
