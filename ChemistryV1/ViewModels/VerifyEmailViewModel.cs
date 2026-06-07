@@ -13,7 +13,7 @@ public class VerifyEmailViewModel
 
     public string? ReturnUrl { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "Vui lòng nhập mã xác nhận.")]
     [StringLength(6, MinimumLength = 6, ErrorMessage = "Mã xác nhận phải có đúng 6 chữ số.")]
     [RegularExpression("^[0-9]{6}$", ErrorMessage = "Mã xác nhận chỉ gồm 6 chữ số.")]
     public string? Code { get; set; }

@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Net;
 using System.Security.Cryptography;
 using ChemistryV1.Models;
@@ -82,13 +82,13 @@ public class AccountController : Controller
         }
         catch
         {
-            ModelState.AddModelError("", "Hệ thống dữ liệu đang tạm thời không sẵn sàng. Vui lòng thử lại sau.");
+            ModelState.AddModelError("", "Tài khoản không tồn tại.");
         }
 
         if (user == null)
         {
             Console.WriteLine($"[Login DEBUG] User not found for: {identity}");
-            ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không đúng.");
+            ModelState.AddModelError("", "Tài khoản không tồn tại.");
             return View(model);
         }
 
@@ -119,7 +119,7 @@ public class AccountController : Controller
             if (!string.Equals(user.Password, password, StringComparison.Ordinal))
             {
                 Console.WriteLine($"[Login DEBUG] Password mismatch for user: {user.Username}");
-                ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu không đúng.");
+            ModelState.AddModelError("", "Tài khoản không tồn tại.");
                 return View(model);
             }
 
@@ -194,7 +194,7 @@ public class AccountController : Controller
 
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(email))
         {
-            ModelState.AddModelError("", "Tên đăng nhập và email không được để trống.");
+            ModelState.AddModelError("", "Tài khoản không tồn tại.");
             return View(model);
         }
 
@@ -529,7 +529,7 @@ public class AccountController : Controller
                         Title = "Bài 1: Khái niệm về hợp chất hữu cơ và hóa học hữu cơ",
                         ContentType = "theory",
                         VideoUrl = "https://www.youtube.com/embed/dQw4w9WgXcQ",
-                        DocumentContent = "Hợp chất hữu cơ là hợp chất của carbon (trừ CO, CO2, các muối carbonate, carbide, cianua...). Hóa học hữu cơ là ngành hóa học chuyên nghiên cứu về các hợp chất hữu cơ. Hợp chất hữu cơ gồm 2 loại chính: Hydrocarbon (chỉ chứa C và H) và Dẫn xuất hydrocarbon (chứa C, H và nguyên tố khác như O, N, Cl...).",
+                        DocumentContent = "Hợp chất hữu cơ là hợp chất của carbon (trừ CO, CO2, các muối carbonate, carbide, cianua...). Hóa học hữu cơ là ngành hóa học chuyên nghiên cứu về các hợp chất hữu cơ. Hợp chất hữu cơ gồm 2 loại chính: Hydrocarbon (chỉ chứa C và H) và dẫn xuất hydrocarbon (chứa C, H và nguyên tố khác như O, N, Cl...).",
                         PdfPath = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
                         AttachmentPath = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
                         OrderIndex = 1,

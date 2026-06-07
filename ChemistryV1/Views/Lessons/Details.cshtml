@@ -2,7 +2,7 @@
 @{
     Layout = "_LessonLayout";
     ViewData["Title"] = "ChemLab";
-    ViewData["Description"] = "Học hóa học với các bài học tương tác và phòng thí nghiệm ảo.";
+    ViewData["Description"] = "H&#7885;c h&#243;a h&#7885;c v&#7899;i c&#225;c b&#224;i h&#7885;c t&#432;&#417;ng t&#225;c v&#224; ph&#242;ng th&#237; nghi&#7879;m &#7843;o.";
     ViewData["CourseTitle"] = Model.Course.Title;
     var isTeacherOrAdmin = User.IsInRole("Admin") || User.IsInRole("Teacher");
     ViewData["CourseDetailsUrl"] = isTeacherOrAdmin 
@@ -51,14 +51,25 @@
 
     @if (Model.Lesson.ContentType == "virtual_lab" && Model.Lesson.VirtualLabId.HasValue)
     {
-        <div class="relative group">
-            <button onclick="toggleFullScreen('lab-iframe')" class="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 hover:bg-black/80 text-white rounded-lg flex items-center justify-center backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 shadow-md" title="Phóng to toàn màn hình">
+        var labPlayerUrl = (Url.Action("Play", "VirtualLabs", new { id = Model.Lesson.VirtualLabId }) ?? string.Empty).TrimEnd('/') + "/";
+        var mobileLabPlayerUrl = $"{labPlayerUrl}?returnUrl={Uri.EscapeDataString(Context.Request.Path + Context.Request.QueryString)}";
+        <div class="virtual-lab-shell no-tilt relative" data-no-tilt>
+            <button type="button" onclick="toggleFullScreen('virtual-lab-frame')" class="virtual-lab-fullscreen-button absolute top-3 right-3 md:top-4 md:right-4 z-10 w-10 h-10 bg-black/55 hover:bg-black/80 text-white rounded-lg flex items-center justify-center backdrop-blur-sm transition-colors opacity-90 shadow-md border border-primary/20" title="Ph&#243;ng to to&#224;n m&#224;n h&#236;nh" aria-label="Ph&#243;ng to to&#224;n m&#224;n h&#236;nh">
                 <span class="material-symbols-outlined text-[24px]">fullscreen</span>
             </button>
-            <div class="w-full aspect-video bg-surface-container rounded-xl border border-primary/30 flex items-center justify-center relative overflow-hidden">
-                <iframe id="lab-iframe" src="@Model.Lesson.VirtualLab.Url"
+            <div id="virtual-lab-frame" class="virtual-lab-frame w-full aspect-video bg-surface-container rounded-xl border border-primary/30 flex items-center justify-center relative overflow-hidden">
+                <iframe id="lab-iframe"
+                        title="@Model.Lesson.Title"
+                        src="@labPlayerUrl"
                         class="absolute inset-0 w-full h-full border-0"
+                        scrolling="no"
+                        allow="fullscreen; autoplay; gamepad; xr-spatial-tracking"
                         allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"></iframe>
+                <a class="mobile-lab-launcher" href="@mobileLabPlayerUrl">
+                    <span class="material-symbols-outlined">touch_app</span>
+                    <strong>Ch&#417;i game to&#224;n m&#224;n h&#236;nh</strong>
+                    <small>M&#7903; ch&#7871; &#273;&#7897; ri&#234;ng cho &#273;i&#7879;n tho&#7841;i &#273;&#7875; nh&#7853;n ch&#7841;m ch&#237;nh x&#225;c.</small>
+                </a>
             </div>
         </div>
     }
@@ -73,23 +84,20 @@
         </div>
     }
 
-    @if (Model.HighestScore.HasValue)
-    {
-        <div class="mt-6 p-4 bg-primary/10 border-2 border-primary/20 rounded-xl flex items-center justify-between">
+    <div id="practice-score-card" class="mt-6 p-4 bg-primary/10 border-2 border-primary/20 rounded-xl @(Model.HighestScore.HasValue ? "flex" : "hidden") items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
                     <span class="material-symbols-outlined text-[20px]">emoji_events</span>
                 </div>
                 <div>
-                    <h4 class="font-bold text-primary m-0 text-sm">Điểm số thực hành cao nhất</h4>
-                    <p class="text-xs text-slate-500 m-0">Điểm số đã được lưu vào hệ thống</p>
+                    <h4 class="font-bold text-primary m-0 text-sm">&#272;i&#7875;m s&#7889; th&#7921;c h&#224;nh cao nh&#7845;t</h4>
+                    <p class="text-xs text-slate-500 m-0">&#272;i&#7875;m s&#7889; &#273;&#227; &#273;&#432;&#7907;c l&#432;u v&#224;o h&#7879; th&#7889;ng</p>
                 </div>
             </div>
             <div class="text-2xl font-black text-primary drop-shadow-sm">
-                @Model.HighestScore.Value <span class="text-sm font-bold text-primary/70 uppercase">điểm</span>
+                <span id="practice-score-value">@(Model.HighestScore?.ToString("0.##") ?? "0")</span> <span class="text-sm font-bold text-primary/70 uppercase">&#273;i&#7875;m</span>
             </div>
         </div>
-    }
 
     <div class="mt-8 prose max-w-none text-on-background">
         <p>@Model.Lesson.DocumentContent</p>
@@ -101,10 +109,10 @@
             <div class="bg-primary/5 px-6 py-4 border-b border-primary/10 flex items-center justify-between">
                 <h4 class="font-bold text-primary flex items-center gap-2 m-0 text-sm">
                     <span class="material-symbols-outlined">picture_as_pdf</span>
-                    PDF Document
+                    T&#224;i li&#7879;u PDF
                 </h4>
                 <a href="@Model.Lesson.PdfPath" target="_blank" class="text-xs bg-white text-primary border border-primary/30 px-3 py-1.5 rounded-full hover:bg-primary/10 transition-all flex items-center gap-1 font-semibold">
-                    <span class="material-symbols-outlined text-xs">open_in_new</span> Open in new tab
+                    <span class="material-symbols-outlined text-xs">open_in_new</span> M&#7903; tab m&#7899;i
                 </a>
             </div>
             <div class="w-full h-[600px] bg-white">
@@ -121,13 +129,13 @@
                     <span class="material-symbols-outlined text-3xl">download</span>
                 </div>
                 <div>
-                    <h4 class="font-bold text-secondary m-0 text-sm">Downloadable Materials</h4>
-                    <p class="text-xs text-slate-500 m-0">Download attached files and exercises for practice</p>
+                    <h4 class="font-bold text-secondary m-0 text-sm">T&#224;i li&#7879;u &#273;&#237;nh k&#232;m</h4>
+                    <p class="text-xs text-slate-500 m-0">T&#7843;i t&#7879;p b&#224;i h&#7885;c v&#224; b&#224;i t&#7853;p &#273;&#7875; luy&#7879;n t&#7853;p.</p>
                 </div>
             </div>
             <a href="@Model.Lesson.AttachmentPath" download class="w-full sm:w-auto px-6 py-3 bg-secondary text-white rounded-full font-bold shadow-md hover:bg-secondary/90 active:translate-y-0.5 transition-all text-center flex items-center justify-center gap-2 btn-glow">
                 <span class="material-symbols-outlined text-sm">download_for_offline</span>
-                Download
+                T&#7843;i xu&#7889;ng
             </a>
         </div>
     }
@@ -160,8 +168,8 @@
             <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-4 border border-slate-200 shadow-inner">
                 <span class="material-symbols-outlined text-3xl">lock</span>
             </div>
-            <h3 class="text-xl text-on-background mb-2 font-bold font-display">Discussion Closed</h3>
-            <p class="text-sm text-slate-500 max-w-md">The discussion for this lesson has been closed by the administrator.</p>
+            <h3 class="text-xl text-on-background mb-2 font-bold font-display">Th&#7843;o lu&#7853;n &#273;&#227; &#273;&#243;ng</h3>
+            <p class="text-sm text-slate-500 max-w-md">Ph&#7847;n th&#7843;o lu&#7853;n c&#7911;a b&#224;i h&#7885;c n&#224;y &#273;&#227; &#273;&#432;&#7907;c qu&#7843;n tr&#7883; vi&#234;n &#273;&#243;ng.</p>
         </div>
     }
     else
@@ -170,13 +178,13 @@
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl text-on-background flex items-center gap-2 font-bold font-display">
                 <span class="material-symbols-outlined text-primary">forum</span>
-                Discussion
+                Th&#7843;o lu&#7853;n
             </h2>
             @{
                 var totalComments = Model.Lesson.Comments?.Count ?? 0;
             }
             <span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold border border-primary/20 shadow-xs">
-                @totalComments comments
+                @totalComments b&#236;nh lu&#7853;n
             </span>
         </div>
 
@@ -187,20 +195,20 @@
                 <input type="hidden" name="lessonId" value="@Model.Lesson.Id" />
                 <div class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-[20px] text-primary">create</span>
-                    <label class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Đặt câu hỏi hoặc chia sẻ suy nghĩ của bạn</label>
+                    <label class="text-xs font-bold text-slate-600 uppercase tracking-wider block">&#272;&#7863;t c&#226;u h&#7887;i ho&#7863;c chia s&#7867; suy ngh&#297; c&#7911;a b&#7841;n</label>
                 </div>
-                <textarea name="content" rows="3" class="w-full bg-white border border-slate-200 focus:border-primary/50 focus:ring-0 rounded-xl text-sm p-4 font-medium outline-none resize-none transition-all" placeholder="Nhập câu hỏi hoặc nội dung thảo luận của bạn ở đây..."></textarea>
+                <textarea name="content" rows="3" class="w-full bg-white border border-slate-200 focus:border-primary/50 focus:ring-0 rounded-xl text-sm p-4 font-medium outline-none resize-none transition-all" placeholder="Nh&#7853;p c&#226;u h&#7887;i ho&#7863;c n&#7897;i dung th&#7843;o lu&#7853;n c&#7911;a b&#7841;n &#7903; &#273;&#226;y..."></textarea>
                 <button type="submit" class="px-5 py-2.5 bg-primary text-white rounded-full border-2 border-primary/30 hover:bg-primary/90 transition-all btn-glow text-sm self-end flex items-center gap-2 font-bold">
-                    <span class="material-symbols-outlined text-[18px]">send</span> Gửi
+                    <span class="material-symbols-outlined text-[18px]">send</span> G&#7917;i
                 </button>
             </form>
         }
         else
         {
             <div class="mb-8 p-6 bg-slate-100 rounded-2xl text-center border border-slate-200">
-                <p class="text-sm text-slate-500 font-medium mb-3">Vui lòng đăng nhập để tham gia thảo luận.</p>
+                <p class="text-sm text-slate-500 font-medium mb-3">Vui l&#242;ng &#273;&#259;ng nh&#7853;p &#273;&#7875; tham gia th&#7843;o lu&#7853;n.</p>
                 <a class="px-5 py-2 bg-primary text-white rounded-full border-2 border-primary/30 hover:bg-primary/90 transition-all btn-glow text-sm inline-flex items-center gap-2 font-bold" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path">
-                    <span class="material-symbols-outlined text-[18px]">login</span> Đăng nhập ngay
+                    <span class="material-symbols-outlined text-[18px]">login</span> &#272;&#259;ng nh&#7853;p ngay
                 </a>
             </div>
         }
@@ -214,7 +222,7 @@
             {
                 <div class="text-center py-12 text-slate-400 font-medium">
                     <span class="material-symbols-outlined text-4xl block mb-2 opacity-50">forum</span>
-                    No discussions yet. Be the first to start one!
+                    Ch&#432;a c&#243; th&#7843;o lu&#7853;n n&#224;o. H&#227;y l&#224; ng&#432;&#7901;i &#273;&#7847;u ti&#234;n b&#7855;t &#273;&#7847;u!
                 </div>
             }
             else
@@ -250,19 +258,19 @@
             var timeSpan = DateTime.Now - dateTime;
             if (timeSpan <= TimeSpan.FromSeconds(60))
             {
-                return "Just now";
+                return "V&#7915;a xong";
             }
             if (timeSpan <= TimeSpan.FromMinutes(60))
             {
-                return timeSpan.Minutes > 1 ? $"{timeSpan.Minutes} minutes ago" : "1 minute ago";
+                return $"{timeSpan.Minutes} ph&#250;t tr&#432;&#7899;c";
             }
             if (timeSpan <= TimeSpan.FromHours(24))
             {
-                return timeSpan.Hours > 1 ? $"{timeSpan.Hours} hours ago" : "1 hour ago";
+                return $"{timeSpan.Hours} gi&#7901; tr&#432;&#7899;c";
             }
             if (timeSpan <= TimeSpan.FromDays(30))
             {
-                return timeSpan.Days > 1 ? $"{timeSpan.Days} days ago" : "Yesterday";
+                return timeSpan.Days > 1 ? $"{timeSpan.Days} ng&#224;y tr&#432;&#7899;c" : "H&#244;m qua";
             }
             if (timeSpan <= TimeSpan.FromDays(365))
             {
@@ -321,33 +329,57 @@
                 .then(r => r.json())
                 .then(res => {
                     if (res.success) {
-                        alert('Bạn nhận được ' + res.score + ' điểm và đã được lưu vào hệ thống!');
+                        const scoreCard = document.getElementById('practice-score-card');
+                        const scoreValue = document.getElementById('practice-score-value');
+                        if (scoreCard && scoreValue) {
+                            const savedScore = Number(res.score ?? data.score ?? 0);
+                            scoreValue.textContent = Number.isFinite(savedScore)
+                                ? savedScore.toLocaleString('vi-VN', { maximumFractionDigits: 2 })
+                                : (res.score ?? data.score);
+                            scoreCard.classList.remove('hidden');
+                            scoreCard.classList.add('flex');
+                        }
+                        console.info('&#272;i&#7875;m s&#7889; &#273;&#227; &#273;&#432;&#7907;c l&#432;u v&#224;o h&#7879; th&#7889;ng.');
                     }
                 })
                 .catch(err => console.error('Error submitting practice score:', err));
             }
         });
 
-        // Hàm phóng to toàn màn hình
-        function toggleFullScreen(elementId) {
-            var elem = document.getElementById(elementId);
-            if (!document.fullscreenElement) {
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen();
-                } else if (elem.webkitRequestFullscreen) { /* Safari */
-                    elem.webkitRequestFullscreen();
-                } else if (elem.msRequestFullscreen) { /* IE11 */
-                    elem.msRequestFullscreen();
-                }
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) { /* Safari */
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) { /* IE11 */
-                    document.msExitFullscreen();
-                }
+        function wakeUnityPlayer() {
+            var iframe = document.getElementById('lab-iframe');
+            if (!iframe || !iframe.contentWindow) return;
+
+            try {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.postMessage({ type: 'CHEMLAB_UNITY_WAKE' }, window.location.origin);
+                iframe.contentWindow.dispatchEvent(new Event('resize'));
+                setTimeout(function () { iframe.contentWindow.dispatchEvent(new Event('resize')); }, 80);
+                setTimeout(function () { iframe.contentWindow.dispatchEvent(new Event('resize')); }, 240);
+            } catch (error) {
+                iframe.contentWindow.postMessage({ type: 'CHEMLAB_UNITY_WAKE' }, '*');
             }
         }
+
+        function toggleFullScreen(elementId) {
+            var elem = document.getElementById(elementId);
+            if (!elem) return;
+
+            var fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+            var enterFullscreen = elem.requestFullscreen || elem.webkitRequestFullscreen || elem.msRequestFullscreen;
+            var exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+
+            wakeUnityPlayer();
+
+            if (!fullscreenElement && enterFullscreen) {
+                Promise.resolve(enterFullscreen.call(elem)).finally(wakeUnityPlayer);
+            } else if (fullscreenElement && exitFullscreen) {
+                Promise.resolve(exitFullscreen.call(document)).finally(wakeUnityPlayer);
+            }
+        }
+
+        ['fullscreenchange', 'webkitfullscreenchange', 'msfullscreenchange', 'orientationchange', 'resize'].forEach(function (eventName) {
+            window.addEventListener(eventName, wakeUnityPlayer, { passive: true });
+        });
     </script>
 }

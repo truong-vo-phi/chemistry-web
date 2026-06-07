@@ -1,326 +1,339 @@
 @model ChemistryV1.ViewModels.VerifyEmailViewModel
 @{
-    Layout = null;
+    Layout = "_UserFlowLayout";
+    ViewData["Title"] = "Xác thực tài khoản";
+    ViewData["Description"] = "Nhập mã OTP để kích hoạt tài khoản ChemLab.";
     var verificationMessage = TempData["VerificationMessage"] as string;
+    var hasOtpError = ViewData.ModelState.ErrorCount > 0;
+    var otpErrorMessages = ViewData.ModelState.Values
+        .SelectMany(v => v.Errors)
+        .Select(e => e.ErrorMessage)
+        .Where(message => !string.IsNullOrWhiteSpace(message))
+        .ToList();
 }
-<!DOCTYPE html>
-<html class="light" lang="vi"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>ChemLab - Xác thực Alchemist</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&amp;family=Quicksand:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "surface-container-low": "#f5f4ec",
-                        "on-secondary": "#ffffff",
-                        "surface-container-highest": "#e4e3db",
-                        "surface-bright": "#fbf9f1",
-                        "tertiary-fixed": "#ffddb8",
-                        "surface": "#fbf9f1",
-                        "secondary-container": "#6cf8bb",
-                        "on-tertiary": "#ffffff",
-                        "secondary-fixed": "#6ffbbe",
-                        "background": "#fbf9f1",
-                        "on-primary-fixed": "#001a42",
-                        "error-container": "#ffdad6",
-                        "inverse-surface": "#30312c",
-                        "on-surface-variant": "#424754",
-                        "on-secondary-fixed-variant": "#005236",
-                        "secondary-fixed-dim": "#4edea3",
-                        "surface-container-lowest": "#ffffff",
-                        "surface-container-high": "#eae8e0",
-                        "outline-variant": "#c2c6d6",
-                        "primary": "#0058be",
-                        "on-primary": "#ffffff",
-                        "inverse-primary": "#adc6ff",
-                        "on-tertiary-container": "#fffbff",
-                        "on-error-container": "#93000a",
-                        "on-secondary-fixed": "#002113",
-                        "inverse-on-surface": "#f3f1e9",
-                        "primary-fixed": "#d8e2ff",
-                        "secondary": "#006c49",
-                        "primary-fixed-dim": "#adc6ff",
-                        "tertiary-fixed-dim": "#ffb95f",
-                        "surface-container": "#f0eee6",
-                        "outline": "#727785",
-                        "primary-container": "#2170e4",
-                        "on-tertiary-fixed-variant": "#653e00",
-                        "on-background": "#1b1c17",
-                        "surface-tint": "#005ac2",
-                        "on-tertiary-fixed": "#2a1700",
-                        "tertiary": "#825100",
-                        "error": "#ba1a1a",
-                        "on-primary-container": "#fefcff"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "1rem",
-                        "lg": "2rem",
-                        "xl": "3rem",
-                        "full": "9999px"
-                    },
-                    "spacing": {
-                        "gutter": "24px",
-                        "container-max": "1200px",
-                        "margin-mobile": "16px",
-                        "margin-desktop": "48px",
-                        "unit": "8px"
-                    },
-                    "fontFamily": {
-                        "body-md": ["Quicksand"],
-                        "display-lg": ["Lexend"],
-                        "headline-md": ["Lexend"],
-                        "label-sm": ["Lexend"],
-                        "body-lg": ["Quicksand"]
-                    },
-                    "fontSize": {
-                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "500"}],
-                        "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "headline-md": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
-                        "label-sm": ["14px", {"lineHeight": "1.2", "fontWeight": "600"}],
-                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "500"}]
-                    }
-                }
-            }
+
+@section Head {
+    <style>
+        .otp-shell { max-width: 900px; }
+        .otp-visual {
+            min-height: 30rem;
+            background:
+                radial-gradient(circle at 50% 34%, rgba(56,232,255,.22), transparent 13rem),
+                radial-gradient(circle at 70% 68%, rgba(255,79,216,.16), transparent 14rem),
+                linear-gradient(155deg, rgba(7,18,40,.86), rgba(3,7,18,.72));
         }
-    </script>
-<style>
-        body {
-            background-color: #FFFDF5;
-            overflow-x: hidden;
+        .otp-holo-core {
+            position: absolute;
+            inset: 50%;
+            width: 10rem;
+            height: 10rem;
+            translate: -50% -50%;
+            border-radius: 2rem;
+            background:
+                linear-gradient(145deg, rgba(255,255,255,.24), rgba(56,232,255,.16)),
+                radial-gradient(circle at 30% 22%, rgba(255,255,255,.72), transparent 20%),
+                linear-gradient(135deg, rgba(56,232,255,.72), rgba(139,92,246,.52));
+            border: 1px solid rgba(255,255,255,.24);
+            box-shadow: 0 0 54px rgba(56,232,255,.46), 0 0 130px rgba(139,92,246,.24);
+            transform: rotateX(58deg) rotateZ(45deg);
+            animation: otp-core-float 5.2s ease-in-out infinite;
         }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        .otp-holo-ring {
+            position: absolute;
+            inset: 17%;
+            border-radius: 999px;
+            border: 1px solid rgba(56,232,255,.32);
+            box-shadow: inset 0 0 34px rgba(56,232,255,.12), 0 0 46px rgba(56,232,255,.16);
+            transform: rotateX(68deg) rotateZ(-18deg);
+            animation: otp-ring-spin 18s linear infinite;
+        }
+        .otp-holo-ring:nth-child(2) {
+            inset: 27%;
+            border-color: rgba(255,79,216,.34);
+            animation-duration: 13s;
+            animation-direction: reverse;
+        }
+        .otp-holo-beam {
+            position: absolute;
+            left: 12%;
+            right: 12%;
+            top: 50%;
+            height: 2px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, transparent, rgba(56,232,255,.82), rgba(255,79,216,.58), transparent);
+            box-shadow: 0 0 26px rgba(56,232,255,.42);
+            transform: rotate(-24deg);
+            animation: otp-beam 4.8s ease-in-out infinite;
+        }
+        .otp-node {
+            position: absolute;
+            width: .75rem;
+            height: .75rem;
+            border-radius: 999px;
+            background: #75ff6a;
+            box-shadow: 0 0 24px rgba(117,255,106,.7);
+        }
+        .otp-node:nth-child(5) { left: 24%; top: 30%; background: #38e8ff; }
+        .otp-node:nth-child(6) { right: 20%; top: 36%; background: #ff4fd8; }
+        .otp-node:nth-child(7) { left: 32%; bottom: 24%; background: #ff9f43; }
+        .otp-node:nth-child(8) { right: 28%; bottom: 21%; background: #75ff6a; }
+        .otp-input {
+            width: min(4.25rem, 13vw);
+            height: min(4.25rem, 13vw);
+            min-width: 2.85rem;
+            min-height: 2.85rem;
+            background: rgba(3, 12, 28, .72);
+            border: 1px solid rgba(104,232,255,.28);
+            color: #e8f6ff;
+            caret-color: #38e8ff;
+            box-shadow: inset 0 0 22px rgba(0,0,0,.32), 0 0 0 rgba(56,232,255,0);
+            transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease, background .22s ease;
         }
         .otp-input:focus {
-            box-shadow: 0 0 0 3px rgba(0, 88, 190, 0.2);
-            transform: scale(1.05);
+            border-color: rgba(56,232,255,.86);
+            background: rgba(8, 26, 55, .86);
+            box-shadow: 0 0 0 4px rgba(56,232,255,.13), 0 0 34px rgba(56,232,255,.28);
+            transform: translateY(-2px);
         }
-        .squishy-btn:active {
-            transform: translateY(2px);
-            box-shadow: none !important;
+        .otp-input:not(:placeholder-shown) {
+            border-color: rgba(117,255,106,.52);
+            box-shadow: 0 0 28px rgba(117,255,106,.16);
         }
-        .floating-element {
-            animation: float 6s ease-in-out infinite;
+        .otp-action-link:disabled {
+            opacity: .42;
+            cursor: not-allowed;
         }
-        @@keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
+        .otp-error-panel {
+            background: linear-gradient(135deg, rgba(255,77,125,.18), rgba(255,77,125,.08));
+            border: 1px solid rgba(255,77,125,.42);
+            box-shadow: 0 0 34px rgba(255,77,125,.16);
         }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+        .otp-input.is-invalid {
+            border-color: rgba(255,77,125,.82);
+            background: rgba(48, 8, 22, .78);
+            box-shadow: 0 0 0 4px rgba(255,77,125,.13), 0 0 34px rgba(255,77,125,.24);
         }
-        .motion-ring {
-            position: absolute;
-            border-radius: 9999px;
-            border: 1px dashed rgba(0, 88, 190, 0.18);
-            pointer-events: none;
+        @@keyframes otp-core-float {
+            0%, 100% { transform: rotateX(58deg) rotateZ(45deg) translateY(0); }
+            50% { transform: rotateX(58deg) rotateZ(45deg) translateY(-14px); }
         }
-        .orbit-one {
-            animation: orbit-one 22s linear infinite;
+        @@keyframes otp-ring-spin {
+            to { transform: rotateX(68deg) rotateZ(342deg); }
         }
-        @@keyframes orbit-one {
-            0% { transform: rotate(0deg) translateX(0) rotate(0deg); }
-            100% { transform: rotate(360deg) translateX(0) rotate(-360deg); }
+        @@keyframes otp-beam {
+            0%, 100% { opacity: .38; filter: blur(0); }
+            50% { opacity: .86; filter: blur(.5px); }
         }
-        .orbit-two {
-            animation: orbit-two 30s linear infinite reverse;
+        @@media (max-width: 767px) {
+            .otp-shell { max-width: 30rem; }
+            .otp-form-panel { padding: 1.1rem !important; }
+            .otp-input {
+                font-size: 1.35rem !important;
+                border-radius: .9rem !important;
+            }
         }
-        @@keyframes orbit-two {
-            0% { transform: rotate(0deg) translateX(0) rotate(0deg); }
-            100% { transform: rotate(360deg) translateX(0) rotate(-360deg); }
-        }
-        .chem-float {
-            animation: chem-float 11s ease-in-out infinite;
-        }
-        @@keyframes chem-float {
-            0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-            50% { transform: translate3d(0, -16px, 0) scale(1.05); }
-        }
-        .drift-left {
-            animation: drift-left 16s ease-in-out infinite;
-        }
-        @@keyframes drift-left {
-            0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
-            50% { transform: translate3d(-18px, -10px, 0) rotate(-6deg); }
-        }
-        .drift-right {
-            animation: drift-right 18s ease-in-out infinite;
-        }
-        @@keyframes drift-right {
-            0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
-            50% { transform: translate3d(18px, 12px, 0) rotate(7deg); }
+        @@media (prefers-reduced-motion: reduce) {
+            .otp-holo-core,
+            .otp-holo-ring,
+            .otp-holo-beam {
+                animation: none !important;
+            }
         }
     </style>
-</head>
-<body class="font-body-md text-on-background min-h-screen flex items-center justify-center p-4">
-<div class="fixed inset-0 pointer-events-none overflow-hidden select-none opacity-45">
-<div class="absolute top-10 left-10 floating-element text-primary" style="animation-delay: 0s;">
-<span class="material-symbols-outlined text-[64px]">science</span>
-</div>
-<div class="absolute bottom-20 right-10 floating-element text-tertiary" style="animation-delay: 1s;">
-<span class="material-symbols-outlined text-[80px]">flare</span>
-</div>
-<div class="absolute top-1/4 right-1/4 floating-element text-secondary" style="animation-delay: 2s;">
-<span class="material-symbols-outlined text-[48px]">syringe</span>
-</div>
-<div class="absolute bottom-1/4 left-1/4 floating-element text-primary-fixed-dim" style="animation-delay: 1.5s;">
-<span class="material-symbols-outlined text-[56px]">rebase_edit</span>
-</div>
-<div class="motion-ring orbit-one" style="width: 22rem; height: 22rem; left: -4rem; top: 12%; opacity: 0.18;"></div>
-<div class="motion-ring orbit-two" style="width: 16rem; height: 16rem; right: 10%; bottom: 12%; opacity: 0.16;"></div>
-<div class="absolute left-[18%] top-[20%] text-primary/12 chem-float" style="font-size: 78px;">
-<span class="material-symbols-outlined">biotech</span>
-</div>
-<div class="absolute right-[18%] top-[52%] text-secondary/12 drift-left" style="font-size: 66px;">
-<span class="material-symbols-outlined">bubble_chart</span>
-</div>
-<div class="absolute left-[10%] bottom-[18%] text-tertiary/12 drift-right" style="font-size: 72px;">
-<span class="material-symbols-outlined">science</span>
-</div>
-</div>
-<main class="relative z-10 w-full max-w-5xl flex items-center justify-center">
-<div class="glass-card flex flex-col md:flex-row w-full rounded-xl border-2 border-primary/10 shadow-[0_20px_50px_rgba(0,88,190,0.15)] overflow-hidden">
-<div class="hidden md:flex flex-1 bg-surface-container relative items-center justify-center p-12 overflow-hidden border-r border-primary/5">
-<div class="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent"></div>
-<div class="relative z-10 text-center">
-<img class="w-full max-w-[320px] h-auto drop-shadow-2xl rounded-lg mb-8" alt="Professor Proton" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjwFWiCpVJcqUIAbreyx8ipUwxGGm0LylC5QRMiA_Evdy3hgB3-3yU4gf9UOVQOr2NkSQ12NRlfHn-kwk2mlHCNG3YbBmzHoJ4Lx1lBDLRSBAdn1SFqO-LcIqqgdzTS9hlmgVTXKx8eCzB9GbcJn5XlTJRa0wLnDkvScCgPbuasJ8koQA6Z91lbviZsPJY-7c84YIWW0Dt1ebGSnQAstgb8VIM5xd62IuLszhvZEfdy5c4nEXjtybuYWyO8pKzHU6wJm9SViVT-Rs"/>
-<div class="space-y-2">
-<h2 class="font-headline-md text-headline-md text-primary">Sẵn sàng chưa, Alchemist?</h2>
-<p class="font-body-md text-on-surface-variant max-w-[280px] mx-auto">Mã kích hoạt là bước cuối cùng để mở khóa phòng thí nghiệm của bạn tại <strong>ChemLab</strong>.</p>
-</div>
-</div>
-<div class="absolute inset-0 opacity-10 flex items-center justify-center">
-<div class="w-[500px] h-[500px] border-2 border-dashed border-primary rounded-full animate-[spin_30s_linear_infinite]"></div>
-<div class="absolute w-[400px] h-[400px] border-2 border-dotted border-tertiary rounded-full animate-[spin_20s_linear_infinite_reverse]"></div>
-</div>
-</div>
-<div class="flex-1 p-8 md:p-12 lg:p-16 flex flex-col justify-center">
-<div class="mb-8">
-<div class="flex items-center gap-2 mb-6">
-<div class="bg-primary-container p-2 rounded-full">
-<span class="material-symbols-outlined text-on-primary-container">lock_open</span>
-</div>
-<span class="font-headline-md text-headline-md font-bold text-primary tracking-tight">ChemLab</span>
-</div>
-<h1 class="font-headline-md text-headline-md text-on-surface mb-2">Xác thực Alchemist</h1>
-<p class="font-body-md text-on-surface-variant">
-                        Chúng tôi vừa gửi mã xác nhận 6 chữ số đến email của bạn. Vui lòng nhập mã để kích hoạt tài khoản.
-                    </p>
-@if (!string.IsNullOrWhiteSpace(verificationMessage))
-{
-    <div class="mt-4 rounded-2xl bg-secondary-container/30 text-on-secondary-container px-4 py-3 text-sm font-bold border border-secondary/20">
-        @verificationMessage
-    </div>
 }
-</div>
-@if (!ViewData.ModelState.IsValid)
-{
-    <div class="mb-6 rounded-2xl bg-error-container p-4 text-error text-sm font-bold border border-error/20">
-        <div asp-validation-summary="All" class="list-none"></div>
+
+<section class="otp-shell glass-card premium-shadow mx-auto overflow-hidden grid grid-cols-1 lg:grid-cols-[.95fr_1.05fr]">
+    <div class="otp-visual relative hidden lg:flex flex-col justify-between overflow-hidden p-8">
+        <div class="absolute inset-0 bg-[linear-gradient(rgba(56,232,255,.045)_1px,transparent_1px),linear-gradient(90deg,rgba(56,232,255,.045)_1px,transparent_1px)] bg-[size:38px_38px]"></div>
+        <div class="absolute inset-0 opacity-80">
+            <div class="otp-holo-ring"></div>
+            <div class="otp-holo-ring"></div>
+            <div class="otp-holo-core"></div>
+            <div class="otp-holo-beam"></div>
+            <span class="otp-node"></span>
+            <span class="otp-node"></span>
+            <span class="otp-node"></span>
+            <span class="otp-node"></span>
+        </div>
+
+        <div class="relative z-10 flex items-center gap-3">
+            <img src="/images/LogoChemistry.png" alt="Logo ChemLab" class="h-11 w-11 rounded-2xl border border-primary/20 bg-primary/10 p-1 shadow-neon-blue" />
+            <div>
+                <p class="font-label text-[10px] text-secondary">Buồng xác thực</p>
+                <p class="font-display text-xl font-extrabold text-on-background">Cổng kích hoạt ChemLab</p>
+            </div>
+        </div>
+
+        <div class="relative z-10 max-w-sm">
+            <p class="font-label text-[10px] text-primary mb-3">Mã kích hoạt 6 chữ số</p>
+            <h2 class="font-display text-4xl font-extrabold leading-tight text-glow-primary">
+                Mở khóa phòng thí nghiệm của bạn.
+            </h2>
+            <p class="mt-4 text-sm leading-relaxed text-on-surface-variant">
+                Nhập mã vừa gửi về email để kích hoạt tài khoản và đồng bộ tiến độ học tập.
+            </p>
+        </div>
     </div>
-}
-<form asp-action="VerifyEmail" method="post" class="space-y-8" id="otp-form">
-@Html.AntiForgeryToken()
-<input asp-for="UserId" type="hidden" />
-<input asp-for="Email" type="hidden" />
-<input asp-for="ReturnUrl" type="hidden" />
-<input asp-for="Code" type="hidden" id="code-hidden" />
-<div class="flex justify-between gap-2 sm:gap-4" id="otp-container">
-<input class="otp-input w-full aspect-square text-center font-display-lg text-[32px] rounded-lg border-2 border-primary/20 bg-surface focus:border-primary focus:outline-none transition-all duration-200 text-primary" maxlength="1" required type="text" inputmode="numeric" />
-<input class="otp-input w-full aspect-square text-center font-display-lg text-[32px] rounded-lg border-2 border-primary/20 bg-surface focus:border-primary focus:outline-none transition-all duration-200 text-primary" maxlength="1" required type="text" inputmode="numeric" />
-<input class="otp-input w-full aspect-square text-center font-display-lg text-[32px] rounded-lg border-2 border-primary/20 bg-surface focus:border-primary focus:outline-none transition-all duration-200 text-primary" maxlength="1" required type="text" inputmode="numeric" />
-<input class="otp-input w-full aspect-square text-center font-display-lg text-[32px] rounded-lg border-2 border-primary/20 bg-surface focus:border-primary focus:outline-none transition-all duration-200 text-primary" maxlength="1" required type="text" inputmode="numeric" />
-<input class="otp-input w-full aspect-square text-center font-display-lg text-[32px] rounded-lg border-2 border-primary/20 bg-surface focus:border-primary focus:outline-none transition-all duration-200 text-primary" maxlength="1" required type="text" inputmode="numeric" />
-<input class="otp-input w-full aspect-square text-center font-display-lg text-[32px] rounded-lg border-2 border-primary/20 bg-surface focus:border-primary focus:outline-none transition-all duration-200 text-primary" maxlength="1" required type="text" inputmode="numeric" />
-</div>
-<span asp-validation-for="Code" class="text-xs text-error block text-center"></span>
-<div class="text-center">
-<p class="font-label-sm text-label-sm text-on-surface-variant">
-                            Không nhận được mã? <br class="sm:hidden"/>
-<span class="text-tertiary-container font-bold inline-flex items-center gap-1">
-<span class="material-symbols-outlined text-[18px]">timer</span>
-                                Gửi lại mã sau (<span id="timer">@Model.SecondsLeft</span>s)
-                            </span>
-</p>
-</div>
-<button class="squishy-btn w-full bg-primary hover:bg-primary-container text-on-primary py-4 rounded-full font-headline-md shadow-[0_4px_0_0_#004395] hover:shadow-[0_6px_0_0_#004395] transition-all flex items-center justify-center gap-3" type="submit">
-<span>Xác nhận &amp; Bắt đầu</span>
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
-</button>
-</form>
-<div class="mt-4 flex items-center justify-center gap-3">
-<form asp-action="ResendVerification" asp-controller="Account" method="post" id="resend-form" class="inline-flex items-center">
-@Html.AntiForgeryToken()
-<input type="hidden" name="userId" value="@Model.UserId" />
-<input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
-<button type="submit" class="font-label-sm text-label-sm text-primary hover:underline flex items-center justify-center gap-1 group" id="resend-button" disabled>
-<span class="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform">mail</span>
-                        Gửi lại mã
+
+    <div class="otp-form-panel relative p-5 sm:p-7 md:p-9 lg:p-10">
+        <div class="absolute -right-20 -top-20 h-52 w-52 rounded-full bg-primary/15 blur-3xl"></div>
+        <div class="absolute -bottom-20 left-10 h-48 w-48 rounded-full bg-tertiary/15 blur-3xl"></div>
+
+        <div class="relative">
+            <div class="mb-6 text-center lg:text-left">
+                <div class="mx-auto lg:mx-0 mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/25 bg-primary/10 shadow-neon-blue">
+                    <span class="material-symbols-outlined text-primary text-3xl">mark_email_read</span>
+                </div>
+                <p class="font-label text-[10px] text-secondary mb-2">ChemLab</p>
+                <h1 class="font-display text-3xl md:text-4xl font-extrabold text-on-background">Xác thực email</h1>
+                <p class="mt-3 text-sm md:text-base leading-relaxed text-on-surface-variant">
+                    Chúng tôi vừa gửi mã xác nhận 6 chữ số đến email của bạn. Nhập mã để kích hoạt tài khoản.
+                </p>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(verificationMessage))
+            {
+                <div class="mb-5 rounded-2xl border border-secondary/25 bg-secondary/10 px-4 py-3 text-sm font-bold text-secondary">
+                    @verificationMessage
+                </div>
+            }
+
+            @if (hasOtpError)
+            {
+                <div class="otp-error-panel mb-5 rounded-2xl px-4 py-3 text-sm font-bold text-error" role="alert" aria-live="assertive">
+                    <div class="flex items-start gap-3">
+                        <span class="material-symbols-outlined text-[22px] shrink-0">error</span>
+                        <div>
+                            <p class="text-on-background">Mã xác thực chưa hợp lệ</p>
+                            <ul class="mt-1 space-y-1 text-error">
+                                @foreach (var error in otpErrorMessages)
+                                {
+                                    <li>@error</li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <form asp-action="VerifyEmail" method="post" class="space-y-5" id="otp-form">
+                @Html.AntiForgeryToken()
+                <input asp-for="UserId" type="hidden" />
+                <input asp-for="Email" type="hidden" />
+                <input asp-for="ReturnUrl" type="hidden" />
+                <input asp-for="Code" type="hidden" id="code-hidden" />
+
+                <div class="flex justify-center lg:justify-start gap-2 sm:gap-3" id="otp-container" aria-label="Mã xác thực 6 chữ số">
+                    @for (var i = 0; i < 6; i++)
+                    {
+                        <input class="otp-input @(hasOtpError ? "is-invalid" : "") rounded-2xl text-center font-display text-3xl font-extrabold outline-none" maxlength="1" required type="text" inputmode="numeric" autocomplete="one-time-code" placeholder=" " aria-label="Số @(i + 1)" />
+                    }
+                </div>
+
+                <span asp-validation-for="Code" class="block text-center lg:text-left text-xs text-error"></span>
+
+                <div class="rounded-2xl border border-primary/15 bg-surface/40 px-4 py-3 text-center lg:text-left text-sm text-on-surface-variant">
+                    Không nhận được mã?
+                    <span class="inline-flex items-center gap-1 font-bold text-primary">
+                        <span class="material-symbols-outlined text-[18px]">timer</span>
+                        Gửi lại sau <span id="timer">@Model.SecondsLeft</span>s
+                    </span>
+                </div>
+
+                <button class="glow-button w-full rounded-xl bg-primary py-4 font-label font-bold text-on-primary transition-all active:scale-[0.98] flex items-center justify-center gap-2" type="submit">
+                    <span>Xác nhận và bắt đầu</span>
+                    <span class="material-symbols-outlined">rocket_launch</span>
+                </button>
+            </form>
+
+            <div class="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
+                <form asp-action="ResendVerification" asp-controller="Account" method="post" id="resend-form" class="inline-flex items-center">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="userId" value="@Model.UserId" />
+                    <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+                    <button type="submit" class="otp-action-link inline-flex items-center justify-center gap-1 font-bold text-primary transition hover:text-secondary" id="resend-button" disabled>
+                        <span class="material-symbols-outlined text-[18px]">mail</span>
+                        <span id="resend-label">Gửi lại mã</span>
                     </button>
-</form>
-<a class="font-label-sm text-label-sm text-primary hover:underline flex items-center justify-center gap-1 group" asp-action="Register" asp-controller="Account">
-<span class="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
-                        Quay lại đăng ký
-                    </a>
-</div>
-</div>
-</div>
-<div class="absolute -bottom-12 w-full text-center">
-<p class="font-label-sm text-label-sm text-on-surface-variant opacity-60">© 2024 Học viện ChemLab. Trải nghiệm học tập đắm chìm.</p>
-</div>
-</main>
-<script>
-        const inputs = document.querySelectorAll('.otp-input');
-        const hiddenCode = document.getElementById('code-hidden');
-        const resendButton = document.getElementById('resend-button');
-        let timeLeft = Number(document.getElementById('timer').textContent || '0');
+                </form>
+                <a class="inline-flex items-center justify-center gap-1 font-bold text-on-surface-variant transition hover:text-primary" asp-action="Register" asp-controller="Account">
+                    <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                    Quay lại đăng ký
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        const inputs = document.querySelectorAll(".otp-input");
+        const hiddenCode = document.getElementById("code-hidden");
+        const resendButton = document.getElementById("resend-button");
+        const resendLabel = document.getElementById("resend-label");
+        const timerElement = document.getElementById("timer");
+        const hasServerError = @hasOtpError.ToString().ToLowerInvariant();
+        let timeLeft = Number(timerElement?.textContent || "0");
 
         const syncCode = () => {
-            hiddenCode.value = Array.from(inputs).map(input => input.value.trim()).join('');
+            hiddenCode.value = Array.from(inputs).map(input => input.value.trim()).join("");
+        };
+
+        const setInputValue = (input, value) => {
+            input.value = value.replace(/\D/g, "").slice(0, 1);
         };
 
         inputs.forEach((input, index) => {
-            input.addEventListener('input', (e) => {
-                const value = e.target.value.replace(/\D/g, '').slice(0, 1);
-                e.target.value = value;
+            input.addEventListener("input", (event) => {
+                setInputValue(event.target, event.target.value);
                 syncCode();
-                if (value.length === 1 && index < inputs.length - 1) {
+                if (event.target.value && index < inputs.length - 1) {
                     inputs[index + 1].focus();
                 }
             });
 
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+            input.addEventListener("keydown", (event) => {
+                if (event.key === "Backspace" && event.target.value === "" && index > 0) {
                     inputs[index - 1].focus();
                 }
             });
+
+            input.addEventListener("paste", (event) => {
+                event.preventDefault();
+                const pasted = (event.clipboardData || window.clipboardData).getData("text").replace(/\D/g, "").slice(0, inputs.length);
+                pasted.split("").forEach((digit, offset) => {
+                    const target = inputs[index + offset];
+                    if (target) target.value = digit;
+                });
+                syncCode();
+                const nextIndex = Math.min(index + pasted.length, inputs.length - 1);
+                inputs[nextIndex].focus();
+            });
         });
 
-        const timerElement = document.getElementById('timer');
-        const timerInterval = setInterval(() => {
-            timeLeft--;
-            timerElement.textContent = Math.max(0, timeLeft);
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                resendButton.disabled = false;
-                const wrapper = resendButton.closest('span');
-                if (wrapper) {
-                    wrapper.textContent = 'Gửi lại mã ngay';
-                    wrapper.classList.add('cursor-pointer', 'underline');
+        if (timeLeft <= 0) {
+            resendButton.disabled = false;
+            resendLabel.textContent = "Gửi lại mã ngay";
+        } else {
+            const timerInterval = setInterval(() => {
+                timeLeft -= 1;
+                timerElement.textContent = Math.max(0, timeLeft);
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    resendButton.disabled = false;
+                    resendLabel.textContent = "Gửi lại mã ngay";
                 }
-            }
-        }, 1000);
+            }, 1000);
+        }
 
-        document.getElementById('otp-form').addEventListener('submit', (e) => {
+        document.getElementById("otp-form").addEventListener("submit", () => {
             syncCode();
         });
+
+        if (hasServerError && inputs.length > 0) {
+            hiddenCode.value = "";
+            inputs.forEach(input => input.value = "");
+            requestAnimationFrame(() => inputs[0].focus());
+        }
     </script>
-</body></html>
+}

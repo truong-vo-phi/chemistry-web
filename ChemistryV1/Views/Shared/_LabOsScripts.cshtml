@@ -1,0 +1,71 @@
+<script>
+    (() => {
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        const boot = () => {
+            const isAdmin = document.body.classList.contains('labos-admin-shell');
+            const revealItems = document.querySelectorAll('[data-reveal]');
+            if (revealItems.length) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+
+                revealItems.forEach((item, index) => {
+                    item.style.setProperty('--reveal-delay', `${Math.min(index * 36, 280)}ms`);
+                    observer.observe(item);
+                });
+            }
+
+            if (reduceMotion || isAdmin) {
+                return;
+            }
+
+            const parallaxItems = document.querySelectorAll('[data-parallax]');
+            let ticking = false;
+            const updateParallax = () => {
+                const scrollY = window.scrollY || window.pageYOffset;
+                parallaxItems.forEach((item) => {
+                    const speed = Number(item.dataset.parallax || 0.08);
+                    item.style.transform = `translate3d(0, ${scrollY * speed}px, 0)`;
+                });
+                ticking = false;
+            };
+
+            window.addEventListener('scroll', () => {
+                if (!ticking) {
+                    window.requestAnimationFrame(updateParallax);
+                    ticking = true;
+                }
+            }, { passive: true });
+            updateParallax();
+
+            document.querySelectorAll('.cinematic-card, .glass-card, .collectible-border').forEach((card) => {
+                if (card.closest('.no-tilt, .virtual-lab-shell, .flashcard-panel, [data-no-tilt]') || card.querySelector('.virtual-lab-frame, #lab-iframe, .flashcard, .card-shell')) {
+                    return;
+                }
+                card.addEventListener('pointermove', (event) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
+                    const y = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
+                    card.style.setProperty('--tilt-x', `${(-y * 2.2).toFixed(2)}deg`);
+                    card.style.setProperty('--tilt-y', `${(x * 2.2).toFixed(2)}deg`);
+                }, { passive: true });
+                card.addEventListener('pointerleave', () => {
+                    card.style.removeProperty('--tilt-x');
+                    card.style.removeProperty('--tilt-y');
+                }, { passive: true });
+            });
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', boot, { once: true });
+        } else {
+            boot();
+        }
+    })();
+</script>

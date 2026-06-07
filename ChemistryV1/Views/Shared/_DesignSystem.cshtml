@@ -1,114 +1,116 @@
-@{
-    // Design System Configuration - Based on Home/Index.cshtml
-    // This file contains the consistent design tokens used across all pages
-}
-<script id="tailwind-config">
-    tailwind.config = {
-        darkMode: "class",
-        theme: {
-            extend: {
-                colors: {
-                    "primary": "#3b82f6",
-                    "secondary": "#10b981",
-                    "tertiary": "#f59e0b",
-                    "background": "#fdfcf8",
-                    "on-background": "#1e293b",
-                    "surface": "rgba(255,255,255,0.7)",
-                    "surface-variant": "#f1f5f9",
-                    "outline": "#cbd5e1",
-                    "error": "#ef4444"
-                },
-                borderRadius: {
-                    DEFAULT: "1rem",
-                    lg: "2rem",
-                    xl: "2.5rem",
-                    "2xl": "32px",
-                    full: "9999px"
-                },
-                spacing: {
-                    gutter: "32px",
-                    "margin-mobile": "20px",
-                    unit: "8px",
-                    "margin-desktop": "48px",
-                    "container-max": "1300px"
-                },
-                fontFamily: {
-                    display: ["Lexend", "sans-serif"],
-                    body: ["Lexend", "sans-serif"]
-                }
-            }
+@* LabOS command-center design system for admin and teacher surfaces. *@
+<partial name="_StudentDesignSystem" />
+<style>
+    body.neon-lab-shell {
+        background:
+            radial-gradient(circle at 8% 0%, rgba(56,232,255,.18), transparent 30rem),
+            radial-gradient(circle at 94% 12%, rgba(139,92,246,.22), transparent 34rem),
+            radial-gradient(circle at 60% 100%, rgba(255,79,216,.10), transparent 30rem),
+            linear-gradient(145deg, #020617 0%, #061128 52%, #030712 100%);
+    }
+
+    .neon-lab-shell .neon-sidebar::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            linear-gradient(180deg, rgba(56,232,255,.14), transparent 24%),
+            repeating-linear-gradient(0deg, transparent 0 34px, rgba(56,232,255,.045) 34px 35px);
+        opacity: .8;
+    }
+
+    .neon-lab-shell .neon-sidebar > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .neon-lab-shell footer {
+        background: rgba(3, 8, 20, .64);
+        backdrop-filter: blur(18px);
+    }
+
+    body.labos-admin-shell main,
+    body.labos-admin-shell header {
+        animation: none !important;
+        transform: none;
+    }
+
+    body.labos-admin-shell .admin-shell-grid {
+        display: grid;
+        grid-template-columns: 18rem minmax(0, 1fr);
+        grid-template-rows: 4rem minmax(0, 1fr) auto;
+        min-height: 100vh;
+    }
+
+    body.labos-admin-shell #admin-mobile-sidebar {
+        grid-column: 1;
+        grid-row: 1 / -1;
+    }
+
+    body.labos-admin-shell header {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    body.labos-admin-shell .admin-content {
+        grid-column: 2;
+        grid-row: 2;
+        min-width: 0;
+        min-height: 0;
+    }
+
+    body.labos-admin-shell footer {
+        grid-column: 2;
+        grid-row: 3;
+    }
+
+    body.labos-admin-shell [data-reveal] {
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+    }
+
+    body.labos-admin-shell .cinematic-card:hover,
+    body.labos-admin-shell .glass-card:hover,
+    body.labos-admin-shell .collectible-border:hover,
+    body.labos-admin-shell article:hover {
+        transform: translateY(-3px);
+    }
+
+    @@media (max-width: 767px) {
+        body.labos-admin-shell .admin-shell-grid {
+            display: block;
+        }
+
+        body.labos-admin-shell header {
+            position: sticky;
+            top: 0;
+        }
+
+        body.labos-admin-shell .admin-content > div {
+            padding-top: 1rem;
         }
     }
-</script>
-<style>
-    body { 
-        background-color: #fdfcf8; 
-        font-family: 'Lexend', sans-serif; 
-        color: #1e293b; 
-        overflow-x: hidden; 
-        position: relative; 
+
+    .neon-lab-shell .btn-gradient {
+        background: linear-gradient(135deg, #8ff8ff 0%, #38e8ff 38%, #8b5cf6 100%);
+        color: #03111f;
+        box-shadow: 0 0 34px rgba(56,232,255,.34), 0 18px 54px rgba(0,0,0,.32);
+        transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s cubic-bezier(.2,.8,.2,1);
     }
-    body::before { 
-        content: ""; 
-        position: fixed; 
-        top: 0; 
-        left: 0; 
-        width: 100%; 
-        height: 100%; 
-        opacity: 0.03; 
-        z-index: 100; 
-        pointer-events: none; 
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); 
+
+    .neon-lab-shell .btn-gradient:hover {
+        transform: translateY(-2px) scale(1.015);
+        box-shadow: 0 0 44px rgba(56,232,255,.48), 0 24px 70px rgba(139,92,246,.22);
     }
-    .blob { 
-        position: fixed; 
-        width: 600px; 
-        height: 600px; 
-        background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%); 
-        border-radius: 50%; 
-        z-index: -1; 
-        filter: blur(60px); 
+
+    .neon-lab-shell .admin-command-strip {
+        border: 1px solid rgba(104,232,255,.20);
+        background:
+            linear-gradient(90deg, rgba(56,232,255,.09), rgba(139,92,246,.07), rgba(255,79,216,.05)),
+            rgba(3, 8, 20, .54);
+        box-shadow: 0 18px 64px rgba(0,0,0,.26);
+        backdrop-filter: blur(20px);
     }
-    .glass-card { 
-        background: rgba(255,255,255,0.65); 
-        backdrop-filter: blur(20px); 
-        -webkit-backdrop-filter: blur(20px); 
-        border: 1px solid rgba(255,255,255,0.8); 
-        box-shadow: 0 10px 40px -10px rgba(0,0,0,0.04); 
-        border-radius: 32px; 
-    }
-    .premium-shadow { 
-        box-shadow: 0 20px 50px -15px rgba(59,130,246,0.15); 
-    }
-    .xp-glow { 
-        box-shadow: 0 0 20px rgba(59,130,246,0.4); 
-    }
-    .btn-glow { 
-        box-shadow: 0 8px 25px -5px rgba(59,130,246,0.5); 
-    }
-    .collectible-border { 
-        border: 1px solid rgba(0,0,0,0.05); 
-        background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 100%); 
-        transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); 
-    }
-    .collectible-border:hover { 
-        transform: translateY(-5px) scale(1.02); 
-        border-color: rgba(59,130,246,0.3); 
-        box-shadow: 0 12px 30px -10px rgba(0,0,0,0.1); 
-    }
-    .sidebar-active { 
-        background: linear-gradient(90deg, rgba(59,130,246,0.1) 0%, transparent 100%); 
-        border-right: 3px solid #3b82f6; 
-    }
-    .custom-scrollbar::-webkit-scrollbar { height: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-    @@keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
-    .animate-float { animation: float 4s ease-in-out infinite; }
-    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    .material-symbols-outlined.fill-1 { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    /* Mobile sidebar overlay */
-    #mobile-sidebar-overlay { display: none; }
-    #mobile-sidebar-overlay.active { display: block; }
-    #mobile-sidebar.open { transform: translateX(0); }
 </style>

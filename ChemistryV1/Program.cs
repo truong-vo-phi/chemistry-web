@@ -2,10 +2,28 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using ChemistryV1.Infrastructure;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.Http.Features;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 2L * 1024L * 1024L * 1024L;
+    options.ValueLengthLimit = int.MaxValue;
+    options.MultipartHeadersLengthLimit = int.MaxValue;
+});
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = 2L * 1024L * 1024L * 1024L;
+});
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 2L * 1024L * 1024L * 1024L;
+    options.Limits.MinRequestBodyDataRate = null;
+    options.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(10);
+    options.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(2);
+});
 builder.Services.AddDbContext<ChemistryV1.Models.ElearningDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ElearningDb")));
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
@@ -19,13 +37,20 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Account/Login";
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Lax;
-        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() ? CookieSecurePolicy.None : CookieSecurePolicy.Always;
+
+        // SỬA DÒNG NÀY THÀNH SameAsRequest:
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+
         options.SlidingExpiration = true;
         options.ExpireTimeSpan = TimeSpan.FromDays(7);
     });
 
 var app = builder.Build();
 
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
+});
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ChemistryV1.Models.ElearningDbContext>();
@@ -204,6 +229,8 @@ var provider = new FileExtensionContentTypeProvider();
 provider.Mappings[".data"] = "application/octet-stream";
 provider.Mappings[".wasm"] = "application/wasm";
 provider.Mappings[".br"] = "application/octet-stream";
+provider.Mappings[".gz"] = "application/octet-stream";
+provider.Mappings[".unityweb"] = "application/octet-stream";
 
 app.UseStaticFiles(new StaticFileOptions
 {
@@ -214,6 +241,7 @@ app.UseStaticFiles(new StaticFileOptions
         if (ctx.File.Name.EndsWith(".br"))
         {
             ctx.Context.Response.Headers.Append("Content-Encoding", "br");
+            ctx.Context.Response.Headers.Append("Vary", "Accept-Encoding");
             
             // Set correct MIME type underneath the compression
             if (ctx.File.Name.EndsWith(".wasm.br"))
@@ -225,6 +253,24 @@ app.UseStaticFiles(new StaticFileOptions
                 ctx.Context.Response.ContentType = "application/javascript";
             }
             else if (ctx.File.Name.EndsWith(".data.br"))
+            {
+                ctx.Context.Response.ContentType = "application/octet-stream";
+            }
+        }
+        else if (ctx.File.Name.EndsWith(".gz"))
+        {
+            ctx.Context.Response.Headers.Append("Content-Encoding", "gzip");
+            ctx.Context.Response.Headers.Append("Vary", "Accept-Encoding");
+
+            if (ctx.File.Name.EndsWith(".wasm.gz"))
+            {
+                ctx.Context.Response.ContentType = "application/wasm";
+            }
+            else if (ctx.File.Name.EndsWith(".js.gz"))
+            {
+                ctx.Context.Response.ContentType = "application/javascript";
+            }
+            else if (ctx.File.Name.EndsWith(".data.gz"))
             {
                 ctx.Context.Response.ContentType = "application/octet-stream";
             }

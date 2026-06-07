@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using System.IO.Compression;
+using System.Text.RegularExpressions;
 
 namespace ChemistryV1.Controllers;
 
@@ -24,7 +25,7 @@ public class LessonsController : Controller
     }
 
     [AllowAnonymous]
-    public async Task<IActionResult> Details(int id)
+    public async Task<IActionResult> Details(int id, string? returnUrl = null)
     {
 
         var lesson = await _context.Lessons
@@ -50,6 +51,11 @@ public class LessonsController : Controller
         if (course == null)
         {
             return NotFound();
+        }
+
+        if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            ViewData["ReturnUrl"] = returnUrl;
         }
 
         if (lesson.IsPreview != true && !User.IsInRole("Admin"))
@@ -184,6 +190,8 @@ public class LessonsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(2147483648L)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 2147483648L)]
     public async Task<IActionResult> Create(LessonEditorViewModel viewModel, IFormFile? videoFile, IFormFile? pdfFile, IFormFile? attachmentFile, IFormFile? gameZipFile)
     {
         if (viewModel.Lesson == null || viewModel.Lesson.ChapterId == null)
@@ -208,10 +216,19 @@ public class LessonsController : Controller
 
         if (gameZipFile != null)
         {
-            var virtualLabId = await SaveGameZipAsync(gameZipFile, viewModel.Lesson.Title ?? "New Virtual Lab");
-            if (virtualLabId != null)
+            try
             {
-                viewModel.Lesson.VirtualLabId = virtualLabId;
+                var virtualLabId = await SaveGameZipAsync(gameZipFile, viewModel.Lesson.Title ?? "New Virtual Lab");
+                if (virtualLabId != null)
+                {
+                    viewModel.Lesson.VirtualLabId = virtualLabId;
+                }
+            }
+            catch (InvalidDataException ex)
+            {
+                ModelState.AddModelError(nameof(gameZipFile), ex.Message);
+                var fallback = await BuildLessonEditorViewModel(viewModel.Lesson.ChapterId.Value, viewModel.Lesson);
+                return View(fallback ?? viewModel);
             }
         }
 
@@ -243,6 +260,8 @@ public class LessonsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(2147483648L)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 2147483648L)]
     public async Task<IActionResult> Edit(int id, LessonEditorViewModel viewModel, IFormFile? videoFile, IFormFile? pdfFile, IFormFile? attachmentFile, IFormFile? gameZipFile)
     {
         if (viewModel.Lesson == null || id != viewModel.Lesson.Id)
@@ -280,10 +299,19 @@ public class LessonsController : Controller
 
         if (gameZipFile != null)
         {
-            var virtualLabId = await SaveGameZipAsync(gameZipFile, dbLesson.Title ?? "Updated Virtual Lab");
-            if (virtualLabId != null)
+            try
             {
-                dbLesson.VirtualLabId = virtualLabId;
+                var virtualLabId = await SaveGameZipAsync(gameZipFile, dbLesson.Title ?? "Updated Virtual Lab");
+                if (virtualLabId != null)
+                {
+                    dbLesson.VirtualLabId = virtualLabId;
+                }
+            }
+            catch (InvalidDataException ex)
+            {
+                ModelState.AddModelError(nameof(gameZipFile), ex.Message);
+                var fallback = await BuildLessonEditorViewModel(viewModel.Lesson.ChapterId.Value, viewModel.Lesson);
+                return View(fallback ?? viewModel);
             }
         }
 
@@ -326,6 +354,10 @@ public class LessonsController : Controller
     private async Task<int?> SaveGameZipAsync(IFormFile zipFile, string lessonTitle)
     {
         if (zipFile == null || zipFile.Length == 0) return null;
+        if (!string.Equals(Path.GetExtension(zipFile.FileName), ".zip", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidDataException("File game phải là file .zip.");
+        }
 
         var gamesFolder = Path.Combine(_webHostEnvironment.WebRootPath, "games");
         if (!Directory.Exists(gamesFolder))
@@ -345,7 +377,7 @@ public class LessonsController : Controller
 
         try
         {
-            ZipFile.ExtractToDirectory(tempZipPath, extractPath, true);
+            ExtractZipSafely(tempZipPath, extractPath);
         }
         finally
         {
@@ -355,14 +387,9 @@ public class LessonsController : Controller
             }
         }
 
-        string indexHtmlRelativePath = $"/games/{gameFolderName}/index.html";
-        var indexFiles = Directory.GetFiles(extractPath, "index.html", SearchOption.AllDirectories);
-        if (indexFiles.Length > 0)
-        {
-            var indexFilePath = indexFiles[0];
-            var relativePath = indexFilePath.Substring(gamesFolder.Length).Replace("\\", "/");
-            indexHtmlRelativePath = $"/games{relativePath}";
-        }
+        var indexFilePath = PrepareUnityWebGlBuild(extractPath);
+        var relativePath = Path.GetRelativePath(gamesFolder, indexFilePath).Replace("\\", "/");
+        var indexHtmlRelativePath = $"/games/{relativePath}";
 
         var virtualLab = new VirtualLab
         {
@@ -374,6 +401,168 @@ public class LessonsController : Controller
         await _context.SaveChangesAsync();
 
         return virtualLab.Id;
+    }
+
+    private static void ExtractZipSafely(string zipPath, string destinationDirectory)
+    {
+        var destinationRoot = Path.GetFullPath(destinationDirectory);
+        using var archive = ZipFile.OpenRead(zipPath);
+
+        foreach (var entry in archive.Entries)
+        {
+            var destinationPath = Path.GetFullPath(Path.Combine(destinationRoot, entry.FullName));
+            if (!destinationPath.StartsWith(destinationRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(destinationPath, destinationRoot, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidDataException("File zip chứa đường dẫn không hợp lệ.");
+            }
+
+            if (string.IsNullOrEmpty(entry.Name))
+            {
+                Directory.CreateDirectory(destinationPath);
+                continue;
+            }
+
+            Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
+            entry.ExtractToFile(destinationPath, true);
+        }
+    }
+
+    private static string PrepareUnityWebGlBuild(string extractPath)
+    {
+        var indexFiles = Directory.GetFiles(extractPath, "index.html", SearchOption.AllDirectories);
+        if (indexFiles.Length == 0)
+        {
+            throw new InvalidDataException("File zip phải chứa index.html của Unity WebGL.");
+        }
+
+        foreach (var indexFile in indexFiles.OrderBy(path => path.Length))
+        {
+            var indexDirectory = Path.GetDirectoryName(indexFile)!;
+            var buildDirectory = Directory.GetDirectories(indexDirectory)
+                .FirstOrDefault(directory => string.Equals(Path.GetFileName(directory), "Build", StringComparison.OrdinalIgnoreCase));
+
+            if (buildDirectory == null)
+            {
+                continue;
+            }
+
+            DecompressUnityBuildFiles(buildDirectory);
+
+            var loaderFile = FindRequiredUnityFile(buildDirectory, "*.loader.js", "loader.js");
+            var dataFile = FindRequiredUnityFile(buildDirectory, "*.data", "data");
+            var frameworkFile = FindRequiredUnityFile(buildDirectory, "*.framework.js", "framework.js");
+            var wasmFile = FindRequiredUnityFile(buildDirectory, "*.wasm", "wasm");
+
+            RewriteUnityIndex(indexFile, Path.GetFileName(buildDirectory), loaderFile, dataFile, frameworkFile, wasmFile);
+            return indexFile;
+        }
+
+        throw new InvalidDataException("Không tìm thấy thư mục Build hợp lệ cạnh index.html trong file zip.");
+    }
+
+    private static string FindRequiredUnityFile(string buildDirectory, string pattern, string label)
+    {
+        var file = Directory.GetFiles(buildDirectory, pattern, SearchOption.TopDirectoryOnly)
+            .OrderBy(path => path.Length)
+            .FirstOrDefault();
+
+        if (file == null)
+        {
+            throw new InvalidDataException($"Thiếu file Unity WebGL trong thư mục Build: {label}.");
+        }
+
+        return Path.GetFileName(file);
+    }
+
+    private static void DecompressUnityBuildFiles(string buildDirectory)
+    {
+        foreach (var compressedFile in Directory.GetFiles(buildDirectory, "*.br", SearchOption.TopDirectoryOnly))
+        {
+            var outputFile = compressedFile[..^3];
+            if (System.IO.File.Exists(outputFile))
+            {
+                continue;
+            }
+
+            using var input = System.IO.File.OpenRead(compressedFile);
+            using var brotli = new BrotliStream(input, CompressionMode.Decompress);
+            using var output = System.IO.File.Create(outputFile);
+            brotli.CopyTo(output);
+        }
+
+        foreach (var compressedFile in Directory.GetFiles(buildDirectory, "*.gz", SearchOption.TopDirectoryOnly))
+        {
+            var outputFile = compressedFile[..^3];
+            if (System.IO.File.Exists(outputFile))
+            {
+                continue;
+            }
+
+            using var input = System.IO.File.OpenRead(compressedFile);
+            using var gzip = new GZipStream(input, CompressionMode.Decompress);
+            using var output = System.IO.File.Create(outputFile);
+            gzip.CopyTo(output);
+        }
+    }
+
+    private static void RewriteUnityIndex(string indexFile, string buildDirectoryName, string loaderFile, string dataFile, string frameworkFile, string wasmFile)
+    {
+        var html = System.IO.File.ReadAllText(indexFile);
+
+        html = Regex.Replace(html, @"var\s+buildUrl\s*=\s*[""'][^""']*[""'];", $"var buildUrl = \"{buildDirectoryName}\";");
+        html = Regex.Replace(html, @"var\s+loaderUrl\s*=\s*buildUrl\s*\+\s*[""'][^""']*[""'];", $"var loaderUrl = buildUrl + \"/{loaderFile}\";");
+        html = Regex.Replace(html, @"dataUrl\s*:\s*buildUrl\s*\+\s*[""'][^""']*[""']", $"dataUrl: buildUrl + \"/{dataFile}\"");
+        html = Regex.Replace(html, @"frameworkUrl\s*:\s*buildUrl\s*\+\s*[""'][^""']*[""']", $"frameworkUrl: buildUrl + \"/{frameworkFile}\"");
+        html = Regex.Replace(html, @"codeUrl\s*:\s*buildUrl\s*\+\s*[""'][^""']*[""']", $"codeUrl: buildUrl + \"/{wasmFile}\"");
+        html = Regex.Replace(html, @"streamingAssetsUrl\s*:\s*[""']StreamingAssets[""']", "streamingAssetsUrl: \"StreamingAssets\"");
+
+        if (!html.Contains("chemlab-unity-upload-fix", StringComparison.OrdinalIgnoreCase))
+        {
+            var runtimeCss = """
+                <style id="chemlab-unity-upload-fix">
+                    html, body {
+                        width: 100%;
+                        height: 100%;
+                        margin: 0;
+                        overflow: hidden;
+                        background: #020617;
+                    }
+                    #unity-fullscreen-button {
+                        display: none !important;
+                    }
+                    #unity-container,
+                    #unity-container.unity-desktop,
+                    #unity-container.unity-mobile {
+                        position: absolute !important;
+                        inset: 0 !important;
+                        left: 0 !important;
+                        top: 0 !important;
+                        width: 100% !important;
+                        height: 100% !important;
+                        transform: none !important;
+                    }
+                    #unity-canvas {
+                        width: 100% !important;
+                        height: 100% !important;
+                        display: block !important;
+                        background: #020617 !important;
+                    }
+                    #unity-footer {
+                        pointer-events: none;
+                    }
+                </style>
+                """;
+
+            html = Regex.Replace(html, @"</head>", $"{runtimeCss}\n</head>", RegexOptions.IgnoreCase);
+        }
+
+        html = Regex.Replace(
+            html,
+            @"//\s*config\.devicePixelRatio\s*=\s*1;",
+            "config.devicePixelRatio = Math.min(window.devicePixelRatio || 1, 1);");
+
+        System.IO.File.WriteAllText(indexFile, html);
     }
 
     public async Task<IActionResult> Delete(int id)

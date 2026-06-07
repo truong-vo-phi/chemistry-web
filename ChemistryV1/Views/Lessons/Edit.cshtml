@@ -26,14 +26,30 @@
         <span class="text-xs text-slate-500 flex items-center gap-1 mr-2">
             <span class="material-symbols-outlined text-[14px]">cloud_done</span> Đã lưu vừa xong
         </span>
-        <a class="px-5 py-2 bg-white text-slate-600 rounded-full border-2 border-slate-200 hover:bg-slate-100 transition-colors text-sm" asp-controller="Lessons" asp-action="Details" asp-route-id="@Model.Lesson.Id" data-turbo="false">
+        <a class="px-5 py-2 bg-white text-slate-600 rounded-full border-2 border-slate-200 hover:bg-slate-100 transition-colors text-sm" asp-controller="Lessons" asp-action="Details" asp-route-id="@Model.Lesson.Id" asp-route-returnUrl="@Url.Action("Edit", "Lessons", new { id = Model.Lesson.Id })" data-turbo="false">
             Xem trước
         </a>
-        <button form="lesson-form" class="px-5 py-2 bg-secondary text-white rounded-full border-2 border-secondary/30 hover:bg-secondary/90 transition-all btn-glow text-sm flex items-center gap-2" type="submit">
+        <button form="lesson-form" class="lesson-save-button px-5 py-2 bg-secondary text-white rounded-full border-2 border-secondary/30 hover:bg-secondary/90 transition-all btn-glow text-sm flex items-center gap-2" type="submit">
             <span class="material-symbols-outlined text-[18px]">save</span> Lưu
         </button>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('lesson-form')?.addEventListener('submit', function () {
+            const zipInput = this.querySelector('input[name="gameZipFile"]');
+            const saveButton = document.querySelector('.lesson-save-button');
+            if (!saveButton) return;
+
+            saveButton.disabled = true;
+            saveButton.classList.add('opacity-70', 'cursor-wait');
+            saveButton.innerHTML = zipInput && zipInput.files && zipInput.files.length
+                ? '<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span> Đang tải game...'
+                : '<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span> Đang lưu...';
+        });
+    </script>
+}
 
 <!-- Editor Layout -->
 <div class="flex gap-6 h-[calc(100vh-200px)] min-h-[600px]">

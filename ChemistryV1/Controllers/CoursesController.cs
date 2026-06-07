@@ -174,6 +174,7 @@ public class CoursesController : Controller
         }
 
         var userId = Convert.ToInt32(userIdClaim);
+        var normalizedContent = string.IsNullOrWhiteSpace(content) ? null : content.Trim();
 
         var isEnrolled = await _context.CourseEnrollments.AnyAsync(ce => ce.CourseId == courseId && ce.StudentId == userId);
         bool canReview = isEnrolled || User.IsInRole("Admin");
@@ -187,7 +188,7 @@ public class CoursesController : Controller
         if (existingReview != null)
         {
             existingReview.Rating = rating;
-            existingReview.Content = content?.Trim();
+            existingReview.Content = normalizedContent;
             existingReview.CreatedAt = DateTime.Now;
             _context.Reviews.Update(existingReview);
             TempData["ReviewSuccess"] = "Đã cập nhật đánh giá của bạn thành công!";
@@ -201,7 +202,7 @@ public class CoursesController : Controller
                 UserId = userId,
                 Rating = rating,
 
-                Content = content?.Trim(),
+                Content = normalizedContent,
                 CreatedAt = DateTime.Now
             };
             _context.Reviews.Add(review);

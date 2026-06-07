@@ -215,19 +215,20 @@
                 if (isEnrolled || User.IsInRole("Admin"))
                 {
                     var userExistingReview = reviewsList.FirstOrDefault(r => r.UserId == studentId);
-                    <form asp-controller="Courses" asp-action="AddReview" method="post" class="p-5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col gap-4">
+                    var selectedRating = userExistingReview?.Rating ?? 5;
+                    <form asp-controller="Courses" asp-action="AddReview" method="post" class="p-5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col gap-4" id="course-review-form" data-no-tilt>
                         <input type="hidden" name="courseId" value="@Model.Course.Id" />
                         <div class="flex flex-col gap-1">
                             <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Chọn đánh giá</label>
-                            <div class="flex items-center gap-1.5 cursor-pointer text-slate-300" id="star-selector">
+                            <div class="flex items-center gap-1.5 text-slate-300" id="star-selector" role="radiogroup" aria-label="Chọn số sao đánh giá">
                                 @for (int i = 1; i <= 5; i++)
                                 {
-                                    var fill = userExistingReview != null && i <= userExistingReview.Rating ? 1 : (i == 5 && userExistingReview == null ? 1 : 0);
+                                    var fill = i <= selectedRating ? 1 : 0;
                                     var activeColor = fill == 1 ? "text-amber-400" : "text-slate-300";
-                                    <span class="material-symbols-outlined text-[32px] star-btn @activeColor" data-star="@i" style="font-variation-settings: 'FILL' @fill;">star</span>
+                                    <button type="button" class="material-symbols-outlined text-[32px] star-btn @activeColor leading-none transition-colors hover:text-amber-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-lg" data-star="@i" aria-label="@i sao" aria-pressed="@(fill == 1 ? "true" : "false")" style="font-variation-settings: 'FILL' @fill;">star</button>
                                 }
                             </div>
-                            <input type="hidden" name="rating" id="rating-input" value="@(userExistingReview?.Rating ?? 5)" />
+                            <input type="hidden" name="rating" id="rating-input" value="@selectedRating" />
                         </div>
                         <div class="flex flex-col gap-1.5">
                             <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Đánh giá của bạn</label>
@@ -408,12 +409,38 @@
 
 @section Scripts {
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
+        function bootCourseReviewForm() {
             const stars = document.querySelectorAll(".star-btn");
             const ratingInput = document.getElementById("rating-input");
+            const reviewForm = document.getElementById("course-review-form");
+            const reviewTextarea = reviewForm?.querySelector('textarea[name="content"]');
+
+            if (reviewTextarea && reviewTextarea.dataset.reviewInputBooted !== "true") {
+                reviewTextarea.dataset.reviewInputBooted = "true";
+                reviewTextarea.addEventListener("keydown", (event) => {
+                    event.stopPropagation();
+                });
+                reviewTextarea.addEventListener("keypress", (event) => {
+                    event.stopPropagation();
+                });
+            }
+
+            if (reviewForm && reviewForm.dataset.reviewSubmitBooted !== "true") {
+                reviewForm.dataset.reviewSubmitBooted = "true";
+                reviewForm.addEventListener("submit", () => {
+                    if (reviewTextarea) {
+                        reviewTextarea.value = reviewTextarea.value.trim();
+                    }
+                });
+            }
+
             if (stars.length && ratingInput) {
                 stars.forEach(star => {
-                    star.addEventListener("click", () => {
+                    if (star.dataset.starBooted === "true") return;
+                    star.dataset.starBooted = "true";
+                    star.addEventListener("click", (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
                         const rating = parseInt(star.getAttribute("data-star"));
                         ratingInput.value = rating;
                         stars.forEach((s, idx) => {
@@ -421,15 +448,20 @@
                                 s.style.fontVariationSettings = "'FILL' 1";
                                 s.classList.remove("text-slate-300");
                                 s.classList.add("text-amber-400");
+                                s.setAttribute("aria-pressed", "true");
                             } else {
                                 s.style.fontVariationSettings = "'FILL' 0";
                                 s.classList.remove("text-amber-400");
                                 s.classList.add("text-slate-300");
+                                s.setAttribute("aria-pressed", "false");
                             }
                         });
                     });
                 });
             }
-        });
+        }
+
+        document.addEventListener("DOMContentLoaded", bootCourseReviewForm);
+        document.addEventListener("turbo:load", bootCourseReviewForm);
     </script>
 }
