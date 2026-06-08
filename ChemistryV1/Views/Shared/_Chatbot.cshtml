@@ -1,0 +1,663 @@
+@* AI Chatbot helper for the chemistry student workspace *@
+<style>
+    /* Chatbot Glassmorphism Window styling */
+    .chatbot-window {
+        position: fixed !important;
+        bottom: 6rem !important;
+        right: 1.5rem !important;
+        left: auto !important;
+        z-index: 9999 !important;
+        background: linear-gradient(135deg, rgba(8, 17, 33, 0.90), rgba(4, 10, 24, 0.85));
+        border: 1px solid rgba(39, 216, 255, 0.26);
+        box-shadow: 0 0 34px rgba(39, 216, 255, 0.22), 0 28px 80px rgba(0,0,0,0.5);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        transform: translateY(20px) scale(0.95);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .chatbot-window.active {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* Message Bubbles Styling */
+    .chat-bubble-bot {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #e8f6ff;
+        border-top-left-radius: 2px;
+    }
+
+    .chat-bubble-user {
+        background: rgba(39, 216, 255, 0.16);
+        border: 1px solid rgba(39, 216, 255, 0.38);
+        color: #e8f6ff;
+        border-top-right-radius: 2px;
+        box-shadow: 0 0 14px rgba(39, 216, 255, 0.12);
+    }
+
+    /* Bouncing Loading Dots */
+    .typing-dot {
+        width: 6px;
+        height: 6px;
+        background-color: #27d8ff;
+        border-radius: 50%;
+        animation: typing-bounce 1.4s infinite ease-in-out both;
+    }
+
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+    @@keyframes typing-bounce {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1.0); }
+    }
+
+    #chatbot-toggle-btn {
+        position: fixed !important;
+        bottom: 1.5rem !important;
+        right: 1.5rem !important;
+        left: auto !important;
+        z-index: 9999 !important;
+    }
+
+    .chatbot-markdown h1,
+    .chatbot-markdown h2,
+    .chatbot-markdown h3 {
+        margin: 0.65rem 0 0.35rem;
+        font-weight: 800;
+        color: #ffffff;
+    }
+
+    .chatbot-markdown h1 { font-size: 1.05rem; }
+    .chatbot-markdown h2 { font-size: 0.98rem; }
+    .chatbot-markdown h3 { font-size: 0.92rem; }
+    .chatbot-markdown p { margin: 0.35rem 0; }
+    .chatbot-markdown ul,
+    .chatbot-markdown ol { margin: 0.45rem 0; padding-left: 1.25rem; }
+    .chatbot-markdown ul { list-style: disc; }
+    .chatbot-markdown ol { list-style: decimal; }
+    .chatbot-markdown li { margin: 0.2rem 0; }
+    .chatbot-markdown a { color: #7df9ff; text-decoration: underline; text-underline-offset: 2px; }
+    .chatbot-markdown blockquote {
+        margin: 0.55rem 0;
+        padding-left: 0.8rem;
+        border-left: 3px solid rgba(39, 216, 255, 0.55);
+        color: #c8d8e8;
+    }
+    .chatbot-markdown pre {
+        margin: 0.55rem 0;
+        padding: 0.75rem;
+        overflow-x: auto;
+        border-radius: 0.75rem;
+        background: rgba(0, 0, 0, 0.42);
+        border: 1px solid rgba(39, 216, 255, 0.14);
+    }
+    .chatbot-markdown code {
+        padding: 0.1rem 0.35rem;
+        border-radius: 0.35rem;
+        background: rgba(0, 0, 0, 0.38);
+        color: #7df9ff;
+        font-size: 0.78rem;
+    }
+    .chatbot-markdown pre code {
+        padding: 0;
+        background: transparent;
+        color: inherit;
+        font-size: 0.78rem;
+    }
+</style>
+
+<!-- Floating Chat Button -->
+<button id="chatbot-toggle-btn" 
+        type="button" 
+        class="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary text-on-primary flex items-center justify-center transition-all hover:scale-110 active:scale-95 z-50 btn-glow shadow-neon-blue cursor-pointer"
+        aria-label="Mở trợ lý học tập AI">
+    <span class="material-symbols-outlined text-3xl fill-1">smart_toy</span>
+</button>
+
+<!-- Chat Window -->
+<div id="chatbot-container" 
+     class="chatbot-window fixed bottom-24 right-6 w-[400px] max-w-[calc(100vw-2rem)] h-[550px] max-h-[calc(100vh-8rem)] rounded-2xl z-50 flex flex-col overflow-hidden">
+    
+    <!-- Chat Header -->
+    <div class="px-5 py-4 border-b border-outline/30 flex items-center justify-between bg-black/25">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-xl fill-1">smart_toy</span>
+            </div>
+            <div>
+                <h4 class="font-bold text-sm text-on-background leading-tight">Trợ lý AI ChemLab</h4>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                    <span class="w-2 h-2 rounded-full bg-secondary inline-block animate-pulse"></span>
+                    <span class="text-[10px] text-secondary font-semibold font-label">Đang trực tuyến</span>
+                </div>
+            </div>
+        </div>
+        <button onclick="toggleChatbot()" 
+                type="button" 
+                class="w-8 h-8 rounded-lg hover:bg-white/10 text-on-surface-variant hover:text-on-background flex items-center justify-center transition-all cursor-pointer">
+            <span class="material-symbols-outlined text-xl">close</span>
+        </button>
+    </div>
+
+    <!-- Chat Messages Panel -->
+    <div id="chatbot-messages" 
+         class="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar lesson-outline-scroll">
+    </div>
+
+    <!-- Typing Indicator (Hidden by default) -->
+    <div id="chatbot-typing" class="px-5 py-3 flex items-center gap-3 hidden border-t border-outline/10 bg-black/10">
+        <div class="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+            <span class="material-symbols-outlined text-sm">smart_toy</span>
+        </div>
+        <div class="chat-bubble-bot px-4 py-3 rounded-xl flex items-center gap-1">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+        </div>
+    </div>
+
+    <!-- Chat Input Area -->
+    <form id="chatbot-form" 
+          onsubmit="handleSendMessage(event)" 
+          class="p-4 border-t border-outline/30 bg-black/20 flex items-center gap-2">
+        <input id="chatbot-input" 
+               type="text" 
+               autocomplete="off" 
+               placeholder="Nhập câu hỏi hóa học của bạn..." 
+               class="flex-1 min-h-[2.5rem] bg-slate-900/60 border border-outline/30 rounded-xl px-4 py-2 text-sm text-on-background focus:outline-none focus:border-primary/60 transition-all placeholder-on-surface-variant/40" />
+        <button type="submit" 
+                class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center transition-all hover:scale-105 active:scale-95 shrink-0 btn-glow shadow-neon-blue cursor-pointer">
+            <span class="material-symbols-outlined text-xl fill-1">send</span>
+        </button>
+    </form>
+</div>
+
+<script>
+    (function () {
+    // State to toggle Chat window
+    const chatContainer = document.getElementById('chatbot-container');
+    const chatbotToggleBtn = document.getElementById('chatbot-toggle-btn');
+    const chatInput = document.getElementById('chatbot-input');
+    const messagesPanel = document.getElementById('chatbot-messages');
+    const typingIndicator = document.getElementById('chatbot-typing');
+
+    if (!chatContainer || !chatbotToggleBtn || !chatInput || !messagesPanel || !typingIndicator) {
+        return;
+    }
+
+    // Conversation Memory
+    let chatHistory = [];
+    let idleTimerId = null;
+    let hasShownIdlePrompt = false;
+    const idlePromptDelayMs = 15000;
+    const endConversationCommand = "kết thúc";
+    const endedSessionKey = "chatbot_conversation_ended";
+    const historySessionKey = "chatbot_history";
+    const openSessionKey = "chatbot_open";
+    const welcomeMessageText = `Chào bạn! Tôi là trợ lý AI học tập của **ChemLab**. 🧪
+
+Tôi có thể giúp bạn giải đáp lý thuyết hóa học lớp 8-9, tóm tắt các bài thực hành, hoặc tìm kiếm bài học trên hệ thống. Hôm nay bạn muốn tìm hiểu kiến thức nào?`;
+
+    // Toggle Chat window view
+    chatbotToggleBtn.removeEventListener('click', window.toggleChatbot);
+    chatbotToggleBtn.addEventListener('click', toggleChatbot);
+
+    function toggleChatbot() {
+        chatContainer.classList.toggle('active');
+        const isOpen = chatContainer.classList.contains('active');
+        if (isOpen) {
+            if (isConversationEnded()) {
+                clearConversationView();
+            }
+            chatInput.focus();
+            scrollToBottom();
+        }
+    }
+
+    window.toggleChatbot = toggleChatbot;
+
+    document.removeEventListener('turbo:before-cache', closeChatbotBeforeCache);
+    document.addEventListener('turbo:before-cache', closeChatbotBeforeCache);
+
+    function closeChatbotBeforeCache() {
+        chatContainer.classList.remove('active');
+    }
+
+    // Initialize chatbot state and history from SessionStorage
+    function initChatbotState() {
+        try {
+            if (!chatContainer || !messagesPanel) return;
+
+            chatContainer.classList.remove('active');
+            sessionStorage.removeItem(openSessionKey);
+
+            const shouldStartBlank = isConversationEnded();
+
+            messagesPanel.innerHTML = '';
+            chatHistory = [];
+
+            if (shouldStartBlank) {
+                clearConversationStorage(true);
+                return;
+            }
+
+            const savedHistory = sessionStorage.getItem(historySessionKey);
+            if (savedHistory) {
+                try {
+                    const parsed = JSON.parse(savedHistory);
+                    if (Array.isArray(parsed)) {
+                        chatHistory = parsed;
+                        chatHistory.forEach(msg => {
+                            if (msg && msg.role && msg.text) {
+                                appendMessage(msg.role, msg.text);
+                            }
+                        });
+                    } else {
+                        chatHistory = [];
+                    }
+                } catch (e) {
+                    console.error("Error loading chat history:", e);
+                    chatHistory = [];
+                }
+            }
+
+            if (chatHistory.length === 0 && !shouldStartBlank) {
+                appendMessage('model', welcomeMessageText);
+            }
+
+            if (chatHistory.length > 0) {
+                scheduleIdlePrompt();
+            }
+        } catch (globalError) {
+            console.error("Error initializing chatbot state, resetting session keys:", globalError);
+            sessionStorage.removeItem(openSessionKey);
+            sessionStorage.removeItem(historySessionKey);
+            chatHistory = [];
+            clearIdlePromptTimer();
+        }
+    }
+
+    ensureMathJax();
+
+    // Process Markdown safely while preserving LaTeX delimiters for MathJax.
+    function formatMarkdown(text) {
+        if (!text) return "";
+
+        const blockTokens = [];
+        const inlineTokens = [];
+        const blockTokenPrefix = "%%CHATBOT_BLOCK_";
+        const inlineTokenPrefix = "%%CHATBOT_INLINE_";
+
+        function token(collection, prefix, value) {
+            const marker = `${prefix}${collection.length}%%`;
+            collection.push(value);
+            return marker;
+        }
+
+        let source = text.replace(/\r\n?/g, '\n');
+
+        source = source.replace(/```([\s\S]*?)```/g, (_, code) => {
+            const cleanCode = code.replace(/^\w+\n/, '');
+            return token(blockTokens, blockTokenPrefix, `<pre><code>${escapeHtml(cleanCode.trim())}</code></pre>`);
+        });
+
+        source = source
+            .replace(/\$\$([\s\S]*?)\$\$/g, (_, formula) => token(inlineTokens, inlineTokenPrefix, `\\[${escapeHtml(formula.trim())}\\]`))
+            .replace(/\\\[([\s\S]*?)\\\]/g, (_, formula) => token(inlineTokens, inlineTokenPrefix, `\\[${escapeHtml(formula.trim())}\\]`))
+            .replace(/\\\(([\s\S]*?)\\\)/g, (_, formula) => token(inlineTokens, inlineTokenPrefix, `\\(${escapeHtml(formula.trim())}\\)`))
+            .replace(/(^|[^\\])\$([^\n$]+?)\$/g, (_, prefix, formula) => `${prefix}${token(inlineTokens, inlineTokenPrefix, `\\(${escapeHtml(formula.trim())}\\)`)}`);
+
+        const lines = source.split('\n');
+        const htmlParts = [];
+        let listType = null;
+        let paragraph = [];
+        let quote = [];
+
+        function closeList() {
+            if (listType) {
+                htmlParts.push(`</${listType}>`);
+                listType = null;
+            }
+        }
+
+        function flushParagraph() {
+            if (paragraph.length) {
+                closeList();
+                htmlParts.push(`<p>${renderInlineMarkdown(paragraph.join(' '), inlineTokens)}</p>`);
+                paragraph = [];
+            }
+        }
+
+        function flushQuote() {
+            if (quote.length) {
+                flushParagraph();
+                closeList();
+                htmlParts.push(`<blockquote>${renderInlineMarkdown(quote.join('<br>'), inlineTokens)}</blockquote>`);
+                quote = [];
+            }
+        }
+
+        lines.forEach(line => {
+            const trimmed = line.trim();
+
+            if (!trimmed) {
+                flushParagraph();
+                flushQuote();
+                closeList();
+                return;
+            }
+
+            const blockMatch = new RegExp(`^${blockTokenPrefix}(\\d+)%%$`).exec(trimmed);
+            if (blockMatch) {
+                flushParagraph();
+                flushQuote();
+                closeList();
+                htmlParts.push(blockTokens[Number(blockMatch[1])] || '');
+                return;
+            }
+
+            const heading = /^(#{1,3})\s+(.+)$/.exec(trimmed);
+            if (heading) {
+                flushParagraph();
+                flushQuote();
+                closeList();
+                const level = heading[1].length;
+                htmlParts.push(`<h${level}>${renderInlineMarkdown(heading[2], inlineTokens)}</h${level}>`);
+                return;
+            }
+
+            if (trimmed.startsWith('> ')) {
+                flushParagraph();
+                quote.push(trimmed.substring(2));
+                return;
+            }
+
+            const unordered = /^[-*]\s+(.+)$/.exec(trimmed);
+            const ordered = /^\d+\.\s+(.+)$/.exec(trimmed);
+            if (unordered || ordered) {
+                flushParagraph();
+                flushQuote();
+                const nextListType = unordered ? 'ul' : 'ol';
+                if (listType !== nextListType) {
+                    closeList();
+                    htmlParts.push(`<${nextListType}>`);
+                    listType = nextListType;
+                }
+                htmlParts.push(`<li>${renderInlineMarkdown((unordered || ordered)[1], inlineTokens)}</li>`);
+                return;
+            }
+
+            closeList();
+            flushQuote();
+            paragraph.push(trimmed);
+        });
+
+        flushParagraph();
+        flushQuote();
+        closeList();
+
+        return htmlParts.join('').replace(/%%CHATBOT_INLINE_(\d+)%%/g, (_, index) => inlineTokens[Number(index)] || '');
+    }
+
+    function renderInlineMarkdown(text, inlineTokens) {
+        return escapeHtml(text)
+            .replace(/%%CHATBOT_INLINE_(\d+)%%/g, (_, index) => inlineTokens[Number(index)] || '')
+            .replace(/`([^`]+?)`/g, '<code>$1</code>')
+            .replace(/\[([^\]]+?)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+            .replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/__([^_]+?)__/g, '<strong>$1</strong>')
+            .replace(/(^|[\s>])\*([^*]+?)\*/g, '$1<em>$2</em>')
+            .replace(/(^|[\s>])_([^_]+?)_/g, '$1<em>$2</em>');
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
+    function ensureMathJax() {
+        if (window.MathJax || document.getElementById('chatbot-mathjax-script')) return;
+
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['\\[', '\\]']],
+                processEscapes: true
+            },
+            startup: {
+                typeset: false
+            }
+        };
+
+        const script = document.createElement('script');
+        script.id = 'chatbot-mathjax-script';
+        script.async = true;
+        script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js';
+        document.head.appendChild(script);
+    }
+
+    function typesetMath(element) {
+        if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+            window.MathJax.typesetPromise([element]).catch(error => console.error("MathJax render error:", error));
+        }
+    }
+
+    // Autoscroll message viewport
+    function scrollToBottom() {
+        messagesPanel.scrollTop = messagesPanel.scrollHeight;
+    }
+
+    function normalizeCommand(value) {
+        return value
+            .trim()
+            .replace(/^["'“”‘’`]+|["'“”‘’`]+$/g, '')
+            .replace(/[.!?。！？]+$/g, '')
+            .trim()
+            .toLocaleLowerCase('vi-VN');
+    }
+
+    function isConversationEnded() {
+        return sessionStorage.getItem(endedSessionKey) === 'true' ||
+            localStorage.getItem(endedSessionKey) === 'true';
+    }
+
+    function clearConversationStorage(keepEndedFlag) {
+        sessionStorage.removeItem(historySessionKey);
+        sessionStorage.removeItem(openSessionKey);
+        localStorage.removeItem(historySessionKey);
+        localStorage.removeItem(openSessionKey);
+
+        if (keepEndedFlag) {
+            sessionStorage.setItem(endedSessionKey, 'true');
+            localStorage.setItem(endedSessionKey, 'true');
+        } else {
+            sessionStorage.removeItem(endedSessionKey);
+            localStorage.removeItem(endedSessionKey);
+        }
+    }
+
+    function clearConversationView() {
+        clearIdlePromptTimer();
+        hasShownIdlePrompt = false;
+        chatHistory = [];
+        typingIndicator.classList.add('hidden');
+        chatInput.value = '';
+        messagesPanel.innerHTML = '';
+    }
+
+    function clearIdlePromptTimer() {
+        if (idleTimerId) {
+            window.clearTimeout(idleTimerId);
+            idleTimerId = null;
+        }
+    }
+
+    function scheduleIdlePrompt() {
+        clearIdlePromptTimer();
+        if (chatHistory.length === 0 || hasShownIdlePrompt) return;
+
+        idleTimerId = window.setTimeout(() => {
+            hasShownIdlePrompt = true;
+            appendMessage('model', 'Bạn có muốn kết thúc cuộc trò chuyện không? Nếu muốn xóa lịch sử và bắt đầu lại, hãy gõ **"Kết thúc"**.');
+        }, idlePromptDelayMs);
+    }
+
+    function resetConversation() {
+        clearConversationView();
+        clearConversationStorage(true);
+        chatContainer.classList.remove('active');
+    }
+
+    // Append new bubble message
+    function appendMessage(role, text) {
+        const isBot = role === 'model';
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'flex gap-3 items-start' + (isBot ? '' : ' flex-row-reverse');
+
+        const avatar = isBot 
+            ? `<div class="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+                   <span class="material-symbols-outlined text-sm">smart_toy</span>
+               </div>`
+            : `<div class="w-8 h-8 rounded-lg bg-secondary/10 border border-secondary/20 flex items-center justify-center text-secondary shrink-0">
+                   <span class="material-symbols-outlined text-sm">person</span>
+               </div>`;
+
+        const formattedContent = formatMarkdown(text);
+        const bubbleClass = isBot ? 'chat-bubble-bot' : 'chat-bubble-user';
+
+        msgDiv.innerHTML = `
+            ${avatar}
+            <div class="${bubbleClass} chatbot-markdown p-3.5 rounded-xl text-sm leading-relaxed max-w-[85%]">
+                ${formattedContent}
+            </div>
+        `;
+
+        messagesPanel.appendChild(msgDiv);
+        typesetMath(msgDiv);
+        scrollToBottom();
+    }
+
+    // Submit request handling
+    async function handleSendMessage(event) {
+        event.preventDefault();
+        const query = chatInput.value.trim();
+        if (!query) return;
+
+        clearIdlePromptTimer();
+        hasShownIdlePrompt = false;
+
+        // Reset input immediately
+        chatInput.value = '';
+
+        if (normalizeCommand(query) === endConversationCommand) {
+            resetConversation();
+            return;
+        }
+
+        clearConversationStorage(false);
+
+        // Add user query to view
+        appendMessage('user', query);
+
+        // Show typing indicator
+        typingIndicator.classList.remove('hidden');
+        scrollToBottom();
+
+        try {
+            // Keep memory history constrained to last 6 messages (3 turns) to optimize server speed
+            const maxHistoryCount = 6;
+            const historySlice = Array.isArray(chatHistory) ? chatHistory.slice(-maxHistoryCount) : [];
+
+            const response = await fetch('/api/chatbot/message', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: query,
+                    history: historySlice
+                })
+            });
+
+            if (!response.ok) {
+                const errorMessage = await readChatbotError(response);
+                throw new Error(errorMessage);
+            }
+
+            const contentType = response.headers.get('content-type') || '';
+            if (!contentType.includes('application/json')) {
+                throw new Error("Máy chủ chưa trả về đúng định dạng dữ liệu cho chatbot.");
+            }
+
+            const data = await response.json();
+            
+            // Hide typing indicator
+            typingIndicator.classList.add('hidden');
+
+            if (data.success) {
+                // Render bot answer
+                appendMessage('model', data.reply);
+                
+                // Add to persistent session memory
+                chatHistory.push({ role: 'user', text: query });
+                chatHistory.push({ role: 'model', text: data.reply });
+                sessionStorage.setItem(historySessionKey, JSON.stringify(chatHistory));
+                scheduleIdlePrompt();
+            } else {
+                appendMessage('model', data.message || "Đã xảy ra lỗi không xác định.");
+                scheduleIdlePrompt();
+            }
+
+        } catch (err) {
+            typingIndicator.classList.add('hidden');
+            appendMessage('model', getFriendlyErrorMessage(err));
+            scheduleIdlePrompt();
+            console.error("Chatbot API Error:", err);
+        }
+    }
+
+    async function readChatbotError(response) {
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            try {
+                const payload = await response.json();
+                return payload.message || payload.reply || "Chatbot chưa xử lý được phản hồi từ máy chủ.";
+            } catch {
+                return "Chatbot nhận được phản hồi lỗi nhưng chưa đọc được nội dung chi tiết.";
+            }
+        }
+
+        try {
+            const text = await response.text();
+            return text ? `Máy chủ chatbot phản hồi lỗi: ${text.slice(0, 180)}` : "Máy chủ chatbot phản hồi lỗi rỗng.";
+        } catch {
+            return "Máy chủ chatbot phản hồi lỗi nhưng chưa đọc được nội dung.";
+        }
+    }
+
+    function getFriendlyErrorMessage(error) {
+        const message = error instanceof Error ? error.message : "";
+        if (message) {
+            return `Mình chưa xử lý được tin nhắn này: ${message}`;
+        }
+
+        return "Mình chưa xử lý được tin nhắn này. Bạn thử gửi lại một câu ngắn hơn nhé.";
+    }
+
+    window.handleSendMessage = handleSendMessage;
+
+    // Call state initialization immediately upon script execution (handles both full loads and Turbo navigation)
+    initChatbotState();
+    })();
+</script>

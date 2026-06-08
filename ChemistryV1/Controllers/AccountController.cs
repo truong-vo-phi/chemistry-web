@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using System.Net;
 using System.Security.Cryptography;
 using ChemistryV1.Models;
