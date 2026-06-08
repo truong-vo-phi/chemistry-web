@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.StaticFiles;
-using System.IO.Compression;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -276,37 +275,6 @@ public class VirtualLabsController : Controller
             .FirstOrDefaultAsync();
     }
 
-    private static void DecompressUnityBuildFiles(string buildDirectory)
-    {
-        foreach (var compressedFile in Directory.GetFiles(buildDirectory, "*.br", SearchOption.TopDirectoryOnly))
-        {
-            var outputFile = compressedFile[..^3];
-            if (System.IO.File.Exists(outputFile))
-            {
-                continue;
-            }
-
-            using var input = System.IO.File.OpenRead(compressedFile);
-            using var brotli = new BrotliStream(input, CompressionMode.Decompress);
-            using var output = System.IO.File.Create(outputFile);
-            brotli.CopyTo(output);
-        }
-
-        foreach (var compressedFile in Directory.GetFiles(buildDirectory, "*.gz", SearchOption.TopDirectoryOnly))
-        {
-            var outputFile = compressedFile[..^3];
-            if (System.IO.File.Exists(outputFile))
-            {
-                continue;
-            }
-
-            using var input = System.IO.File.OpenRead(compressedFile);
-            using var gzip = new GZipStream(input, CompressionMode.Decompress);
-            using var output = System.IO.File.Create(outputFile);
-            gzip.CopyTo(output);
-        }
-    }
-
     private static string? TryBuildUnityPlayerHtml(int labId, string title, string gameBaseUrl, string buildDirectory, string? returnUrl)
     {
         if (!Directory.Exists(buildDirectory))
@@ -315,9 +283,9 @@ public class VirtualLabsController : Controller
         }
 
         var loaderFile = FindUnityAsset(buildDirectory, "*.loader.js", preferCompressed: false);
-        var dataFile = FindUnityAsset(buildDirectory, "*.data", preferCompressed: false);
-        var frameworkFile = FindUnityAsset(buildDirectory, "*.framework.js", preferCompressed: false);
-        var wasmFile = FindUnityAsset(buildDirectory, "*.wasm", preferCompressed: false);
+        var dataFile = FindUnityAsset(buildDirectory, "*.data", preferCompressed: true);
+        var frameworkFile = FindUnityAsset(buildDirectory, "*.framework.js", preferCompressed: true);
+        var wasmFile = FindUnityAsset(buildDirectory, "*.wasm", preferCompressed: true);
 
         if (loaderFile == null || dataFile == null || frameworkFile == null || wasmFile == null)
         {
@@ -902,8 +870,11 @@ public class VirtualLabsController : Controller
     {
         var files = Directory.GetFiles(buildDirectory, pattern, SearchOption.TopDirectoryOnly)
             .Concat(preferCompressed ? Directory.GetFiles(buildDirectory, $"{pattern}.br", SearchOption.TopDirectoryOnly) : [])
-            .OrderBy(path => preferCompressed && path.EndsWith(".br", StringComparison.OrdinalIgnoreCase) ? 0 : 1)
-            .ThenBy(path => !preferCompressed && !path.EndsWith(".br", StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+            .Concat(preferCompressed ? Directory.GetFiles(buildDirectory, $"{pattern}.gz", SearchOption.TopDirectoryOnly) : [])
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(path => preferCompressed && path.EndsWith(".br", StringComparison.OrdinalIgnoreCase) ? 0
+                : preferCompressed && path.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) ? 1
+                : !preferCompressed && !path.EndsWith(".br", StringComparison.OrdinalIgnoreCase) && !path.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) ? 0 : 2)
             .ThenBy(path => path.Length)
             .ToList();
 

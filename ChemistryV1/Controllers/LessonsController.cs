@@ -447,8 +447,6 @@ public class LessonsController : Controller
                 continue;
             }
 
-            DecompressUnityBuildFiles(buildDirectory);
-
             var loaderFile = FindRequiredUnityFile(buildDirectory, "*.loader.js", "loader.js");
             var dataFile = FindRequiredUnityFile(buildDirectory, "*.data", "data");
             var frameworkFile = FindRequiredUnityFile(buildDirectory, "*.framework.js", "framework.js");
@@ -463,47 +461,27 @@ public class LessonsController : Controller
 
     private static string FindRequiredUnityFile(string buildDirectory, string pattern, string label)
     {
-        var file = Directory.GetFiles(buildDirectory, pattern, SearchOption.TopDirectoryOnly)
-            .OrderBy(path => path.Length)
-            .FirstOrDefault();
-
+        var file = FindPreferredUnityBuildFile(buildDirectory, pattern);
         if (file == null)
         {
             throw new InvalidDataException($"Thiếu file Unity WebGL trong thư mục Build: {label}.");
         }
 
-        return Path.GetFileName(file);
+        return file;
     }
 
-    private static void DecompressUnityBuildFiles(string buildDirectory)
+    private static string? FindPreferredUnityBuildFile(string buildDirectory, string pattern)
     {
-        foreach (var compressedFile in Directory.GetFiles(buildDirectory, "*.br", SearchOption.TopDirectoryOnly))
-        {
-            var outputFile = compressedFile[..^3];
-            if (System.IO.File.Exists(outputFile))
-            {
-                continue;
-            }
+        var files = Directory.GetFiles(buildDirectory, pattern, SearchOption.TopDirectoryOnly)
+            .Concat(Directory.GetFiles(buildDirectory, $"{pattern}.br", SearchOption.TopDirectoryOnly))
+            .Concat(Directory.GetFiles(buildDirectory, $"{pattern}.gz", SearchOption.TopDirectoryOnly))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(path => path.EndsWith(".br", StringComparison.OrdinalIgnoreCase) ? 0
+                : path.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) ? 1 : 2)
+            .ThenBy(path => path.Length)
+            .ToList();
 
-            using var input = System.IO.File.OpenRead(compressedFile);
-            using var brotli = new BrotliStream(input, CompressionMode.Decompress);
-            using var output = System.IO.File.Create(outputFile);
-            brotli.CopyTo(output);
-        }
-
-        foreach (var compressedFile in Directory.GetFiles(buildDirectory, "*.gz", SearchOption.TopDirectoryOnly))
-        {
-            var outputFile = compressedFile[..^3];
-            if (System.IO.File.Exists(outputFile))
-            {
-                continue;
-            }
-
-            using var input = System.IO.File.OpenRead(compressedFile);
-            using var gzip = new GZipStream(input, CompressionMode.Decompress);
-            using var output = System.IO.File.Create(outputFile);
-            gzip.CopyTo(output);
-        }
+        return files.Count == 0 ? null : Path.GetFileName(files[0]);
     }
 
     private static void RewriteUnityIndex(string indexFile, string buildDirectoryName, string loaderFile, string dataFile, string frameworkFile, string wasmFile)
