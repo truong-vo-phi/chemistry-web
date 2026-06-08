@@ -1,0 +1,257 @@
+@model ChemistryV1.ViewModels.AchievementDashboardViewModel
+@{
+    Layout = "_PublicLayout";
+    ViewData["Title"] = "Learning Analytics";
+    var estimatedHours = Math.Round(Model.EstimatedStudyMinutes / 60.0, 1);
+    var patternMax = Math.Max(1, Model.LearningPattern.Any() ? Model.LearningPattern.Max(point => point.ActivityCount) : 1);
+
+    string ToneText(string tone) => tone switch
+    {
+        "secondary" => "text-secondary",
+        "tertiary" => "text-tertiary",
+        "outline" => "text-slate-500",
+        _ => "text-primary"
+    };
+
+    string ToneBg(string tone) => tone switch
+    {
+        "secondary" => "bg-secondary/10",
+        "tertiary" => "bg-tertiary/10",
+        "outline" => "bg-slate-100",
+        _ => "bg-primary/10"
+    };
+
+    string ToneProgress(string tone) => tone switch
+    {
+        "secondary" => "bg-secondary",
+        "tertiary" => "bg-tertiary",
+        "outline" => "bg-slate-500",
+        _ => "bg-primary"
+    };
+}
+
+<partial name="_PublicTopAppBar" />
+
+@section Head {
+    <style>
+        .mission-progress {
+            stroke-dashoffset: 0;
+            transition: stroke-dasharray 0.5s ease;
+        }
+        .progress-card {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04);
+            border-radius: 32px;
+        }
+    </style>
+}
+
+<div class="space-y-8">
+    <!-- Header Section -->
+    <section class="glass-card p-6 md:p-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div>
+                <p class="text-xs uppercase tracking-[0.18em] font-bold text-primary mb-2">Phân tích thành tích</p>
+                <h1 class="text-3xl md:text-4xl font-bold text-on-background mb-3 font-display">Bảng phân tích học tập</h1>
+                <p class="text-slate-500 max-w-3xl">
+                    Dashboard phân tích tiến độ học tập cá nhân theo dữ liệu thật: mission, kỹ năng, thời gian học và learning pattern hàng tuần.
+                </p>
+            </div>
+            <div class="grid grid-cols-2 gap-4 min-w-[240px]">
+                <div class="rounded-2xl bg-primary/10 border border-primary/20 px-5 py-4">
+                    <p class="text-xs text-slate-500 font-bold uppercase">Total XP</p>
+                    <p class="text-2xl font-bold text-primary">@Model.TotalXp.ToString("N0")</p>
+                </div>
+                <div class="rounded-2xl bg-secondary/10 border border-secondary/20 px-5 py-4">
+                    <p class="text-xs text-slate-500 font-bold uppercase">Streak</p>
+                    <p class="text-2xl font-bold text-secondary">@Model.DayStreak ngày</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        <div class="xl:col-span-8 space-y-8">
+            <!-- Mission Completion Rate -->
+            <section class="glass-card p-6 md:p-7">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-on-background flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">task_alt</span>
+                        Tỷ lệ hoàn thành mission
+                    </h2>
+                    <span class="text-xs font-bold uppercase px-3 py-1.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
+                        @Model.CompletedMissions/@Model.TotalMissions completed
+                    </span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+                    <div class="md:col-span-1 flex justify-center">
+                        <div class="relative w-36 h-36">
+                            <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
+                                <circle cx="50" cy="50" r="40" fill="none" stroke="#e2e8f0" stroke-width="12"></circle>
+                                @{
+                                    var dashVal = (int)(2.51327 * Model.MissionCompletionRate);
+                                    var gapVal = 251 - dashVal;
+                                }
+                                <circle class="mission-progress" cx="50" cy="50" r="40" fill="none" stroke="#3b82f6" stroke-width="12" stroke-linecap="round" stroke-dasharray="@dashVal @gapVal"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="text-3xl font-bold text-primary font-display">@Model.MissionCompletionRate%</span>
+                                <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Mission Rate</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2 grid grid-cols-3 gap-4">
+                        <div class="progress-card rounded-2xl p-4 text-center">
+                            <p class="text-xs text-slate-500 font-bold uppercase">Lessons</p>
+                            <p class="text-2xl font-bold text-on-background">@Model.TotalCompletedLessons</p>
+                        </div>
+                        <div class="progress-card rounded-2xl p-4 text-center">
+                            <p class="text-xs text-slate-500 font-bold uppercase">Quizzes</p>
+                            <p class="text-2xl font-bold text-on-background">@Model.TotalQuizResults</p>
+                        </div>
+                        <div class="progress-card rounded-2xl p-4 text-center">
+                            <p class="text-xs text-slate-500 font-bold uppercase">Active 7d</p>
+                            <p class="text-2xl font-bold text-on-background">@Model.ActiveDaysLast7</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Strengths and Weaknesses -->
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2 text-on-background">
+                        <span class="material-symbols-outlined text-secondary">workspace_premium</span>
+                        Điểm mạnh
+                    </h3>
+                    <div class="space-y-4">
+                        @foreach (var item in Model.Strengths)
+                        {
+                            <div class="rounded-2xl bg-white/80 border border-slate-200 p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <p class="font-bold text-on-background">@item.Title</p>
+                                    <span class="text-sm font-bold @ToneText(item.Tone)">@item.ScorePercent%</span>
+                                </div>
+                                <p class="text-sm text-slate-500 mb-3">@item.Detail</p>
+                                <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full @ToneProgress(item.Tone) rounded-full transition-all duration-500" style="width:@item.ScorePercent%;"></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2 text-on-background">
+                        <span class="material-symbols-outlined text-tertiary">warning</span>
+                        Điểm cần cải thiện
+                    </h3>
+                    <div class="space-y-4">
+                        @foreach (var item in Model.Weaknesses)
+                        {
+                            <div class="rounded-2xl bg-white/80 border border-slate-200 p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <p class="font-bold text-on-background">@item.Title</p>
+                                    <span class="text-sm font-bold @ToneText(item.Tone)">@item.ScorePercent%</span>
+                                </div>
+                                <p class="text-sm text-slate-500 mb-3">@item.Detail</p>
+                                <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full @ToneProgress(item.Tone) rounded-full transition-all duration-500" style="width:@item.ScorePercent%;"></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </section>
+
+            <!-- Learning Pattern -->
+            <section class="glass-card p-6">
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-on-background">
+                    <span class="material-symbols-outlined text-primary">monitoring</span>
+                    Learning pattern
+                </h2>
+                <p class="text-sm text-slate-500 mb-5">Tần suất hoạt động học tập trong 7 ngày gần nhất.</p>
+                <div class="h-44 flex items-end gap-3 border-b-2 border-slate-200 pb-3">
+                    @foreach (var point in Model.LearningPattern)
+                    {
+                        var barHeight = point.ActivityCount <= 0 ? 10 : Math.Max(12, (int)Math.Round(point.ActivityCount * 100.0 / patternMax));
+                        <div class="flex-1 min-w-0 flex flex-col items-center gap-2">
+                            <div class="w-full bg-primary/20 hover:bg-primary/40 rounded-t-xl transition-colors relative group cursor-pointer" style="height:@barHeight%;">
+                                <span class="absolute -top-7 left-1/2 -translate-x-1/2 text-[10px] font-bold px-2 py-0.5 rounded bg-on-background text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">@point.ActivityCount activities</span>
+                            </div>
+                            <span class="text-[11px] font-bold text-slate-500 uppercase">@point.DayLabel</span>
+                        </div>
+                    }
+                </div>
+            </section>
+        </div>
+
+        <div class="xl:col-span-4 space-y-8">
+            <!-- Study Time -->
+            <section class="glass-card p-6">
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-on-background">
+                    <span class="material-symbols-outlined text-primary">timer</span>
+                    Thời gian học tập
+                </h2>
+                <div class="space-y-4">
+                    <div class="rounded-2xl bg-white/80 border border-slate-200 p-4 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs uppercase font-bold text-slate-500">Estimated Hours</p>
+                            <p class="text-2xl font-bold text-primary">@estimatedHours giờ</p>
+                        </div>
+                        <span class="material-symbols-outlined text-primary text-3xl">schedule</span>
+                    </div>
+                    <div class="rounded-2xl bg-white/80 border border-slate-200 p-4 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs uppercase font-bold text-slate-500">Avg / Active day</p>
+                            <p class="text-2xl font-bold text-secondary">@Model.AverageStudyMinutesPerDay phút</p>
+                        </div>
+                        <span class="material-symbols-outlined text-secondary text-3xl">pace</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Skills -->
+            <section class="glass-card p-6">
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-on-background">
+                    <span class="material-symbols-outlined text-secondary">neurology</span>
+                    Kỹ năng học sinh
+                </h2>
+                <div class="space-y-4">
+                    @foreach (var skill in Model.Skills)
+                    {
+                        <div class="rounded-2xl bg-white/80 border border-slate-200 p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined @ToneText(skill.Tone)">@skill.Icon</span>
+                                    <p class="font-bold text-sm text-on-background">@skill.Name</p>
+                                </div>
+                                <span class="text-[11px] uppercase font-bold @ToneText(skill.Tone)">@skill.LevelText</span>
+                            </div>
+                            <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full rounded-full @ToneProgress(skill.Tone) transition-all duration-500" style="width:@skill.ProgressPercent%;"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </section>
+
+            <!-- AI Analysis -->
+            <section class="glass-card p-6">
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2 text-on-background">
+                    <span class="material-symbols-outlined text-tertiary">auto_awesome</span>
+                    AI phân tích tiến độ
+                </h2>
+                <div class="rounded-2xl @ToneBg("tertiary") p-4 border border-tertiary/25">
+                    <p class="text-sm leading-relaxed text-on-background">@Model.AiAnalysis</p>
+                </div>
+                <div class="mt-4 rounded-2xl bg-white/80 border border-slate-200 p-4">
+                    <p class="text-xs uppercase font-bold text-slate-500 mb-1">Đề xuất tiếp theo</p>
+                    <p class="text-sm font-semibold text-on-background">@Model.NextRecommendation</p>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>

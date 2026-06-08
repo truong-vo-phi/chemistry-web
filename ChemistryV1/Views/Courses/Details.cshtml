@@ -1,0 +1,467 @@
+@model ChemistryV1.ViewModels.CourseDetailsViewModel
+@{
+    Layout = "_PublicLayout";
+    ViewData["Title"] = "@Model.Course.Title | ChemLab";
+    ViewData["Description"] = "@Model.Course.Description";
+    var course = Model.Course;
+    var placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='960' height='540'%3E%3Crect fill='%23e2e8f0' width='960' height='540'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='32' fill='%2364748b'%3ECourse%3C/text%3E%3C/svg%3E";
+    var lessons = Model.Chapters.SelectMany(ch => ch.Lessons.OrderBy(l => l.OrderIndex)).ToList();
+
+    var currentUserId = User.Identity?.IsAuthenticated == true
+        ? Convert.ToInt32(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+        : 0;
+    var reviews = course.Reviews?.OrderByDescending(r => r.CreatedAt).ToList() ?? new List<Review>();
+    var totalReviews = reviews.Count;
+    var averageRating = totalReviews > 0 ? Math.Round(reviews.Average(r => r.Rating ?? 0), 1) : 0.0;
+    var userReview = User.Identity?.IsAuthenticated == true
+        ? reviews.FirstOrDefault(r => r.UserId == currentUserId)
+        : null;
+    var studentId = User.Identity?.IsAuthenticated == true ? int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0") : 0;
+    var isEnrolled = course.CourseEnrollments?.Any(e => e.StudentId == studentId) == true;
+}
+
+@Html.Partial("_PublicTopAppBar")
+
+<!-- Hero Section -->
+<section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-blue-600 text-white p-8 md:p-12 mb-12 premium-shadow">
+    <div class="relative z-10 max-w-2xl">
+        <div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full mb-6 font-semibold text-sm">
+            <span class="material-symbols-outlined text-sm">stars</span>
+            <span>@(course.CourseCategories.FirstOrDefault()?.Category?.Name ?? "Chemistry")</span>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 font-display leading-tight">@course.Title</h1>
+        <p class="text-lg mb-8 opacity-90 leading-relaxed">@course.Description</p>
+        <div class="flex flex-col sm:flex-row items-center gap-6">
+            @if (!isEnrolled)
+            {
+                <form method="post" asp-action="Enroll" asp-route-id="@course.Id">
+                    @Html.AntiForgeryToken()
+                    <button class="w-full sm:w-auto bg-secondary text-white px-8 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 btn-glow hover:scale-[1.02] active:scale-[0.98] transition-all" type="submit">
+                        <span>Đăng ký ngay</span>
+                        <span class="material-symbols-outlined">bolt</span>
+                    </button>
+                </form>
+            }
+            
+        </div>
+    </div>
+    <div class="absolute top-1/2 right-0 -translate-y-1/2 opacity-10 pointer-events-none transform scale-150">
+        <span class="material-symbols-outlined text-[300px] fill-1">science</span>
+    </div>
+</section>
+
+<!-- Alerts -->
+@if (TempData["EnrollError"] != null)
+{
+    <div class="mb-6 rounded-2xl bg-red-50 border border-red-200 p-4 text-red-700 font-bold flex items-center gap-2">
+        <span class="material-symbols-outlined">error</span>
+        @TempData["EnrollError"]
+    </div>
+}
+@if (TempData["EnrollSuccess"] != null)
+{
+    <div class="mb-6 rounded-2xl bg-emerald-50 border border-emerald-200 p-4 text-emerald-700 font-bold flex items-center gap-2">
+        <span class="material-symbols-outlined">check_circle</span>
+        @TempData["EnrollSuccess"]
+    </div>
+}
+
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 flex flex-col gap-8">
+        <!-- About Section -->
+        <div class="glass-card p-8">
+            <h3 class="text-xl font-bold text-on-background mb-6 flex items-center gap-2 font-display">
+                <span class="material-symbols-outlined text-primary">menu_book</span>
+                Về khóa học
+            </h3>
+            <div class="space-y-4 text-slate-600 leading-relaxed">
+                <p>@course.Description</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                <div class="bg-slate-50 p-4 rounded-2xl text-center border border-slate-100">
+                    <span class="material-symbols-outlined text-primary mb-2">schedule</span>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Chương</p>
+                    <p class="font-bold text-lg">@Model.Chapters.Count()</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl text-center border border-slate-100">
+                    <span class="material-symbols-outlined text-primary mb-2">bar_chart</span>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Bài học</p>
+                    <p class="font-bold text-lg">@Model.TotalLessons</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl text-center border border-slate-100">
+                    <span class="material-symbols-outlined text-primary mb-2">videocam</span>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Loại</p>
+                    <p class="font-bold text-lg">Lý thuyết</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl text-center border border-slate-100">
+                    <span class="material-symbols-outlined text-primary mb-2">verified</span>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Chứng chỉ</p>
+                    <p class="font-bold text-lg">Có</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Path -->
+        <div class="glass-card p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-on-background flex items-center gap-2 font-display">
+                    <span class="material-symbols-outlined text-primary">list_alt</span>
+                    Lộ trình học tập
+                </h3>
+                <span class="bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-bold">@Model.TotalLessons bài học</span>
+            </div>
+            <div class="space-y-3">
+                @{
+                    var index = 1;
+                    foreach (var lesson in lessons)
+                    {
+                        var locked = !isEnrolled && lesson.IsPreview != true;
+                        if (locked)
+                        {
+                            <div class="group opacity-60">
+                                <div class="flex items-center gap-4 p-4 rounded-2xl border border-slate-100">
+                                    <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold">@index.ToString("00")</div>
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-slate-500">@lesson.Title</h4>
+                                        <p class="text-sm text-slate-400">@lesson.ContentType</p>
+                                    </div>
+                                    <span class="material-symbols-outlined text-slate-400">lock</span>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <a class="group block" asp-controller="Lessons" asp-action="Details" asp-route-id="@lesson.Id">
+                                <div class="flex items-center gap-4 p-4 rounded-2xl border border-slate-100 hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer">
+                                    <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary font-bold">@index.ToString("00")</div>
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-on-background">@lesson.Title</h4>
+                                        <p class="text-sm text-slate-500">@lesson.ContentType</p>
+                                    </div>
+                                    <span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">chevron_right</span>
+                                </div>
+                            </a>
+                        }
+                        index++;
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="glass-card p-8 flex flex-col gap-6">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                <h3 class="text-xl font-bold text-on-background flex items-center gap-2 font-display">
+                    <span class="material-symbols-outlined text-primary">star_rate</span>
+                    Đánh giá khóa học
+                </h3>
+            </div>
+
+            @if (TempData["ReviewError"] != null)
+            {
+                <div class="p-4 bg-red-50 border border-red-200 text-red-700 font-bold text-sm rounded-2xl flex items-center gap-2">
+                    <span class="material-symbols-outlined">error</span>
+                    @TempData["ReviewError"]
+                </div>
+            }
+            @if (TempData["ReviewSuccess"] != null)
+            {
+                <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-sm rounded-2xl flex items-center gap-2">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    @TempData["ReviewSuccess"]
+                </div>
+            }
+
+            @{
+                var reviewsList = course.Reviews?.OrderByDescending(r => r.CreatedAt).ToList() ?? new List<Review>();
+                var avgRating = reviewsList.Any() ? Math.Round(reviewsList.Average(r => r.Rating ?? 0.0), 1) : 0.0;
+                var totalRev = reviewsList.Count;
+            }
+
+            <!-- Rating Breakdown -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 rounded-2xl bg-slate-50 border border-slate-200 items-center">
+                <div class="flex flex-col items-center justify-center text-center md:border-r border-slate-200 py-2">
+                    <h2 class="text-5xl font-extrabold text-on-background tracking-tight">@avgRating.ToString("0.0")</h2>
+                    <div class="flex items-center gap-0.5 text-amber-400 mt-2 mb-1">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            var fill = i <= Math.Round(avgRating) ? 1 : 0;
+                            <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' @fill;">star</span>
+                        }
+                    </div>
+                    <span class="text-xs text-slate-500 font-bold uppercase tracking-wider">@totalRev Reviews</span>
+                </div>
+                <div class="md:col-span-2 flex flex-col gap-2">
+                    @for (int star = 5; star >= 1; star--)
+                    {
+                        var count = reviewsList.Count(r => r.Rating == star);
+                        var percent = totalRev > 0 ? (count * 100) / totalRev : 0;
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-bold text-on-background w-4 text-center">@star</span>
+                            <span class="material-symbols-outlined text-[16px] text-amber-400" style="font-variation-settings: 'FILL' 1;">star</span>
+                            <div class="flex-1 h-2.5 bg-slate-200 rounded-full overflow-hidden border border-slate-300">
+                                <div class="h-full bg-gradient-to-r from-amber-400 to-amber-300 rounded-full transition-all duration-500" style="width: @(percent)%"></div>
+                            </div>
+                            <span class="text-xs font-bold text-slate-500 w-8 text-right">@count</span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Review Form -->
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                if (isEnrolled || User.IsInRole("Admin"))
+                {
+                    var userExistingReview = reviewsList.FirstOrDefault(r => r.UserId == studentId);
+                    var selectedRating = userExistingReview?.Rating ?? 5;
+                    <form asp-controller="Courses" asp-action="AddReview" method="post" class="p-5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col gap-4" id="course-review-form" data-no-tilt>
+                        <input type="hidden" name="courseId" value="@Model.Course.Id" />
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Chọn đánh giá</label>
+                            <div class="flex items-center gap-1.5 text-slate-300" id="star-selector" role="radiogroup" aria-label="Chọn số sao đánh giá">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    var fill = i <= selectedRating ? 1 : 0;
+                                    var activeColor = fill == 1 ? "text-amber-400" : "text-slate-300";
+                                    <button type="button" class="material-symbols-outlined text-[32px] star-btn @activeColor leading-none transition-colors hover:text-amber-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-lg" data-star="@i" aria-label="@i sao" aria-pressed="@(fill == 1 ? "true" : "false")" style="font-variation-settings: 'FILL' @fill;">star</button>
+                                }
+                            </div>
+                            <input type="hidden" name="rating" id="rating-input" value="@selectedRating" />
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Đánh giá của bạn</label>
+                            <textarea name="content" rows="3" class="w-full bg-white border border-slate-200 focus:border-primary/50 focus:ring-0 rounded-2xl text-sm p-4 font-medium outline-none resize-none transition-all" placeholder="Chia sẻ suy nghĩ của bạn về khóa học này...">@(userExistingReview?.Content)</textarea>
+                        </div>
+                        <button type="submit" class="px-6 py-2.5 bg-primary text-white font-bold rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all btn-glow self-end flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">publish</span>
+                            @(userExistingReview != null ? "Cập nhật đánh giá" : "Gửi đánh giá")
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <div class="p-6 bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-center">
+                        <span class="material-symbols-outlined text-slate-300 text-3xl mb-2">school</span>
+                        <p class="text-sm text-slate-500 font-medium">Bạn cần đăng ký khóa học này để có thể để lại đánh giá.</p>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="p-6 bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-center">
+                    <span class="material-symbols-outlined text-slate-300 text-3xl mb-2">login</span>
+                    <p class="text-sm text-slate-500 font-medium mb-3">Vui lòng đăng nhập để đánh giá khóa học này.</p>
+                    <a class="px-5 py-2 bg-primary text-white font-bold rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all btn-glow inline-flex items-center gap-2" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path">
+                        <span class="material-symbols-outlined text-[18px]">login</span> Đăng nhập
+                    </a>
+                </div>
+            }
+
+            <!-- Reviews List -->
+            <div class="space-y-4">
+                @if (!reviewsList.Any())
+                {
+                    <div class="text-center py-10 text-slate-400 font-medium">
+                        <span class="material-symbols-outlined text-4xl block mb-2 opacity-50">rate_review</span>
+                        Chưa có đánh giá. Hãy là người đầu tiên đánh giá!
+                    </div>
+                }
+                else
+                {
+                    <div class="flex flex-col gap-4">
+                        @foreach (var review in reviewsList)
+                        {
+                            var isOwnReview = studentId > 0 && review.UserId == studentId;
+                            var canDeleteReview = isOwnReview || User.IsInRole("Admin");
+                            var reviewerRole = review.User?.Role ?? "Student";
+                            var reviewerBadgeClass = "bg-primary/10 text-primary border-primary/20";
+                            var reviewerBadgeText = "🧪 Học sinh";
+                            if (reviewerRole.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+                            {
+                                reviewerBadgeClass = "bg-red-50 text-red-600 border-red-200 font-bold";
+                                reviewerBadgeText = "👑 Quản trị viên";
+                            }
+                            <div class="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200 relative">
+                                <div class="flex-shrink-0">
+                                    <img src="@(review.User?.AvatarUrl ?? "https://api.dicebear.com/7.x/adventurer/svg?seed=" + review.User?.Username)"
+                                         class="w-10 h-10 rounded-full object-cover border border-slate-200"
+                                         alt="Avatar" />
+                                </div>
+                                <div class="flex-1 flex flex-col gap-1 min-w-0">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="font-bold text-sm text-on-background">
+                                            @(review.User?.FullName ?? review.User?.Username ?? "Người dùng")
+                                        </span>
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] border flex items-center gap-0.5 @reviewerBadgeClass">
+                                            @reviewerBadgeText
+                                        </span>
+                                        <span class="text-xs text-slate-500 font-medium flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-[14px]">schedule</span>
+                                            @(review.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "vừa xong")
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-0.5 text-amber-400 my-0.5">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            var starFill = i <= review.Rating ? 1 : 0;
+                                            <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' @starFill;">star</span>
+                                        }
+                                    </div>
+                                    <p class="text-slate-600 text-sm font-medium leading-relaxed break-words whitespace-pre-line">
+                                        @(string.IsNullOrWhiteSpace(review.Content) ? "(Không có đánh giá bằng văn bản)" : review.Content)
+                                    </p>
+                                    @if (canDeleteReview)
+                                    {
+                                        <form asp-controller="Courses" asp-action="DeleteReview" asp-route-id="@review.Id" method="post" class="mt-2" onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá này?')">
+                                            <button type="submit" class="text-xs font-bold text-red-500 hover:text-red-700 transition-colors flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[15px]">delete</span> Xóa
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="lg:col-span-1">
+        <div class="sticky top-28 flex flex-col gap-8">
+            <div class="glass-card overflow-hidden">
+                <div class="aspect-video relative bg-slate-100 flex items-center justify-center">
+                    <img class="w-full h-full object-cover" alt="Course preview" src="@(course.ThumbnailUrl ?? placeholderImage)" />
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/20">
+                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-primary shadow-xl">
+                            <span class="material-symbols-outlined text-4xl fill-1">play_arrow</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-baseline gap-2 mb-4">
+                        <span class="text-3xl font-bold text-on-background">MIỄN PHÍ</span>
+                        <span class="text-slate-400 line-through text-sm">Trước $49.00</span>
+                    </div>
+                    @if (isEnrolled)
+                    {
+                        var firstLesson = lessons.FirstOrDefault();
+                        if (firstLesson != null)
+                        {
+                            <a class="w-full bg-secondary text-white py-4 rounded-2xl font-bold mb-4 flex items-center justify-center gap-2 btn-glow hover:scale-[1.02] active:scale-[0.98] transition-all text-center" asp-controller="Lessons" asp-action="Details" asp-route-id="@firstLesson.Id">
+                                <span class="material-symbols-outlined">school</span>
+                                Bắt đầu học
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="bg-emerald-50 text-emerald-700 py-4 rounded-2xl font-bold text-center mb-4">
+                                Đã đăng ký
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <form method="post" asp-action="Enroll" asp-route-id="@course.Id">
+                            @Html.AntiForgeryToken()
+                            <button class="w-full bg-primary text-white py-4 rounded-2xl font-bold mb-4 flex items-center justify-center gap-2 btn-glow hover:scale-[1.02] active:scale-[0.98] transition-all" type="submit">
+                                <span class="material-symbols-outlined">person_add</span>
+                                Đăng ký miễn phí
+                            </button>
+                        </form>
+                    }
+                    <p class="text-center text-xs text-slate-500 font-medium">Học bổng có hạn</p>
+                    <div class="mt-8 pt-6 border-t border-slate-100 space-y-3">
+                        <p class="font-bold text-sm">Khóa học bao gồm:</p>
+                        <div class="flex items-center gap-3 text-sm text-slate-600">
+                            <span class="material-symbols-outlined text-primary text-lg">science</span>
+                            <span>@Model.TotalLessons bài học lý thuyết</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-slate-600">
+                            <span class="material-symbols-outlined text-primary text-lg">download</span>
+                            <span>Tài liệu tải về được</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-slate-600">
+                            <span class="material-symbols-outlined text-primary text-lg">all_inclusive</span>
+                            <span>Truy cập trọn đời</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card p-6">
+                <h4 class="font-bold mb-2 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-tertiary">emoji_events</span>
+                    Huy hiệu thưởng
+                </h4>
+                <p class="text-sm text-slate-500 mb-4">Hoàn thành khóa học này để mở khóa huy hiệu "Bậc thầy giải pháp"!</p>
+                <div class="flex justify-center py-4">
+                    <div class="w-24 h-24 bg-tertiary/10 rounded-full flex items-center justify-center animate-float">
+                        <span class="material-symbols-outlined text-6xl text-tertiary">rewarded_ads</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function bootCourseReviewForm() {
+            const stars = document.querySelectorAll(".star-btn");
+            const ratingInput = document.getElementById("rating-input");
+            const reviewForm = document.getElementById("course-review-form");
+            const reviewTextarea = reviewForm?.querySelector('textarea[name="content"]');
+
+            if (reviewTextarea && reviewTextarea.dataset.reviewInputBooted !== "true") {
+                reviewTextarea.dataset.reviewInputBooted = "true";
+                reviewTextarea.addEventListener("keydown", (event) => {
+                    event.stopPropagation();
+                });
+                reviewTextarea.addEventListener("keypress", (event) => {
+                    event.stopPropagation();
+                });
+            }
+
+            if (reviewForm && reviewForm.dataset.reviewSubmitBooted !== "true") {
+                reviewForm.dataset.reviewSubmitBooted = "true";
+                reviewForm.addEventListener("submit", () => {
+                    if (reviewTextarea) {
+                        reviewTextarea.value = reviewTextarea.value.trim();
+                    }
+                });
+            }
+
+            if (stars.length && ratingInput) {
+                stars.forEach(star => {
+                    if (star.dataset.starBooted === "true") return;
+                    star.dataset.starBooted = "true";
+                    star.addEventListener("click", (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const rating = parseInt(star.getAttribute("data-star"));
+                        ratingInput.value = rating;
+                        stars.forEach((s, idx) => {
+                            if (idx < rating) {
+                                s.style.fontVariationSettings = "'FILL' 1";
+                                s.classList.remove("text-slate-300");
+                                s.classList.add("text-amber-400");
+                                s.setAttribute("aria-pressed", "true");
+                            } else {
+                                s.style.fontVariationSettings = "'FILL' 0";
+                                s.classList.remove("text-amber-400");
+                                s.classList.add("text-slate-300");
+                                s.setAttribute("aria-pressed", "false");
+                            }
+                        });
+                    });
+                });
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", bootCourseReviewForm);
+        document.addEventListener("turbo:load", bootCourseReviewForm);
+    </script>
+}

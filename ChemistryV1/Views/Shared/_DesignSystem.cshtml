@@ -1,0 +1,116 @@
+@* LabOS command-center design system for admin and teacher surfaces. *@
+<partial name="_StudentDesignSystem" />
+<style>
+    body.neon-lab-shell {
+        background:
+            radial-gradient(circle at 8% 0%, rgba(56,232,255,.18), transparent 30rem),
+            radial-gradient(circle at 94% 12%, rgba(139,92,246,.22), transparent 34rem),
+            radial-gradient(circle at 60% 100%, rgba(255,79,216,.10), transparent 30rem),
+            linear-gradient(145deg, #020617 0%, #061128 52%, #030712 100%);
+    }
+
+    .neon-lab-shell .neon-sidebar::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            linear-gradient(180deg, rgba(56,232,255,.14), transparent 24%),
+            repeating-linear-gradient(0deg, transparent 0 34px, rgba(56,232,255,.045) 34px 35px);
+        opacity: .8;
+    }
+
+    .neon-lab-shell .neon-sidebar > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .neon-lab-shell footer {
+        background: rgba(3, 8, 20, .64);
+        backdrop-filter: blur(18px);
+    }
+
+    body.labos-admin-shell main,
+    body.labos-admin-shell header {
+        animation: none !important;
+        transform: none;
+    }
+
+    body.labos-admin-shell .admin-shell-grid {
+        display: grid;
+        grid-template-columns: 18rem minmax(0, 1fr);
+        grid-template-rows: 4rem minmax(0, 1fr) auto;
+        min-height: 100vh;
+    }
+
+    body.labos-admin-shell #admin-mobile-sidebar {
+        grid-column: 1;
+        grid-row: 1 / -1;
+    }
+
+    body.labos-admin-shell header {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    body.labos-admin-shell .admin-content {
+        grid-column: 2;
+        grid-row: 2;
+        min-width: 0;
+        min-height: 0;
+    }
+
+    body.labos-admin-shell footer {
+        grid-column: 2;
+        grid-row: 3;
+    }
+
+    body.labos-admin-shell [data-reveal] {
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+    }
+
+    body.labos-admin-shell .cinematic-card:hover,
+    body.labos-admin-shell .glass-card:hover,
+    body.labos-admin-shell .collectible-border:hover,
+    body.labos-admin-shell article:hover {
+        transform: translateY(-3px);
+    }
+
+    @@media (max-width: 767px) {
+        body.labos-admin-shell .admin-shell-grid {
+            display: block;
+        }
+
+        body.labos-admin-shell header {
+            position: sticky;
+            top: 0;
+        }
+
+        body.labos-admin-shell .admin-content > div {
+            padding-top: 1rem;
+        }
+    }
+
+    .neon-lab-shell .btn-gradient {
+        background: linear-gradient(135deg, #8ff8ff 0%, #38e8ff 38%, #8b5cf6 100%);
+        color: #03111f;
+        box-shadow: 0 0 34px rgba(56,232,255,.34), 0 18px 54px rgba(0,0,0,.32);
+        transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .neon-lab-shell .btn-gradient:hover {
+        transform: translateY(-2px) scale(1.015);
+        box-shadow: 0 0 44px rgba(56,232,255,.48), 0 24px 70px rgba(139,92,246,.22);
+    }
+
+    .neon-lab-shell .admin-command-strip {
+        border: 1px solid rgba(104,232,255,.20);
+        background:
+            linear-gradient(90deg, rgba(56,232,255,.09), rgba(139,92,246,.07), rgba(255,79,216,.05)),
+            rgba(3, 8, 20, .54);
+        box-shadow: 0 18px 64px rgba(0,0,0,.26);
+        backdrop-filter: blur(20px);
+    }
+</style>

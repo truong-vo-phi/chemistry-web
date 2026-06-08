@@ -1,0 +1,249 @@
+@model ChemistryV1.Models.Comment
+@using System.Security.Claims
+@{
+    var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    int? currentUserId = !string.IsNullOrEmpty(currentUserIdClaim) ? Convert.ToInt32(currentUserIdClaim) : null;
+    bool isAuthenticated = User.Identity?.IsAuthenticated == true;
+    bool isAuthor = currentUserId.HasValue && Model.UserId == currentUserId.Value;
+    bool canDelete = isAuthor || User.IsInRole("Admin");
+    
+    var role = Model.User?.Role ?? "Student";
+    var badgeClass = "bg-primary/10 text-primary border-primary/30";
+    var badgeText = "Học sinh";
+    
+    if (role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+    {
+        badgeClass = "bg-error/10 text-error border-error/30 font-bold";
+        badgeText = "Quản trị";
+    }
+    else if (role.Equals("Teacher", StringComparison.OrdinalIgnoreCase))
+    {
+        badgeClass = "bg-secondary/10 text-secondary border-secondary/30 font-bold";
+        badgeText = "Giáo viên";
+    }
+}
+
+<div class="relative mt-4 flex flex-col group/thread" id="comment-@Model.Id">
+    <!-- Anchor target offsets for scrolling highlights -->
+    <div class="absolute -top-24" id="comment-anchor-@Model.Id"></div>
+    
+    <!-- Comment Body Panel -->
+    <div class="flex gap-4 p-4 rounded-2xl bg-surface-container-lowest border border-outline-variant/30 hover:border-outline-variant/60 shadow-xs hover:shadow-sm transition-all duration-300 relative">
+        <!-- User Avatar -->
+        <div class="flex-shrink-0">
+            <img src="@(Model.User?.AvatarUrl ?? "https://api.dicebear.com/7.x/adventurer/svg?seed=" + Model.User?.Username)" 
+                 class="w-10 h-10 rounded-full object-cover border border-outline-variant/40 shadow-xs" 
+                 alt="Avatar" />
+        </div>
+
+        <!-- Main Content Panel -->
+        <div class="flex-1 flex flex-col gap-1.5 min-w-0">
+            <!-- Header Block -->
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="font-headline-md text-sm text-on-surface font-bold">
+                    @(Model.User?.FullName ?? Model.User?.Username ?? "Người dùng")
+                </span>
+                
+                <!-- Badge -->
+                <span class="px-2 py-0.5 rounded-full text-[10px] border flex items-center gap-0.5 @badgeClass">
+                    @badgeText
+                </span>
+
+                <!-- Timestamp -->
+                <span class="text-xs text-outline font-medium flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">schedule</span>
+                    @(Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "vừa xong")
+                </span>
+            </div>
+
+            <!-- Content Area -->
+            <div class="text-body-md text-on-surface-variant text-sm font-medium leading-relaxed break-words whitespace-pre-line" id="comment-content-@Model.Id">
+                @Model.Content
+            </div>
+
+            <!-- Edit Content Form (Initially Hidden) -->
+            @if (isAuthor)
+            {
+                <form id="edit-form-@Model.Id" class="hidden mt-2 flex-col gap-2 w-full transition-all" asp-controller="Comments" asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                    <textarea name="content" class="w-full bg-surface border border-outline-variant/50 focus:border-primary/50 focus:ring-0 rounded-xl text-sm p-3 font-medium outline-none resize-y min-h-[80px]">@Model.Content</textarea>
+                    <div class="flex items-center gap-2 self-end">
+                        <button type="button" onclick="toggleEdit(@Model.Id)" class="px-3 py-1.5 bg-surface-container border border-outline-variant/40 text-on-surface text-xs font-bold rounded-full hover:bg-surface-variant transition-colors squishy-btn">
+                            Hủy
+                        </button>
+                        <button type="submit" class="px-3 py-1.5 bg-primary text-on-primary text-xs font-bold rounded-full hover:brightness-110 transition-colors squishy-btn shadow-xs">
+                            Lưu
+                        </button>
+                    </div>
+                </form>
+            }
+
+            <!-- Footer Interaction Bar -->
+            <div class="flex items-center gap-4 mt-2.5">
+                @if (isAuthenticated)
+                {
+                    <button type="button" onclick="toggleReply(@Model.Id)" class="text-xs font-bold text-primary hover:text-primary/80 transition-colors flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[15px]">reply</span> Ph&#7843;n h&#7891;i
+                    </button>
+                }
+
+                @if (isAuthor)
+                {
+                    <button type="button" onclick="toggleEdit(@Model.Id)" class="text-xs font-bold text-outline hover:text-on-surface transition-colors flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[15px]">edit</span> S&#7917;a
+                    </button>
+                }
+
+                @if (!isAuthor && isAuthenticated)
+                {
+                    <button type="button" onclick="showReportModal(@Model.Id)" class="text-xs font-bold text-red-400/80 hover:text-red-300 transition-colors flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[15px]">report</span> B&#225;o c&#225;o
+                    </button>
+                }
+
+                @if (canDelete)
+                {
+                    <form asp-controller="Comments" asp-action="Delete" asp-route-id="@Model.Id" method="post" class="m-0" onsubmit="return confirm('B&#7841;n c&#243; ch&#7855;c ch&#7855;n mu&#7889;n x&#243;a b&#236;nh lu&#7853;n n&#224;y v&#224; t&#7845;t c&#7843; ph&#7843;n h&#7891;i li&#234;n quan?')">
+                        <button type="submit" class="text-xs font-bold text-error/80 hover:text-error transition-colors flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[15px]">delete</span> X&#243;a
+                        </button>
+                    </form>
+                }
+            </div>
+
+            <!-- Inline Reply Editor Box (Initially Hidden) -->
+            @if (isAuthenticated)
+            {
+                <form id="reply-form-@Model.Id" class="hidden mt-4 p-4 rounded-xl bg-surface/50 border border-outline-variant/20 flex-col gap-2 w-full transition-all" asp-controller="Comments" asp-action="Create" method="post">
+                    @if (Model.LessonId.HasValue)
+                    {
+                        <input type="hidden" name="lessonId" value="@Model.LessonId" />
+                    }
+                    @if (Model.MissionId.HasValue)
+                    {
+                        <input type="hidden" name="missionId" value="@Model.MissionId" />
+                    }
+                    <input type="hidden" name="parentId" value="@Model.Id" />
+                    <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider block mb-1">G&#7917;i ph&#7843;n h&#7891;i cho @(Model.User?.FullName ?? Model.User?.Username)</label>
+                    <textarea name="content" class="w-full bg-surface-container-lowest border border-outline-variant/40 focus:border-primary/50 focus:ring-0 rounded-xl text-sm p-3 font-medium outline-none resize-none min-h-[80px]" placeholder="Vi&#7871;t ph&#7843;n h&#7891;i..."></textarea>
+                    <div class="flex items-center gap-2 self-end">
+                        <button type="button" onclick="toggleReply(@Model.Id)" class="px-3 py-1.5 bg-surface-container border border-outline-variant/40 text-on-surface text-xs font-bold rounded-full hover:bg-surface-variant transition-colors squishy-btn">
+                            H&#7911;y
+                        </button>
+                        <button type="submit" class="px-3 py-1.5 bg-primary text-on-primary text-xs font-bold rounded-full hover:brightness-110 transition-colors squishy-btn shadow-xs">
+                            Ph&#7843;n h&#7891;i
+                        </button>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+
+    <!-- Recursive Replies (Nesting layout) -->
+    @if (Model.InverseParent != null && Model.InverseParent.Any())
+    {
+        <div class="ml-6 md:ml-12 pl-4 md:pl-6 border-l-2 border-outline-variant/30 flex flex-col gap-1 relative">
+            @foreach (var reply in Model.InverseParent.OrderBy(r => r.CreatedAt))
+            {
+                <partial name="_CommentThread" model="reply" />
+            }
+        </div>
+    }
+</div>
+
+<script>
+    function showReportModal(commentId) {
+        let modal = document.getElementById('report-modal-' + commentId);
+        if (!modal) {
+            // Create modal if it doesn't exist
+            modal = document.createElement('div');
+            modal.id = 'report-modal-' + commentId;
+            modal.className = 'fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden';
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.classList.add('hidden');
+            };
+            
+            modal.innerHTML = `
+                <div class="rounded-2xl p-6 max-w-md w-full bg-surface-container border border-primary/20 text-on-surface shadow-[0_24px_70px_rgba(0,0,0,.55)]" onclick="event.stopPropagation()">
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-error">report</span>
+                        B&#225;o c&#225;o b&#236;nh lu&#7853;n
+                    </h3>
+                    
+                    <form method="post" action="@Url.Action("Report", "Comments")">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="commentId" value="${commentId}" />
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold mb-3">L&#253; do b&#225;o c&#225;o:</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 cursor-pointer">
+                                    <input type="radio" name="reason" value="Spam" required />
+                                    <span class="text-sm">Spam</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 cursor-pointer">
+                                    <input type="radio" name="reason" value="Inappropriate" required />
+                                    <span class="text-sm">N&#7897;i dung kh&#244;ng ph&#249; h&#7907;p</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 cursor-pointer">
+                                    <input type="radio" name="reason" value="Harassment" required />
+                                    <span class="text-sm">Qu&#7845;y r&#7889;i ho&#7863;c &#273;e d&#7885;a</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 cursor-pointer">
+                                    <input type="radio" name="reason" value="Misinformation" required />
+                                    <span class="text-sm">Th&#244;ng tin sai l&#7841;c</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 cursor-pointer">
+                                    <input type="radio" name="reason" value="Other" required />
+                                    <span class="text-sm">Kh&#225;c</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button type="submit" class="flex-1 px-4 py-2 bg-error text-white rounded-lg font-semibold hover:brightness-110 transition-all">
+                                B&#225;o c&#225;o
+                            </button>
+                            <button type="button" class="flex-1 px-4 py-2 bg-surface-container-high text-on-surface rounded-lg font-semibold hover:bg-primary/10 transition-all" 
+                                    onclick="document.getElementById('report-modal-${commentId}').classList.add('hidden')">
+                                H&#7911;y
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        modal.classList.remove('hidden');
+    }
+
+    if (!window.toggleReply) {
+        window.toggleReply = function(commentId) {
+            const form = document.getElementById(`reply-form-${commentId}`);
+            if (!form) return;
+            const isHidden = form.classList.contains('hidden');
+            form.classList.toggle('hidden');
+            if (!isHidden) return;
+            const textarea = form.querySelector('textarea');
+            if (textarea) textarea.focus();
+        };
+    }
+
+    if (!window.toggleEdit) {
+        window.toggleEdit = function(commentId) {
+            const form = document.getElementById(`edit-form-${commentId}`);
+            const contentDiv = document.getElementById(`comment-content-${commentId}`);
+            if (!form || !contentDiv) return;
+            const isHidden = form.classList.contains('hidden');
+            if (isHidden) {
+                form.classList.remove('hidden');
+                contentDiv.classList.add('hidden');
+                const textarea = form.querySelector('textarea');
+                if (textarea) textarea.focus();
+            } else {
+                form.classList.add('hidden');
+                contentDiv.classList.remove('hidden');
+            }
+        };
+    }
+</script>
+

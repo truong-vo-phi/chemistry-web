@@ -1,0 +1,166 @@
+@model LeaderboardViewModel
+
+@{
+    Layout = "_PublicLayout";
+    ViewData["Title"] = "Leaderboard - Bảng xếp hạng";
+    var sortBy = Model.SortBy ?? "xp";
+
+    string TabClass(string key) => sortBy == key
+        ? "bg-primary text-on-primary shadow-neon-blue border-primary/60"
+        : "glass-panel text-on-surface-variant border-primary/15 hover:border-primary/45 hover:text-on-background";
+}
+
+<partial name="_PublicTopAppBar" />
+
+<div class="space-y-8">
+    <div class="glass-card relative overflow-hidden rounded-3xl border border-primary/20 p-6 md:p-10">
+        <div class="relative z-10 flex items-center gap-4">
+            <span class="material-symbols-outlined text-5xl text-primary fill-1">emoji_events</span>
+            <div>
+                <h1 class="text-3xl md:text-5xl font-bold text-on-background mb-2 font-display">Bảng xếp hạng</h1>
+                <p class="text-on-surface-variant text-base md:text-lg">Xem thứ hạng của các học sinh xuất sắc.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+        <a href="@Url.Action("Index", "Leaderboard", new { sortBy = "xp" })" class="@TabClass("xp") flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all border">
+            <span class="material-symbols-outlined">bolt</span>
+            <span>XP</span>
+        </a>
+        <a href="@Url.Action("Index", "Leaderboard", new { sortBy = "level" })" class="@TabClass("level") flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all border">
+            <span class="material-symbols-outlined">trending_up</span>
+            <span>Cấp độ</span>
+        </a>
+        <a href="@Url.Action("Index", "Leaderboard", new { sortBy = "missions" })" class="@TabClass("missions") flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all border">
+            <span class="material-symbols-outlined">assignment_turned_in</span>
+            <span>Nhiệm vụ</span>
+        </a>
+        <a href="@Url.Action("Index", "Leaderboard", new { sortBy = "streak" })" class="@TabClass("streak") flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all border">
+            <span class="material-symbols-outlined">local_fire_department</span>
+            <span>Chuỗi ngày</span>
+        </a>
+        <a href="@Url.Action("Index", "Leaderboard", new { sortBy = "score" })" class="@TabClass("score") flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all border">
+            <span class="material-symbols-outlined">stars</span>
+            <span>Điểm số</span>
+        </a>
+    </div>
+
+    <div class="space-y-4">
+        @if (Model.Users.Any())
+        {
+            @foreach (var user in Model.Users)
+            {
+                var medalClass = user.Rank switch
+                {
+                    1 => "text-yellow-400",
+                    2 => "text-cyan-200",
+                    3 => "text-orange-400",
+                    _ => "text-on-surface-variant"
+                };
+
+                var cardClass = user.Rank switch
+                {
+                    1 => "bg-yellow-400/10 border-yellow-300/35 shadow-[0_0_34px_rgba(250,204,21,.12)]",
+                    2 => "bg-cyan-300/10 border-cyan-200/30",
+                    3 => "bg-orange-400/10 border-orange-300/30",
+                    _ => "bg-surface-container/70 border-primary/15"
+                };
+
+                <div class="@cardClass border rounded-2xl p-4 md:p-6 transition-all hover:border-primary/45 hover:shadow-neon-blue">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-4 md:gap-6">
+                        <div class="flex items-center gap-4 min-w-0 flex-1">
+                            <div class="w-14 text-center flex-shrink-0">
+                                @if (user.Rank <= 3)
+                                {
+                                    <span class="material-symbols-outlined text-5xl fill-1 @medalClass">military_tech</span>
+                                }
+                                else
+                                {
+                                    <div class="text-3xl font-bold text-on-surface-variant font-display">@user.Rank</div>
+                                }
+                            </div>
+                            <img src="@user.AvatarUrl" alt="@user.FullName" class="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover border-2 border-primary/30 shadow-md" />
+                            <div class="min-w-0">
+                                <h3 class="text-lg md:text-xl font-bold text-on-background truncate">@user.FullName</h3>
+                                <p class="text-sm text-on-surface-variant truncate">@user.Username</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-4 gap-3 sm:gap-4 sm:min-w-[24rem]">
+                            <div class="text-center">
+                                <div class="flex items-center justify-center gap-1 text-primary font-bold text-base md:text-lg">
+                                    <span class="material-symbols-outlined text-xl">bolt</span>
+                                    @user.Xp
+                                </div>
+                                <p class="text-[10px] md:text-xs text-on-surface-variant font-semibold">XP</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="flex items-center justify-center gap-1 text-secondary font-bold text-base md:text-lg">
+                                    <span class="material-symbols-outlined text-xl">trending_up</span>
+                                    @user.Level
+                                </div>
+                                <p class="text-[10px] md:text-xs text-on-surface-variant font-semibold">LVL</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="flex items-center justify-center gap-1 text-cyan-300 font-bold text-base md:text-lg">
+                                    <span class="material-symbols-outlined text-xl">assignment_turned_in</span>
+                                    @user.CompletedMissions
+                                </div>
+                                <p class="text-[10px] md:text-xs text-on-surface-variant font-semibold">NHIỆM VỤ</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="flex items-center justify-center gap-1 text-orange-400 font-bold text-base md:text-lg">
+                                    <span class="material-symbols-outlined text-xl">local_fire_department</span>
+                                    @user.Streak
+                                </div>
+                                <p class="text-[10px] md:text-xs text-on-surface-variant font-semibold">STREAK</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="glass-card text-center py-16">
+                <span class="material-symbols-outlined text-6xl text-on-surface-variant mb-4 block">groups</span>
+                <p class="text-xl text-on-surface-variant">Chưa có học sinh nào</p>
+            </div>
+        }
+    </div>
+
+    <div class="glass-card border border-primary/15 rounded-2xl p-6 md:p-8">
+        <h3 class="text-lg font-bold text-on-background mb-6">Hệ thống xếp hạng</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div>
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="material-symbols-outlined text-primary">bolt</span>
+                    <span class="font-semibold text-on-background">XP</span>
+                </div>
+                <p class="text-sm text-on-surface-variant">Điểm kinh nghiệm từ bài học, nhiệm vụ và quiz.</p>
+            </div>
+            <div>
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="material-symbols-outlined text-secondary">trending_up</span>
+                    <span class="font-semibold text-on-background">Cấp độ</span>
+                </div>
+                <p class="text-sm text-on-surface-variant">Cấp độ hiện tại dựa trên tổng số XP đã tích lũy.</p>
+            </div>
+            <div>
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="material-symbols-outlined text-cyan-300">assignment_turned_in</span>
+                    <span class="font-semibold text-on-background">Nhiệm vụ</span>
+                </div>
+                <p class="text-sm text-on-surface-variant">Số nhiệm vụ đã hoàn thành trong hệ thống.</p>
+            </div>
+            <div>
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="material-symbols-outlined text-orange-400">local_fire_department</span>
+                    <span class="font-semibold text-on-background">Chuỗi ngày</span>
+                </div>
+                <p class="text-sm text-on-surface-variant">Số ngày học tập liên tiếp gần nhất.</p>
+            </div>
+        </div>
+    </div>
+</div>

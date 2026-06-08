@@ -1,0 +1,177 @@
+@model ChemistryV1.ViewModels.CategoryCreateEditViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "@Model.PageTitle - ChemLab";
+    ViewData["Description"] = "Create a new category for organizing courses.";
+}
+
+<!-- Breadcrumb -->
+<nav class="flex items-center gap-2 mb-6 text-sm text-slate-500">
+    <a class="hover:text-primary transition-colors" asp-controller="Categories" asp-action="Index">Categories</a>
+    <span class="material-symbols-outlined text-sm opacity-50">chevron_right</span>
+    <span class="text-primary font-bold">New Category</span>
+</nav>
+
+<!-- Page Header -->
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-on-background font-display">Create New Category</h1>
+    <p class="text-slate-500 mt-1 max-w-xl">Define a fresh scientific domain for your students to explore within the curriculum.</p>
+</div>
+
+<!-- Form Card -->
+<div class="glass-card p-8 md:p-12 relative overflow-hidden">
+    <div class="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-[80px]"></div>
+    <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-secondary/10 rounded-full blur-[80px]"></div>
+    
+    <form class="relative z-10 space-y-8" asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" id="category-icon" name="Category.Icon" value="@Model.Category.Icon" />
+        <input type="hidden" id="category-isactive" name="Category.IsActive" value="@Model.Category.IsActive.ToString().ToLower()" />
+
+        <div class="space-y-2">
+            <label class="text-xs font-bold text-primary uppercase tracking-widest flex items-center gap-2" for="cat-name">
+                <span class="material-symbols-outlined text-lg">label</span>
+                Category Name
+            </label>
+            <input class="w-full rounded-2xl border-2 border-slate-200 bg-white px-6 py-4 text-lg font-semibold focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none placeholder:text-slate-400" id="cat-name" name="Category.Name" value="@Model.Category.Name" placeholder="e.g. Quantum Alchemy" type="text" oninput="generateSlug(this.value)" required />
+            <span class="text-red-500 text-xs">@Html.ValidationMessageFor(m => m.Category.Name)</span>
+        </div>
+
+        <div class="space-y-2">
+            <label class="text-xs font-bold text-primary uppercase tracking-widest flex items-center gap-2" for="cat-slug">
+                <span class="material-symbols-outlined text-lg">link</span>
+                Slug
+            </label>
+            <input class="w-full rounded-2xl border-2 border-slate-200 bg-white px-6 py-4 text-md font-semibold focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none placeholder:text-slate-400 bg-slate-50 cursor-not-allowed" id="cat-slug" name="Category.Slug" value="@Model.Category.Slug" placeholder="quantum-alchemy" type="text" readonly required />
+            <span class="text-red-500 text-xs">@Html.ValidationMessageFor(m => m.Category.Slug)</span>
+        </div>
+
+        <div class="space-y-4">
+            <label class="text-xs font-bold text-primary uppercase tracking-widest flex items-center gap-2">
+                <span class="material-symbols-outlined text-lg">grid_view</span>
+                Symbolic Icon
+            </label>
+            <div id="category-icon-grid" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
+                @foreach (var icon in Model.AvailableIcons)
+                {
+                    <button class="@(Model.Category.Icon == icon ? "icon-aura-active" : "bg-white border-2 border-slate-200") w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center hover:border-primary/30 hover:bg-slate-50 transition-all group" type="button" onclick="setIcon('@icon', this)">
+                        <span class="material-symbols-outlined block leading-none @(Model.Category.Icon == icon ? "text-primary" : "text-slate-400 group-hover:text-primary") text-[28px]">@icon</span>
+                    </button>
+                }
+            </div>
+        </div>
+
+        <div class="space-y-2">
+            <label class="text-xs font-bold text-primary uppercase tracking-widest flex items-center gap-2" for="cat-desc">
+                <span class="material-symbols-outlined text-lg">description</span>
+                Description
+            </label>
+            <textarea class="w-full rounded-2xl border-2 border-slate-200 bg-white px-6 py-4 text-md focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all outline-none resize-none placeholder:text-slate-400" id="cat-desc" name="Category.Description" placeholder="Briefly describe the secrets hidden within this category..." rows="5">@Model.Category.Description</textarea>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4 md:items-center justify-between p-6 bg-slate-50 rounded-2xl border border-slate-200">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center border border-secondary/20">
+                    <span class="material-symbols-outlined text-secondary">visibility</span>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-on-background tracking-wide">TRẠNG THÁI DANH MỤC</h4>
+                    <p class="text-xs text-slate-500">Thiết lập khả năng hiển thị cho toàn bộ học viện.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-widest" id="status-label">@(Model.Category.IsActive ? "Đang hoạt động" : "Nháp")</span>
+                <button class="relative inline-flex h-10 w-16 items-center rounded-full @(Model.Category.IsActive ? "bg-secondary" : "bg-slate-300") transition-colors focus:outline-none shadow-inner" id="status-toggle" onclick="toggleStatus()" type="button">
+                    <span class="inline-block h-7 w-7 @(Model.Category.IsActive ? "translate-x-7.5" : "translate-x-1.5") transform rounded-full bg-white shadow-md transition-transform" id="toggle-circle"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-4 pt-4">
+            <a class="w-full sm:w-auto px-8 py-4 rounded-full font-bold text-center hover:bg-slate-100 transition-all border-2 border-slate-200 text-slate-600" asp-action="Index">
+                Hủy
+            </a>
+            <button class="w-full sm:w-auto px-10 py-4 rounded-full text-white font-bold transition-all hover:bg-primary/90 btn-glow" type="submit">
+                Tạo danh mục
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Head {
+    <style>
+        .icon-aura-active {
+            background: linear-gradient(180deg, #d8e2ff 0%, #eef3ff 100%);
+            border: 2px solid #0058be;
+            box-shadow: 0 12px 24px -6px rgba(0, 88, 190, 0.22), inset 0 -4px 0 0 rgba(0, 88, 190, 0.12);
+            transform: translateY(-2px);
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        let isActive = @Model.Category.IsActive.ToString().ToLower();
+        function toggleStatus() {
+            isActive = !isActive;
+            const toggle = document.getElementById('status-toggle');
+            const circle = document.getElementById('toggle-circle');
+            const label = document.getElementById('status-label');
+            const hiddenInput = document.getElementById('category-isactive');
+            
+            hiddenInput.value = isActive;
+            label.textContent = isActive ? "Active" : "Draft";
+
+            if (isActive) {
+                toggle.classList.remove('bg-slate-300');
+                toggle.classList.add('bg-secondary');
+                circle.classList.add('translate-x-7.5');
+                circle.classList.remove('translate-x-1.5');
+            } else {
+                toggle.classList.remove('bg-secondary');
+                toggle.classList.add('bg-slate-300');
+                circle.classList.add('translate-x-1.5');
+                circle.classList.remove('translate-x-7.5');
+            }
+        }
+
+        function setIcon(icon, btn) {
+            const iconGrid = document.getElementById('category-icon-grid');
+            iconGrid.querySelectorAll('button').forEach(b => {
+                b.classList.remove('icon-aura-active');
+                b.classList.add('bg-white', 'border-slate-200');
+                const glyph = b.querySelector('span');
+                glyph.classList.remove('text-primary');
+                glyph.classList.add('text-slate-400');
+            });
+            btn.classList.add('icon-aura-active');
+            btn.classList.remove('bg-white', 'border-slate-200');
+            const activeGlyph = btn.querySelector('span');
+            activeGlyph.classList.add('text-primary');
+            activeGlyph.classList.remove('text-slate-400');
+            document.getElementById('category-icon').value = icon;
+        }
+
+        function generateSlug(name) {
+            let str = name.toLowerCase();
+            str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+            str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+            str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+            str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+            str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+            str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+            str = str.replace(/đ/g, "d");
+            
+            str = str.replace(/[^a-z0-9\s-]/g, "");
+            str = str.replace(/\s+/g, "-");
+            str = str.replace(/-+/g, "-");
+            str = str.trim().replace(/^-+|-+$/g, "");
+            
+            document.getElementById('cat-slug').value = str;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            generateSlug(document.getElementById('cat-name').value || '');
+        });
+    </script>
+}

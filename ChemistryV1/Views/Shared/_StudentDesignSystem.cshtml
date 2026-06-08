@@ -1,0 +1,1719 @@
+@* Shared cinematic interface for the student-facing Chemistry Lab pages. *@
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<script id="tailwind-config-student">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    primary: "#27d8ff",
+                    "on-primary": "#031923",
+                    secondary: "#75ff6a",
+                    "on-secondary": "#06230a",
+                    tertiary: "#d65cff",
+                    warning: "#ffb347",
+                    error: "#ff4d7d",
+                    background: "#050b18",
+                    "on-background": "#e8f6ff",
+                    surface: "rgba(10, 20, 40, 0.82)",
+                    "surface-container": "#0b172d",
+                    "surface-container-high": "#12233f",
+                    "surface-variant": "#223654",
+                    "on-surface": "#e8f6ff",
+                    "on-surface-variant": "#a9bfd2",
+                    outline: "rgba(105, 220, 255, 0.24)"
+                },
+                spacing: {
+                    "margin-mobile": "20px",
+                    "margin-desktop": "48px",
+                    "container-max": "1280px"
+                },
+                borderRadius: {
+                    DEFAULT: "0.5rem",
+                    lg: "0.75rem",
+                    xl: "1rem",
+                    "2xl": "1.25rem",
+                    full: "9999px"
+                },
+                fontFamily: {
+                    display: ["Be Vietnam Pro", "sans-serif"],
+                    body: ["Be Vietnam Pro", "sans-serif"],
+                    label: ["Be Vietnam Pro", "sans-serif"]
+                },
+                boxShadow: {
+                    "neon-blue": "0 0 24px rgba(39, 216, 255, 0.38), 0 0 70px rgba(39, 216, 255, 0.13)",
+                    "neon-green": "0 0 24px rgba(117, 255, 106, 0.36), 0 0 70px rgba(117, 255, 106, 0.11)",
+                    "neon-purple": "0 0 24px rgba(214, 92, 255, 0.32), 0 0 70px rgba(214, 92, 255, 0.12)"
+                }
+            }
+        }
+    }
+</script>
+<style>
+    :root {
+        --lab-bg: #050b18;
+        --lab-panel: rgba(10, 20, 40, 0.76);
+        --lab-panel-strong: rgba(12, 25, 50, 0.92);
+        --lab-line: rgba(99, 218, 255, 0.22);
+        --lab-primary: #27d8ff;
+        --lab-secondary: #75ff6a;
+        --lab-tertiary: #d65cff;
+        --lab-text: #e8f6ff;
+        --lab-muted: #a9bfd2;
+    }
+
+    body.neon-lab-shell {
+        min-height: 100vh;
+        background:
+            radial-gradient(circle at 12% -8%, rgba(255, 119, 64, 0.18), transparent 30rem),
+            radial-gradient(circle at 20% -5%, rgba(39, 216, 255, 0.24), transparent 34rem),
+            radial-gradient(circle at 84% 12%, rgba(214, 92, 255, 0.24), transparent 34rem),
+            radial-gradient(circle at 48% 92%, rgba(117, 255, 106, 0.10), transparent 34rem),
+            linear-gradient(180deg, #0b1024 0%, #050b18 48%, #030712 100%);
+        color: var(--lab-text);
+        font-family: "Be Vietnam Pro", sans-serif;
+        overflow-x: hidden;
+        position: relative;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(56,232,255,.72) rgba(3,10,24,.88);
+    }
+
+    .neon-lab-shell *,
+    .neon-lab-shell *::before,
+    .neon-lab-shell *::after {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(56,232,255,.72) rgba(3,10,24,.82);
+    }
+
+    .neon-lab-shell::-webkit-scrollbar,
+    .neon-lab-shell *::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    .neon-lab-shell::-webkit-scrollbar-track,
+    .neon-lab-shell *::-webkit-scrollbar-track {
+        background:
+            linear-gradient(180deg, rgba(56,232,255,.08), rgba(139,92,246,.08)),
+            rgba(3,10,24,.88);
+        border-radius: 999px;
+        border: 1px solid rgba(104,232,255,.08);
+    }
+
+    .neon-lab-shell::-webkit-scrollbar-thumb,
+    .neon-lab-shell *::-webkit-scrollbar-thumb {
+        min-height: 3rem;
+        border-radius: 999px;
+        border: 2px solid rgba(3,10,24,.88);
+        background:
+            linear-gradient(180deg, rgba(143,248,255,.96), rgba(56,232,255,.88) 42%, rgba(139,92,246,.82));
+        box-shadow: 0 0 18px rgba(56,232,255,.24);
+    }
+
+    .neon-lab-shell::-webkit-scrollbar-thumb:hover,
+    .neon-lab-shell *::-webkit-scrollbar-thumb:hover {
+        background:
+            linear-gradient(180deg, #ffffff, #38e8ff 46%, #ff4fd8);
+    }
+
+    body.neon-lab-shell::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -3;
+        pointer-events: none;
+        background-image:
+            linear-gradient(rgba(39, 216, 255, 0.045) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(39, 216, 255, 0.045) 1px, transparent 1px);
+        background-size: 54px 54px;
+        mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.25));
+        animation: lab-grid-drift 18s linear infinite;
+    }
+
+    body.neon-lab-shell::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 80;
+        pointer-events: none;
+        opacity: 0.055;
+        background:
+            repeating-linear-gradient(0deg, rgba(255,255,255,0.22) 0 1px, transparent 1px 8px),
+            url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E");
+    }
+
+    .neon-lab-shell a { text-decoration: none; }
+    .cinematic-scroll { scroll-behavior: smooth; }
+    .neon-lab-shell .font-display {
+        font-family: "Be Vietnam Pro", sans-serif;
+        letter-spacing: 0;
+        line-height: 1.16;
+    }
+
+    .neon-lab-shell .font-label {
+        font-family: "Be Vietnam Pro", sans-serif;
+        letter-spacing: 0;
+        text-transform: none;
+        line-height: 1.35;
+    }
+    .neon-lab-shell .text-glow-primary { text-shadow: 0 0 26px rgba(39, 216, 255, .58); }
+    .neon-lab-shell .text-glow-secondary { text-shadow: 0 0 24px rgba(117, 255, 106, .45); }
+    .neon-lab-shell,
+    .neon-lab-shell input,
+    .neon-lab-shell button,
+    .neon-lab-shell select,
+    .neon-lab-shell textarea {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+
+    .neon-lab-shell .uppercase,
+    .neon-lab-shell .tracking-wider,
+    .neon-lab-shell .tracking-widest,
+    .neon-lab-shell [class*="tracking-["] {
+        letter-spacing: 0 !important;
+        text-transform: none !important;
+    }
+
+    .neon-lab-shell .blob {
+        position: fixed;
+        width: 34rem;
+        height: 34rem;
+        border-radius: 999px;
+        filter: blur(78px);
+        z-index: -2;
+        pointer-events: none;
+        opacity: .7;
+        animation: blob-orbit 16s ease-in-out infinite alternate;
+    }
+    .neon-lab-shell .blob:nth-of-type(1) { background: rgba(39, 216, 255, .22); }
+    .neon-lab-shell .blob:nth-of-type(2) { background: rgba(214, 92, 255, .18); animation-delay: -5s; }
+    .neon-lab-shell .blob:nth-of-type(3) { background: rgba(117, 255, 106, .12); animation-delay: -9s; }
+
+    .neon-lab-shell .labos-global-3d {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        overflow: hidden;
+        perspective: 1000px;
+        opacity: .72;
+    }
+
+    .neon-lab-shell .labos-3d-object {
+        position: absolute;
+        width: clamp(4.2rem, 8vw, 8rem);
+        aspect-ratio: 1;
+        border-radius: 1.35rem;
+        background:
+            linear-gradient(145deg, rgba(255,255,255,.22), rgba(56,232,255,.08)),
+            radial-gradient(circle at 28% 22%, rgba(255,255,255,.62), transparent 22%),
+            linear-gradient(135deg, rgba(56,232,255,.34), rgba(139,92,246,.22));
+        border: 1px solid rgba(104,232,255,.18);
+        box-shadow: 0 0 34px rgba(56,232,255,.18), 0 32px 70px rgba(0,0,0,.24);
+        transform: rotateX(58deg) rotateZ(45deg);
+        animation: labos-ambient-float 9s ease-in-out infinite;
+        will-change: transform;
+    }
+
+    .neon-lab-shell .labos-3d-object::before,
+    .neon-lab-shell .labos-3d-object::after {
+        content: "";
+        position: absolute;
+        inset: -34%;
+        border-radius: 999px;
+        border: 1px solid rgba(56,232,255,.20);
+        transform: rotateX(70deg);
+    }
+
+    .neon-lab-shell .labos-3d-object::after {
+        inset: 18%;
+        border-color: rgba(255,79,216,.24);
+        animation: orbit-spin 12s linear infinite reverse;
+    }
+
+    .neon-lab-shell .labos-3d-object:nth-child(1) {
+        left: min(4vw, 3rem);
+        top: 18vh;
+    }
+
+    .neon-lab-shell .labos-3d-object:nth-child(2) {
+        right: min(6vw, 5rem);
+        top: 42vh;
+        width: clamp(3.5rem, 6vw, 6rem);
+        animation-delay: -3s;
+    }
+
+    .neon-lab-shell .labos-3d-object:nth-child(3) {
+        left: 48vw;
+        bottom: 8vh;
+        width: clamp(3rem, 5vw, 5rem);
+        animation-delay: -5.8s;
+    }
+
+    .neon-lab-shell .glass-card,
+    .neon-lab-shell .glass-panel {
+        background:
+            linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.025)),
+            var(--lab-panel);
+        border: 1px solid var(--lab-line);
+        box-shadow: 0 22px 70px rgba(0,0,0,.36), inset 0 1px 0 rgba(255,255,255,.08);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border-radius: 1rem;
+        position: relative;
+    }
+    .neon-lab-shell .glass-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        background: linear-gradient(110deg, transparent 0 28%, rgba(255,255,255,.12) 42%, transparent 56% 100%);
+        transform: translateX(-110%);
+        opacity: 0;
+        transition: opacity .3s ease;
+    }
+    .neon-lab-shell .glass-card:hover::before { opacity: 1; animation: panel-sheen 1.15s ease; }
+    .neon-lab-shell .premium-shadow { box-shadow: 0 28px 90px rgba(39, 216, 255, .13), 0 18px 64px rgba(0,0,0,.44); }
+    .neon-lab-shell .btn-glow { box-shadow: 0 0 28px rgba(39, 216, 255, .42); }
+    .neon-lab-shell .btn-glow-green { box-shadow: 0 0 28px rgba(117, 255, 106, .36); }
+    .neon-lab-shell .xp-glow { box-shadow: 0 0 22px rgba(117, 255, 106, .35); }
+
+    .neon-lab-shell .cinematic-topbar {
+        background:
+            linear-gradient(135deg, rgba(255,255,255,.09), rgba(255,255,255,.025)),
+            rgba(5, 11, 24, .66);
+        border: 1px solid rgba(99, 218, 255, .18);
+        border-radius: 1.15rem;
+        box-shadow: 0 20px 70px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.08);
+        backdrop-filter: blur(22px) saturate(150%);
+        -webkit-backdrop-filter: blur(22px) saturate(150%);
+    }
+
+    .neon-lab-shell .cinematic-section {
+        position: relative;
+        isolation: isolate;
+    }
+
+    .neon-lab-shell [data-reveal] {
+        opacity: 0;
+        transform: translateY(28px) scale(.985);
+        filter: blur(10px);
+        transition:
+            opacity .8s cubic-bezier(.2,.8,.2,1) var(--reveal-delay, 0ms),
+            transform .8s cubic-bezier(.2,.8,.2,1) var(--reveal-delay, 0ms),
+            filter .8s cubic-bezier(.2,.8,.2,1) var(--reveal-delay, 0ms);
+    }
+    .neon-lab-shell [data-reveal].is-visible {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+
+    .neon-lab-shell .reveal-word {
+        display: inline-block;
+        animation: title-rise .9s cubic-bezier(.2,.8,.2,1) both;
+    }
+    .neon-lab-shell .reveal-word:nth-child(2) { animation-delay: .07s; }
+    .neon-lab-shell .reveal-word:nth-child(3) { animation-delay: .14s; }
+
+    .neon-lab-shell .glow-button {
+        position: relative;
+        overflow: hidden;
+        transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+    }
+    .neon-lab-shell .glow-button::after {
+        content: "";
+        position: absolute;
+        inset: -45%;
+        background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.38), transparent 62%);
+        transform: translateX(-75%) rotate(8deg);
+        transition: transform .6s ease;
+        pointer-events: none;
+    }
+    .neon-lab-shell .glow-button:hover {
+        transform: translateY(-2px) scale(1.015);
+        box-shadow: 0 0 34px rgba(39,216,255,.48), 0 18px 48px rgba(0,0,0,.28);
+    }
+    .neon-lab-shell .glow-button:hover::after { transform: translateX(75%) rotate(8deg); }
+
+    .neon-lab-shell .cinematic-hero {
+        min-height: clamp(34rem, 74vh, 48rem);
+        isolation: isolate;
+        border-radius: 1.35rem;
+        transform-style: preserve-3d;
+    }
+    .neon-lab-shell .cinematic-hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: inherit;
+        background:
+            radial-gradient(circle at 70% 28%, rgba(255,179,71,.20), transparent 16rem),
+            radial-gradient(circle at 38% 18%, rgba(214,92,255,.18), transparent 18rem),
+            linear-gradient(180deg, transparent, rgba(0,0,0,.42));
+        pointer-events: none;
+    }
+    .neon-lab-shell .lab-stage {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        border-radius: inherit;
+        z-index: -1;
+        background:
+            linear-gradient(180deg, rgba(6, 10, 30, .04), rgba(6, 10, 30, .82) 72%, rgba(3, 7, 18, .98)),
+            radial-gradient(circle at 50% 22%, rgba(39, 216, 255, .24), transparent 20rem),
+            linear-gradient(125deg, rgba(39, 216, 255, .14), transparent 34%),
+            linear-gradient(235deg, rgba(214, 92, 255, .20), transparent 38%),
+            linear-gradient(20deg, rgba(255, 119, 64, .16), transparent 45%);
+    }
+    .neon-lab-shell .lab-stage::before {
+        content: "";
+        position: absolute;
+        inset: 5% 5% auto;
+        height: 62%;
+        background:
+            linear-gradient(150deg, transparent 0 17%, rgba(255,255,255,.24) 17% 18%, transparent 18% 100%),
+            linear-gradient(28deg, transparent 0 34%, rgba(214,92,255,.28) 34% 35%, transparent 35% 100%),
+            linear-gradient(180deg, rgba(255,255,255,.23), rgba(39,216,255,.04)),
+            linear-gradient(90deg, rgba(39,216,255,.18), rgba(214,92,255,.16));
+        clip-path: polygon(0 76%, 9% 55%, 17% 63%, 27% 26%, 38% 58%, 50% 10%, 62% 60%, 74% 25%, 86% 58%, 100% 38%, 100% 100%, 0 100%);
+        filter: drop-shadow(0 0 34px rgba(39,216,255,.28));
+        animation: ridge-float 7s ease-in-out infinite;
+    }
+    .neon-lab-shell .lab-stage::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -12%;
+        width: min(58rem, 92%);
+        height: 20rem;
+        transform: translateX(-50%) perspective(520px) rotateX(62deg);
+        background:
+            repeating-linear-gradient(90deg, rgba(39,216,255,.22) 0 1px, transparent 1px 44px),
+            repeating-linear-gradient(0deg, rgba(39,216,255,.18) 0 1px, transparent 1px 38px);
+        border: 1px solid rgba(39,216,255,.22);
+        box-shadow: 0 0 46px rgba(39,216,255,.16);
+        animation: floor-scan 5s linear infinite;
+    }
+    .neon-lab-shell .lab-stage .stage-city {
+        position: absolute;
+        left: 5%;
+        right: 5%;
+        bottom: 18%;
+        height: 28%;
+        opacity: .78;
+        background:
+            linear-gradient(to top, rgba(39,216,255,.20), rgba(39,216,255,.04)),
+            repeating-linear-gradient(90deg, transparent 0 18px, rgba(255,255,255,.18) 18px 20px, transparent 20px 34px);
+        clip-path: polygon(0 100%, 0 42%, 7% 42%, 7% 14%, 14% 14%, 14% 66%, 22% 66%, 22% 24%, 30% 24%, 30% 58%, 39% 58%, 39% 8%, 48% 8%, 48% 70%, 58% 70%, 58% 30%, 66% 30%, 66% 62%, 76% 62%, 76% 18%, 86% 18%, 86% 54%, 94% 54%, 94% 34%, 100% 34%, 100% 100%);
+        filter: drop-shadow(0 0 22px rgba(39,216,255,.22));
+        animation: city-glow 4.5s ease-in-out infinite;
+    }
+    .neon-lab-shell .lab-orbit {
+        position: absolute;
+        right: 9%;
+        top: 10%;
+        width: 11rem;
+        height: 11rem;
+        border: 1px solid rgba(39,216,255,.28);
+        border-radius: 999px;
+        transform-style: preserve-3d;
+        animation: orbit-spin 10s linear infinite;
+        opacity: .84;
+    }
+    .neon-lab-shell .lab-orbit::before,
+    .neon-lab-shell .lab-orbit::after {
+        content: "";
+        position: absolute;
+        inset: 22%;
+        border: 1px solid rgba(214,92,255,.32);
+        border-radius: 999px;
+        transform: rotate(58deg);
+    }
+    .neon-lab-shell .lab-orbit::after {
+        inset: 45%;
+        background: var(--lab-secondary);
+        border: 0;
+        box-shadow: 0 0 30px var(--lab-secondary);
+        transform: none;
+    }
+    .neon-lab-shell .molecule-field {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: .75;
+    }
+    .neon-lab-shell .molecule-field span {
+        position: absolute;
+        width: .55rem;
+        height: .55rem;
+        border-radius: 999px;
+        background: var(--lab-primary);
+        box-shadow: 0 0 18px var(--lab-primary);
+        animation: particle-rise 9s linear infinite;
+    }
+    .neon-lab-shell .molecule-field span:nth-child(1) { left: 12%; bottom: 8%; animation-delay: -1s; }
+    .neon-lab-shell .molecule-field span:nth-child(2) { left: 29%; bottom: 18%; animation-delay: -5s; background: var(--lab-secondary); box-shadow: 0 0 18px var(--lab-secondary); }
+    .neon-lab-shell .molecule-field span:nth-child(3) { left: 66%; bottom: 12%; animation-delay: -3s; background: var(--lab-tertiary); box-shadow: 0 0 18px var(--lab-tertiary); }
+    .neon-lab-shell .molecule-field span:nth-child(4) { left: 82%; bottom: 22%; animation-delay: -7s; }
+
+    .neon-lab-shell .collectible-border {
+        background: linear-gradient(145deg, rgba(18,35,63,.92), rgba(9,18,35,.84));
+        border: 1px solid rgba(39,216,255,.22);
+        transition: transform .28s ease, border-color .28s ease, box-shadow .28s ease;
+    }
+    .neon-lab-shell .collectible-border:hover {
+        transform: translateY(-6px);
+        border-color: rgba(39,216,255,.58);
+        box-shadow: 0 22px 60px rgba(39,216,255,.16);
+    }
+
+    .neon-lab-shell .neon-sidebar {
+        background: rgba(4, 10, 23, .94);
+        border-right: 1px solid rgba(39,216,255,.22);
+        box-shadow: 8px 0 42px rgba(0,0,0,.36);
+        backdrop-filter: blur(18px);
+    }
+    .neon-lab-shell .sidebar-active {
+        background: linear-gradient(90deg, rgba(39,216,255,.18), rgba(39,216,255,.03));
+        color: var(--lab-primary) !important;
+        border-right: 3px solid var(--lab-primary);
+        box-shadow: inset 0 0 20px rgba(39,216,255,.08);
+    }
+    .neon-lab-shell .neon-nav-link { color: var(--lab-muted); }
+    .neon-lab-shell .neon-nav-link:hover { color: var(--lab-primary); background: rgba(39,216,255,.08); }
+
+    .neon-lab-shell .cinematic-card {
+        transition: transform .32s ease, border-color .32s ease, box-shadow .32s ease;
+    }
+    .neon-lab-shell .cinematic-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(39,216,255,.45);
+        box-shadow: 0 30px 80px rgba(39,216,255,.13), 0 18px 60px rgba(0,0,0,.44);
+    }
+
+    .neon-lab-shell .mission-visual {
+        position: relative;
+        min-height: 22rem;
+        overflow: hidden;
+        border-radius: 1.25rem;
+        background:
+            radial-gradient(circle at 72% 22%, rgba(255,179,71,.24), transparent 11rem),
+            radial-gradient(circle at 28% 30%, rgba(39,216,255,.22), transparent 13rem),
+            linear-gradient(145deg, rgba(18,35,63,.92), rgba(5,11,24,.84));
+        border: 1px solid rgba(99,218,255,.22);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 28px 80px rgba(0,0,0,.38);
+    }
+    .neon-lab-shell .mission-visual::before {
+        content: "";
+        position: absolute;
+        inset: 12%;
+        border: 1px solid rgba(39,216,255,.24);
+        border-radius: 999px;
+        box-shadow: 0 0 44px rgba(39,216,255,.18);
+        animation: orbit-spin 18s linear infinite;
+    }
+    .neon-lab-shell .mission-visual::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -20%;
+        width: 120%;
+        height: 16rem;
+        transform: translateX(-50%) perspective(460px) rotateX(62deg);
+        background:
+            repeating-linear-gradient(90deg, rgba(39,216,255,.18) 0 1px, transparent 1px 38px),
+            repeating-linear-gradient(0deg, rgba(214,92,255,.14) 0 1px, transparent 1px 34px);
+        opacity: .78;
+    }
+    .neon-lab-shell .mission-node {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 5.5rem;
+        height: 5.5rem;
+        border-radius: 1.25rem;
+        border: 1px solid rgba(255,255,255,.14);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 0 30px rgba(39,216,255,.16);
+        animation: float 4.8s ease-in-out infinite;
+    }
+    .neon-lab-shell .mission-node:nth-child(1) { left: 12%; top: 16%; background: rgba(39,216,255,.13); color: var(--lab-primary); }
+    .neon-lab-shell .mission-node:nth-child(2) { right: 12%; top: 34%; background: rgba(214,92,255,.15); color: var(--lab-tertiary); animation-delay: -1.4s; }
+    .neon-lab-shell .mission-node:nth-child(3) { left: 35%; bottom: 16%; background: rgba(255,179,71,.14); color: var(--lab-secondary); animation-delay: -2.3s; }
+
+    .neon-lab-shell .custom-scrollbar::-webkit-scrollbar { width: 10px; height: 10px; }
+    .neon-lab-shell .custom-scrollbar::-webkit-scrollbar-track {
+        background:
+            linear-gradient(180deg, rgba(56,232,255,.08), rgba(139,92,246,.08)),
+            rgba(3,10,24,.88);
+        border-radius: 999px;
+        border: 1px solid rgba(104,232,255,.08);
+    }
+    .neon-lab-shell .custom-scrollbar::-webkit-scrollbar-thumb {
+        min-height: 3rem;
+        border-radius: 999px;
+        border: 2px solid rgba(3,10,24,.88);
+        background: linear-gradient(180deg, rgba(143,248,255,.96), rgba(56,232,255,.88) 42%, rgba(139,92,246,.82));
+        box-shadow: 0 0 18px rgba(56,232,255,.24);
+    }
+    .neon-lab-shell .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #ffffff, #38e8ff 46%, #ff4fd8);
+    }
+    .neon-lab-shell .lesson-outline-scroll { overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-gutter: stable; }
+
+    .neon-lab-shell .glass-card:has(.virtual-lab-frame),
+    .neon-lab-shell .glass-card:has(#lab-iframe),
+    .neon-lab-shell .glass-card:has(.virtual-lab-frame):hover,
+    .neon-lab-shell .glass-card:has(#lab-iframe):hover {
+        transform: none !important;
+        filter: none !important;
+    }
+
+    .neon-lab-shell .virtual-lab-shell,
+    .neon-lab-shell .virtual-lab-shell:hover,
+    .neon-lab-shell .virtual-lab-shell:focus-within {
+        transform: none !important;
+        filter: none !important;
+    }
+
+    .neon-lab-shell .virtual-lab-shell::before,
+    .neon-lab-shell .virtual-lab-shell::after {
+        display: none !important;
+    }
+
+    .neon-lab-shell .virtual-lab-frame {
+        isolation: isolate;
+        transform: none !important;
+        transition: border-color .24s ease, box-shadow .24s ease;
+        contain: layout paint;
+        touch-action: none;
+        background: #020617;
+    }
+
+    .neon-lab-shell .virtual-lab-frame:hover {
+        transform: none !important;
+    }
+
+    .neon-lab-shell .virtual-lab-frame iframe {
+        display: block;
+        background: #020617;
+        pointer-events: auto;
+        touch-action: none;
+        transform: none !important;
+    }
+
+    .neon-lab-shell .mobile-lab-launcher {
+        display: none;
+    }
+
+    .neon-lab-shell .virtual-lab-frame:fullscreen,
+    .neon-lab-shell .virtual-lab-frame:-webkit-full-screen {
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: none !important;
+        max-height: none !important;
+        border-radius: 0 !important;
+        border: 0 !important;
+        background: #020617 !important;
+        aspect-ratio: auto !important;
+    }
+
+    .neon-lab-shell .virtual-lab-frame:fullscreen iframe,
+    .neon-lab-shell .virtual-lab-frame:-webkit-full-screen iframe {
+        width: 100vw !important;
+        height: 100vh !important;
+        border-radius: 0 !important;
+    }
+
+    .neon-lab-shell .flashcard-panel,
+    .neon-lab-shell .flashcard-panel:hover,
+    .neon-lab-shell .card-shell,
+    .neon-lab-shell .card-shell:hover,
+    .neon-lab-shell .flashcard:hover {
+        transform: none !important;
+        filter: none !important;
+    }
+
+    .neon-lab-shell .flashcard.is-flipped,
+    .neon-lab-shell .flashcard.is-flipped:hover {
+        transform: rotateY(180deg) !important;
+    }
+
+    .neon-lab-shell input,
+    .neon-lab-shell select,
+    .neon-lab-shell textarea {
+        background-color: rgba(8, 17, 33, .88) !important;
+        border-color: rgba(99, 218, 255, .22) !important;
+        color: var(--lab-text) !important;
+    }
+    .neon-lab-shell input::placeholder,
+    .neon-lab-shell textarea::placeholder { color: rgba(169, 191, 210, .72) !important; }
+    .neon-lab-shell input:focus,
+    .neon-lab-shell select:focus,
+    .neon-lab-shell textarea:focus {
+        border-color: var(--lab-primary) !important;
+        box-shadow: 0 0 0 3px rgba(39,216,255,.18), 0 0 24px rgba(39,216,255,.14) !important;
+    }
+
+    .neon-lab-shell .text-slate-300 { color: #8fa8ba !important; }
+    .neon-lab-shell .text-slate-400 { color: #98adc0 !important; }
+    .neon-lab-shell .text-slate-500,
+    .neon-lab-shell .text-slate-600 { color: var(--lab-muted) !important; }
+    .neon-lab-shell .text-slate-700 { color: var(--lab-text) !important; }
+    .neon-lab-shell .bg-white,
+    .neon-lab-shell .bg-white\/60,
+    .neon-lab-shell .bg-white\/70,
+    .neon-lab-shell .bg-white\/80,
+    .neon-lab-shell .bg-white\/90 { background-color: rgba(12, 25, 50, .76) !important; }
+    .neon-lab-shell .bg-slate-50,
+    .neon-lab-shell .bg-slate-100,
+    .neon-lab-shell .bg-slate-200 { background-color: rgba(18, 35, 63, .86) !important; }
+    .neon-lab-shell .border-slate-100,
+    .neon-lab-shell .border-slate-200,
+    .neon-lab-shell .border-white,
+    .neon-lab-shell .border-white\/60,
+    .neon-lab-shell .border-white\/80 { border-color: rgba(99,218,255,.18) !important; }
+    .neon-lab-shell .bg-primary,
+    .neon-lab-shell .bg-blue-600 { background-color: var(--lab-primary) !important; color: #031923 !important; }
+    .neon-lab-shell .bg-secondary { background-color: var(--lab-secondary) !important; color: #06230a !important; }
+    .neon-lab-shell .text-primary { color: var(--lab-primary) !important; }
+    .neon-lab-shell .text-secondary { color: var(--lab-secondary) !important; }
+    .neon-lab-shell .text-tertiary { color: var(--lab-tertiary) !important; }
+    .neon-lab-shell .material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 430, "GRAD" 0, "opsz" 24; }
+    .neon-lab-shell .material-symbols-outlined.fill-1 { font-variation-settings: "FILL" 1, "wght" 520, "GRAD" 0, "opsz" 24; }
+
+    #mobile-sidebar-overlay { display: none; }
+    #mobile-sidebar-overlay.active { display: block; }
+    #mobile-sidebar.open,
+    #admin-mobile-sidebar.open { transform: translateX(0); }
+
+    @@keyframes lab-grid-drift { to { background-position: 54px 54px; } }
+    @@keyframes blob-orbit { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(34px,-26px,0) scale(1.08); } }
+    @@keyframes panel-sheen { to { transform: translateX(110%); } }
+    @@keyframes ridge-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    @@keyframes floor-scan { to { background-position: 44px 38px; } }
+    @@keyframes city-glow { 0%,100% { opacity: .62; } 50% { opacity: .94; } }
+    @@keyframes orbit-spin { to { transform: rotate(360deg); } }
+    @@keyframes particle-rise { 0% { transform: translateY(0) scale(.7); opacity: 0; } 18% { opacity: 1; } 100% { transform: translateY(-18rem) scale(1.2); opacity: 0; } }
+    @@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    @@keyframes title-rise { from { opacity: 0; transform: translateY(22px); filter: blur(8px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
+    .neon-lab-shell .animate-float { animation: float 4.5s ease-in-out infinite; }
+
+    @@media (max-width: 767px) {
+        .neon-lab-shell .cinematic-hero {
+            min-height: 34rem;
+            padding: 1.25rem !important;
+        }
+        .neon-lab-shell .lab-stage::before {
+            inset: 12% -18% auto;
+            height: 46%;
+        }
+        .neon-lab-shell .lab-stage::after {
+            width: 42rem;
+            height: 16rem;
+            bottom: -9%;
+        }
+        .neon-lab-shell .lab-orbit {
+            right: -1.5rem;
+            top: 1rem;
+            width: 7.5rem;
+            height: 7.5rem;
+            opacity: .48;
+        }
+        .neon-lab-shell .glass-card,
+        .neon-lab-shell .glass-panel {
+            border-radius: .85rem;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        body.neon-lab-shell::before,
+        .neon-lab-shell .blob,
+        .neon-lab-shell .lab-stage::before,
+        .neon-lab-shell .lab-stage::after,
+        .neon-lab-shell .stage-city,
+        .neon-lab-shell .lab-orbit,
+        .neon-lab-shell .molecule-field span,
+        .neon-lab-shell .animate-float {
+            animation: none !important;
+        }
+        .neon-lab-shell [data-reveal] {
+            opacity: 1 !important;
+            transform: none !important;
+            filter: none !important;
+        }
+    }
+
+    /* LabOS v2: Futuristic Chemistry Command Center design system.
+       Tokens: deep navy substrate, cyan primary energy, ultraviolet depth, magenta/orange reaction accents.
+       Motion: short, soft, physically plausible; hover lifts are subtle, glow responds like emitted light. */
+    :root {
+        --labos-void: #020617;
+        --labos-navy: #061128;
+        --labos-panel: rgba(8, 18, 39, .72);
+        --labos-panel-strong: rgba(10, 24, 52, .92);
+        --labos-cyan: #38e8ff;
+        --labos-blue: #3b82ff;
+        --labos-violet: #8b5cf6;
+        --labos-magenta: #ff4fd8;
+        --labos-amber: #ff9f43;
+        --labos-line: rgba(104, 232, 255, .24);
+        --labos-line-hot: rgba(56, 232, 255, .58);
+        --labos-text: #f4fbff;
+        --labos-muted: #a9bed6;
+        --labos-radius-sm: .75rem;
+        --labos-radius-md: 1rem;
+        --labos-radius-lg: 1.35rem;
+        --labos-shadow-soft: 0 24px 80px rgba(0,0,0,.42);
+        --labos-shadow-glow: 0 0 34px rgba(56,232,255,.22), 0 0 86px rgba(139,92,246,.12);
+        --labos-ease: cubic-bezier(.2,.8,.2,1);
+    }
+
+    body.neon-lab-shell {
+        background:
+            radial-gradient(circle at 18% 8%, rgba(56,232,255,.20), transparent 28rem),
+            radial-gradient(circle at 82% 2%, rgba(139,92,246,.24), transparent 30rem),
+            radial-gradient(circle at 78% 72%, rgba(255,79,216,.12), transparent 26rem),
+            radial-gradient(circle at 18% 92%, rgba(255,159,67,.10), transparent 28rem),
+            linear-gradient(145deg, #020617 0%, #061128 48%, #030716 100%);
+        color: var(--labos-text);
+    }
+
+    body.neon-lab-shell::before {
+        background-image:
+            linear-gradient(rgba(56,232,255,.055) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(56,232,255,.055) 1px, transparent 1px),
+            radial-gradient(circle at 50% 50%, rgba(255,255,255,.08) 0 1px, transparent 1px);
+        background-size: 56px 56px, 56px 56px, 120px 120px;
+        opacity: .9;
+    }
+
+    .neon-lab-shell::selection {
+        background: rgba(56,232,255,.28);
+        color: white;
+    }
+
+    .neon-lab-shell .glass-card,
+    .neon-lab-shell .glass-panel,
+    .neon-lab-shell .collectible-border,
+    .neon-lab-shell table,
+    .neon-lab-shell .rounded-xl,
+    .neon-lab-shell .rounded-2xl,
+    .neon-lab-shell .rounded-3xl {
+        position: relative;
+    }
+
+    .neon-lab-shell .glass-card,
+    .neon-lab-shell .glass-panel {
+        background:
+            linear-gradient(145deg, rgba(255,255,255,.105), rgba(255,255,255,.026) 38%, rgba(56,232,255,.035)),
+            radial-gradient(circle at 18% 0%, rgba(56,232,255,.13), transparent 16rem),
+            var(--labos-panel);
+        border: 1px solid var(--labos-line);
+        border-radius: var(--labos-radius-lg);
+        box-shadow: var(--labos-shadow-soft), inset 0 1px 0 rgba(255,255,255,.10), var(--labos-shadow-glow);
+        backdrop-filter: blur(24px) saturate(145%);
+        -webkit-backdrop-filter: blur(24px) saturate(145%);
+    }
+
+    .neon-lab-shell .glass-card::after,
+    .neon-lab-shell .glass-panel::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        background:
+            linear-gradient(135deg, rgba(255,255,255,.18), transparent 18% 78%, rgba(56,232,255,.16)),
+            linear-gradient(90deg, transparent, rgba(56,232,255,.10), transparent);
+        opacity: .46;
+        mix-blend-mode: screen;
+    }
+
+    .neon-lab-shell .cinematic-card,
+    .neon-lab-shell .glass-card,
+    .neon-lab-shell .collectible-border,
+    .neon-lab-shell article {
+        transition: transform .36s var(--labos-ease), border-color .36s var(--labos-ease), box-shadow .36s var(--labos-ease), filter .36s var(--labos-ease);
+    }
+
+    .neon-lab-shell .cinematic-card:hover,
+    .neon-lab-shell .glass-card:hover,
+    .neon-lab-shell .collectible-border:hover,
+    .neon-lab-shell article:hover {
+        transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateY(-7px);
+        border-color: var(--labos-line-hot);
+        box-shadow: 0 34px 100px rgba(0,0,0,.48), 0 0 46px rgba(56,232,255,.22), 0 0 90px rgba(139,92,246,.13);
+    }
+
+    .neon-lab-shell main {
+        animation: labos-page-in .52s var(--labos-ease) both;
+    }
+
+    .neon-lab-shell .neon-sidebar {
+        background:
+            linear-gradient(180deg, rgba(9, 20, 43, .96), rgba(3, 7, 18, .94)),
+            radial-gradient(circle at 0% 0%, rgba(56,232,255,.16), transparent 18rem);
+        border-right: 1px solid rgba(56,232,255,.24);
+        box-shadow: 18px 0 80px rgba(0,0,0,.42), inset -1px 0 0 rgba(255,255,255,.04);
+    }
+
+    .neon-lab-shell .sidebar-active,
+    .neon-lab-shell .neon-nav-link:hover {
+        background:
+            linear-gradient(90deg, rgba(56,232,255,.22), rgba(139,92,246,.10), transparent),
+            rgba(56,232,255,.04);
+        color: var(--labos-cyan) !important;
+        border-color: rgba(56,232,255,.42);
+        box-shadow: inset 0 0 28px rgba(56,232,255,.10), 0 0 24px rgba(56,232,255,.08);
+    }
+
+    .neon-lab-shell .cinematic-topbar,
+    .neon-lab-shell header.glass-panel {
+        background:
+            linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.035)),
+            rgba(4, 10, 25, .66);
+        border-color: rgba(104,232,255,.24) !important;
+        box-shadow: 0 18px 70px rgba(0,0,0,.36), inset 0 1px 0 rgba(255,255,255,.10);
+    }
+
+    .neon-lab-shell button,
+    .neon-lab-shell .btn-glow,
+    .neon-lab-shell .glow-button,
+    .neon-lab-shell a.bg-primary,
+    .neon-lab-shell button.bg-primary,
+    .neon-lab-shell input[type="submit"] {
+        border-radius: var(--labos-radius-md);
+        transition: transform .26s var(--labos-ease), box-shadow .26s var(--labos-ease), filter .26s var(--labos-ease), background .26s var(--labos-ease);
+    }
+
+    .neon-lab-shell .bg-primary,
+    .neon-lab-shell a.bg-primary,
+    .neon-lab-shell button.bg-primary {
+        background:
+            linear-gradient(135deg, #77f4ff 0%, #38e8ff 34%, #4f8cff 100%) !important;
+        color: #03111f !important;
+        box-shadow: 0 0 30px rgba(56,232,255,.34), 0 18px 44px rgba(0,0,0,.24);
+    }
+
+    .neon-lab-shell button:hover,
+    .neon-lab-shell a.bg-primary:hover,
+    .neon-lab-shell button.bg-primary:hover {
+        transform: translateY(-2px) scale(1.012);
+        filter: saturate(1.08) brightness(1.04);
+    }
+
+    .neon-lab-shell input,
+    .neon-lab-shell select,
+    .neon-lab-shell textarea {
+        min-height: 2.75rem;
+        border-radius: var(--labos-radius-md) !important;
+        background:
+            linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.018)),
+            rgba(3, 9, 22, .76) !important;
+        border-color: rgba(104,232,255,.24) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    }
+
+    .neon-lab-shell label {
+        color: #c7d9ef;
+        font-weight: 700;
+    }
+
+    .neon-lab-shell table {
+        width: 100%;
+        overflow: hidden;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid rgba(104,232,255,.20);
+        border-radius: var(--labos-radius-lg);
+        background: rgba(5, 13, 30, .70);
+        box-shadow: var(--labos-shadow-soft);
+    }
+
+    .neon-lab-shell thead,
+    .neon-lab-shell th {
+        background: linear-gradient(90deg, rgba(56,232,255,.13), rgba(139,92,246,.10));
+        color: #eaf9ff;
+        font-family: "Be Vietnam Pro", sans-serif;
+        letter-spacing: 0;
+        text-transform: none;
+        font-size: .72rem;
+        line-height: 1.35;
+    }
+
+    .neon-lab-shell th,
+    .neon-lab-shell td {
+        border-bottom: 1px solid rgba(104,232,255,.12);
+        padding: .9rem 1rem;
+    }
+
+    .neon-lab-shell tbody tr {
+        transition: background .24s ease, transform .24s ease;
+    }
+
+    .neon-lab-shell tbody tr:hover {
+        background: rgba(56,232,255,.065);
+    }
+
+    .neon-lab-shell .progress,
+    .neon-lab-shell [class*="rounded-full"][class*="bg-surface-container"],
+    .neon-lab-shell [class*="rounded-full"][class*="bg-slate"] {
+        box-shadow: inset 0 0 18px rgba(0,0,0,.32);
+    }
+
+    .neon-lab-shell .xp-glow,
+    .neon-lab-shell [style*="width:"] {
+        transition: width 1s var(--labos-ease), filter .3s ease;
+    }
+
+    .neon-lab-shell .labos-skeleton {
+        overflow: hidden;
+        background: linear-gradient(90deg, rgba(255,255,255,.04), rgba(56,232,255,.10), rgba(255,255,255,.04));
+        background-size: 240% 100%;
+        animation: labos-skeleton 1.8s ease-in-out infinite;
+    }
+
+    .neon-lab-shell .cinematic-hero {
+        box-shadow: 0 50px 140px rgba(0,0,0,.58), 0 0 90px rgba(56,232,255,.20), inset 0 1px 0 rgba(255,255,255,.12);
+    }
+
+    .neon-lab-shell .lab-hero-3d {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+        opacity: .96;
+    }
+
+    .neon-lab-shell .lab-hero-3d canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        filter: saturate(1.1) contrast(1.05);
+    }
+
+    .neon-lab-shell .lab-hero-3d::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 68% 40%, transparent 0 18rem, rgba(3,7,18,.18) 28rem),
+            linear-gradient(90deg, rgba(3,7,18,.82) 0 36%, transparent 62%),
+            linear-gradient(180deg, rgba(3,7,18,.18), rgba(3,7,18,.62));
+    }
+
+    .neon-lab-shell .lab-hero-3d-fallback {
+        position: absolute;
+        right: 7%;
+        top: 10%;
+        width: min(38rem, 60vw);
+        aspect-ratio: 1;
+        opacity: .72;
+        transform-style: preserve-3d;
+        perspective: 900px;
+    }
+
+    .neon-lab-shell .fallback-core {
+        position: absolute;
+        inset: 35%;
+        border-radius: 999px;
+        background: radial-gradient(circle, #8ff8ff, #38e8ff 46%, rgba(139,92,246,.2));
+        box-shadow: 0 0 42px rgba(56,232,255,.66), 0 0 120px rgba(139,92,246,.26);
+        animation: labos-pulse-core 2.8s ease-in-out infinite;
+    }
+
+    .neon-lab-shell .fallback-ring {
+        position: absolute;
+        inset: 15%;
+        border: 1px solid rgba(56,232,255,.34);
+        border-radius: 999px;
+        box-shadow: inset 0 0 36px rgba(56,232,255,.12), 0 0 42px rgba(56,232,255,.12);
+        animation: labos-ring-spin 12s linear infinite;
+    }
+
+    .neon-lab-shell .lab-auth-3d {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+        opacity: .9;
+    }
+
+    .neon-lab-shell > main {
+        position: relative;
+        z-index: 1;
+    }
+
+    .neon-lab-shell .lab-auth-3d canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    .neon-lab-shell .lab-auth-3d::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at 24% 44%, transparent 0 18rem, rgba(3,7,18,.24) 28rem),
+            linear-gradient(90deg, rgba(3,7,18,.26), rgba(3,7,18,.72) 58%, rgba(3,7,18,.36)),
+            linear-gradient(180deg, rgba(3,7,18,.20), rgba(3,7,18,.64));
+    }
+
+    .neon-lab-shell .labos-visual-stage {
+        position: absolute;
+        right: clamp(1rem, 5vw, 5rem);
+        top: 50%;
+        width: min(31rem, 42vw);
+        aspect-ratio: 1.05;
+        transform: translateY(-50%);
+        pointer-events: none;
+        perspective: 900px;
+        opacity: .88;
+    }
+
+    .neon-lab-shell .labos-visual-stage::before {
+        content: "";
+        position: absolute;
+        inset: 16%;
+        border-radius: 999px;
+        border: 1px solid rgba(56,232,255,.32);
+        box-shadow: 0 0 46px rgba(56,232,255,.18), inset 0 0 36px rgba(139,92,246,.12);
+        transform: rotateX(68deg) rotateZ(-18deg);
+        animation: labos-stage-spin 18s linear infinite;
+    }
+
+    .neon-lab-shell .labos-visual-stage::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: 2%;
+        width: 86%;
+        height: 28%;
+        transform: translateX(-50%) rotateX(72deg);
+        background:
+            repeating-linear-gradient(90deg, rgba(56,232,255,.22) 0 1px, transparent 1px 28px),
+            repeating-linear-gradient(0deg, rgba(139,92,246,.18) 0 1px, transparent 1px 24px);
+        border: 1px solid rgba(56,232,255,.18);
+        border-radius: 1rem;
+        filter: drop-shadow(0 0 24px rgba(56,232,255,.20));
+        opacity: .68;
+    }
+
+    .neon-lab-shell .labos-visual-core {
+        position: absolute;
+        inset: 32%;
+        border-radius: 1.45rem;
+        background:
+            linear-gradient(145deg, rgba(255,255,255,.22), rgba(56,232,255,.18)),
+            radial-gradient(circle at 32% 24%, rgba(255,255,255,.7), transparent 22%),
+            linear-gradient(135deg, rgba(56,232,255,.72), rgba(139,92,246,.5));
+        border: 1px solid rgba(255,255,255,.24);
+        box-shadow: 0 0 52px rgba(56,232,255,.42), 0 0 120px rgba(139,92,246,.22);
+        transform: rotateX(58deg) rotateZ(45deg);
+        animation: labos-core-float 5.2s ease-in-out infinite;
+    }
+
+    .neon-lab-shell .labos-visual-chip {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 5.2rem;
+        height: 3.4rem;
+        border-radius: 1rem;
+        color: var(--labos-cyan);
+        background: rgba(6,18,40,.68);
+        border: 1px solid rgba(56,232,255,.24);
+        box-shadow: 0 18px 48px rgba(0,0,0,.28), 0 0 30px rgba(56,232,255,.13);
+        backdrop-filter: blur(16px);
+        animation: labos-chip-float 4.8s ease-in-out infinite;
+    }
+
+    .neon-lab-shell .labos-visual-chip:nth-child(2) { left: 5%; top: 18%; color: #ff9f43; animation-delay: -1.2s; }
+    .neon-lab-shell .labos-visual-chip:nth-child(3) { right: 7%; top: 22%; color: #ff4fd8; animation-delay: -2.2s; }
+    .neon-lab-shell .labos-visual-chip:nth-child(4) { left: 18%; bottom: 18%; color: #38e8ff; animation-delay: -3.1s; }
+    .neon-lab-shell .labos-visual-chip:nth-child(5) { right: 20%; bottom: 14%; color: #75ff6a; animation-delay: -.6s; }
+
+    .neon-lab-shell .labos-visual-beam {
+        position: absolute;
+        left: 6%;
+        right: 6%;
+        top: 48%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(56,232,255,.75), rgba(255,79,216,.48), transparent);
+        box-shadow: 0 0 22px rgba(56,232,255,.28);
+        transform: rotate(-24deg);
+        animation: labos-beam-drift 5s ease-in-out infinite;
+    }
+
+    .neon-lab-shell .labos-video-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 12rem;
+        border-radius: var(--labos-radius-lg);
+        background:
+            radial-gradient(circle at 30% 20%, rgba(56,232,255,.22), transparent 13rem),
+            radial-gradient(circle at 76% 70%, rgba(255,79,216,.14), transparent 12rem),
+            linear-gradient(145deg, rgba(8,18,39,.86), rgba(3,7,18,.72));
+        border: 1px solid rgba(104,232,255,.22);
+        box-shadow: var(--labos-shadow-soft);
+    }
+
+    .neon-lab-shell .labos-video-card::before {
+        content: "";
+        position: absolute;
+        inset: -40%;
+        background:
+            conic-gradient(from 180deg, transparent, rgba(56,232,255,.16), transparent, rgba(255,79,216,.12), transparent);
+        animation: labos-shader-roll 10s linear infinite;
+    }
+
+    .neon-lab-shell .labos-video-card > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .neon-lab-shell .fallback-ring-b {
+        inset: 24%;
+        border-color: rgba(255,79,216,.32);
+        transform: rotateX(64deg) rotateZ(18deg);
+        animation-duration: 16s;
+        animation-direction: reverse;
+    }
+
+    .neon-lab-shell .fallback-ring-c {
+        inset: 5%;
+        border-color: rgba(255,159,67,.18);
+        transform: rotateX(72deg) rotateZ(-24deg);
+        animation-duration: 22s;
+    }
+
+    .neon-lab-shell .fallback-beam {
+        position: absolute;
+        left: 4%;
+        right: 4%;
+        top: 50%;
+        height: 2px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, transparent, rgba(56,232,255,.74), rgba(255,79,216,.54), transparent);
+        box-shadow: 0 0 24px rgba(56,232,255,.35);
+        transform: rotate(-24deg);
+        opacity: .52;
+        animation: labos-beam-drift 5.5s ease-in-out infinite;
+    }
+
+    .neon-lab-shell .fallback-beam-b {
+        transform: rotate(32deg);
+        background: linear-gradient(90deg, transparent, rgba(255,159,67,.52), rgba(56,232,255,.54), transparent);
+        animation-delay: -2.1s;
+    }
+
+    .neon-lab-shell .cinematic-hero h1,
+    .neon-lab-shell h1,
+    .neon-lab-shell h2 {
+        text-wrap: balance;
+        word-break: normal;
+        overflow-wrap: anywhere;
+        hyphens: auto;
+    }
+
+    .neon-lab-shell .text-on-surface-variant,
+    .neon-lab-shell .text-slate-300,
+    .neon-lab-shell .text-slate-400 {
+        color: var(--labos-muted) !important;
+    }
+
+    .neon-lab-shell .font-label {
+        letter-spacing: 0;
+        text-transform: none;
+        line-height: 1.35;
+    }
+
+    @@keyframes labos-skeleton {
+        0% { background-position: 120% 0; }
+        100% { background-position: -120% 0; }
+    }
+
+    @@keyframes labos-page-in {
+        from { opacity: 0; transform: translateY(12px); filter: blur(8px); }
+        to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+
+    @@keyframes labos-pulse-core {
+        0%, 100% { transform: scale(.96); opacity: .82; }
+        50% { transform: scale(1.08); opacity: 1; }
+    }
+
+    @@keyframes labos-ring-spin {
+        to { transform: rotateX(64deg) rotateZ(360deg); }
+    }
+
+    @@keyframes labos-beam-drift {
+        0%, 100% { opacity: .34; filter: blur(0); }
+        50% { opacity: .72; filter: blur(.5px); }
+    }
+
+    @@keyframes labos-stage-spin {
+        to { transform: rotateX(68deg) rotateZ(342deg); }
+    }
+
+    @@keyframes labos-core-float {
+        0%, 100% { transform: rotateX(58deg) rotateZ(45deg) translateY(0); }
+        50% { transform: rotateX(58deg) rotateZ(45deg) translateY(-12px); }
+    }
+
+    @@keyframes labos-chip-float {
+        0%, 100% { transform: translateY(0) rotateZ(0); }
+        50% { transform: translateY(-10px) rotateZ(1.5deg); }
+    }
+
+    @@keyframes labos-shader-roll {
+        to { transform: rotate(360deg); }
+    }
+
+    @@keyframes labos-ambient-float {
+        0%, 100% { transform: rotateX(58deg) rotateZ(45deg) translate3d(0, 0, 0); }
+        50% { transform: rotateX(62deg) rotateZ(58deg) translate3d(0, -18px, 24px); }
+    }
+
+    @@media (max-width: 767px) {
+        .neon-lab-shell .cinematic-topbar {
+            top: .75rem;
+            border-radius: 1rem;
+        }
+        .neon-lab-shell .glass-card,
+        .neon-lab-shell .glass-panel {
+            border-radius: 1rem;
+        }
+        .neon-lab-shell table {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .neon-lab-shell .lab-hero-3d {
+            opacity: .68;
+            inset: 4rem -34% 0 -10%;
+        }
+        .neon-lab-shell .lab-hero-3d::before {
+            background:
+                linear-gradient(180deg, rgba(3,7,18,.34), rgba(3,7,18,.78)),
+                linear-gradient(90deg, rgba(3,7,18,.88), rgba(3,7,18,.18));
+        }
+        .neon-lab-shell .lab-stage::before,
+        .neon-lab-shell .stage-city {
+            opacity: .34;
+        }
+        .neon-lab-shell .lab-auth-3d {
+            opacity: .52;
+            transform: scale(1.08);
+        }
+        .neon-lab-shell .lab-auth-3d::after {
+            background:
+                linear-gradient(180deg, rgba(3,7,18,.42), rgba(3,7,18,.82)),
+                radial-gradient(circle at 64% 28%, transparent 0 10rem, rgba(3,7,18,.44) 18rem);
+        }
+        .neon-lab-shell .labos-visual-stage {
+            position: relative;
+            right: auto;
+            top: auto;
+            width: min(22rem, 92vw);
+            margin: 1.25rem auto 0;
+            transform: none;
+            opacity: .78;
+        }
+        .neon-lab-shell .labos-visual-chip {
+            width: 4.2rem;
+            height: 2.8rem;
+        }
+
+        body.neon-lab-shell::before,
+        .neon-lab-shell .labos-3d-object,
+        .neon-lab-shell .blob,
+        .neon-lab-shell .lab-stage::before,
+        .neon-lab-shell .lab-stage::after,
+        .neon-lab-shell .stage-city,
+        .neon-lab-shell .molecule-field span {
+            animation-duration: 999s !important;
+        }
+
+        .neon-lab-shell .labos-global-3d {
+            opacity: .36;
+        }
+
+        .neon-lab-shell .labos-3d-object:nth-child(2),
+        .neon-lab-shell .labos-3d-object:nth-child(3) {
+            display: none;
+        }
+
+        .neon-lab-shell .glass-card,
+        .neon-lab-shell .glass-panel {
+            backdrop-filter: blur(14px) saturate(120%);
+            -webkit-backdrop-filter: blur(14px) saturate(120%);
+        }
+    }
+
+    body.labos-admin-shell::before,
+    body.labos-admin-shell .blob,
+    body.labos-admin-shell .molecule-field span {
+        animation: none !important;
+    }
+
+    body.labos-admin-shell::after {
+        opacity: .035;
+    }
+
+    .neon-lab-shell .lesson-body-content {
+        padding-bottom: 1.25rem;
+        scroll-padding-bottom: 2rem;
+    }
+
+    .neon-lab-shell .lesson-body-content::after {
+        content: "";
+        display: block;
+        height: 1rem;
+        flex: 0 0 auto;
+    }
+
+    .neon-lab-shell .lesson-action-bar {
+        flex: 0 0 auto;
+        padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+
+    .neon-lab-shell .lesson-action-bar-inner {
+        width: 100%;
+        overflow: hidden;
+        border-color: rgba(39,216,255,.28);
+        padding-top: .85rem !important;
+        padding-bottom: .85rem !important;
+    }
+
+    .neon-lab-shell .lesson-action-secondary,
+    .neon-lab-shell .lesson-action-primary {
+        min-height: 3rem;
+        padding-top: .7rem !important;
+        padding-bottom: .7rem !important;
+    }
+
+    .neon-lab-shell .lesson-action-primary {
+        max-width: 100%;
+        white-space: nowrap;
+    }
+
+    .neon-lab-shell .lesson-complete-form {
+        flex: 0 0 auto;
+    }
+
+    /* Mobile-first repair layer: prevent desktop geometry from leaking into phones. */
+    html,
+    body.neon-lab-shell {
+        max-width: 100%;
+        overflow-x: clip;
+    }
+
+    .neon-lab-shell img,
+    .neon-lab-shell video,
+    .neon-lab-shell canvas,
+    .neon-lab-shell iframe {
+        max-width: 100%;
+    }
+
+    .neon-lab-shell *,
+    .neon-lab-shell *::before,
+    .neon-lab-shell *::after {
+        box-sizing: border-box;
+    }
+
+    .neon-lab-shell .glass-card,
+    .neon-lab-shell .glass-panel,
+    .neon-lab-shell .collectible-border,
+    .neon-lab-shell .cinematic-card {
+        min-width: 0;
+    }
+
+    .neon-lab-shell iframe {
+        border-radius: 1rem;
+    }
+
+    .neon-lab-shell .min-w-\[300px\],
+    .neon-lab-shell .min-w-\[240px\] {
+        min-width: min(100%, 18rem) !important;
+    }
+
+    .neon-lab-shell .w-\[22rem\],
+    .neon-lab-shell .w-\[500px\],
+    .neon-lab-shell .w-\[400px\] {
+        max-width: 100% !important;
+    }
+
+    @@media (max-width: 1023px) {
+        .neon-lab-shell #mobile-sidebar {
+            display: flex;
+        }
+
+        .neon-lab-shell main {
+            width: 100%;
+        }
+    }
+
+    @@media (max-width: 767px) {
+        body.neon-lab-shell {
+            font-size: 14px;
+        }
+
+        .neon-lab-shell .lesson-body-content {
+            padding: 1rem .75rem 1.25rem !important;
+            scroll-padding-bottom: 2rem;
+        }
+
+        .neon-lab-shell .lesson-body-content::after {
+            height: .75rem;
+        }
+
+        .neon-lab-shell .lesson-action-bar {
+            padding-left: .75rem !important;
+            padding-right: .75rem !important;
+            padding-bottom: max(.8rem, env(safe-area-inset-bottom));
+        }
+
+        .neon-lab-shell .lesson-action-bar-inner {
+            display: grid !important;
+            grid-template-columns: minmax(0, .95fr) minmax(0, 1.15fr);
+            gap: .65rem !important;
+            padding: .7rem !important;
+            align-items: stretch !important;
+        }
+
+        .neon-lab-shell .lesson-action-secondary,
+        .neon-lab-shell .lesson-action-primary {
+            min-width: 0 !important;
+            width: 100% !important;
+            min-height: 3.1rem;
+            padding: .75rem .65rem !important;
+            border-radius: .9rem !important;
+            font-size: .78rem !important;
+            line-height: 1.15 !important;
+            white-space: normal;
+            text-align: center;
+        }
+
+        .neon-lab-shell .lesson-action-secondary .material-symbols-outlined,
+        .neon-lab-shell .lesson-action-primary .material-symbols-outlined {
+            font-size: 1.25rem !important;
+        }
+
+        body.neon-lab-shell::before {
+            filter: blur(42px);
+            opacity: .42;
+        }
+
+        .neon-lab-shell main {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            padding-top: 1rem !important;
+            padding-bottom: 0 !important;
+            max-width: 100% !important;
+        }
+
+        .neon-lab-shell .cinematic-hero,
+        .neon-lab-shell .flashcard-hero {
+            min-height: auto !important;
+            padding: 1.125rem !important;
+            margin-bottom: 1rem !important;
+            border-radius: 1rem !important;
+        }
+
+        .neon-lab-shell .cinematic-hero h1,
+        .neon-lab-shell h1 {
+            font-size: clamp(1.9rem, 9vw, 2.65rem) !important;
+            line-height: 1.08 !important;
+        }
+
+        .neon-lab-shell h2 {
+            font-size: clamp(1.35rem, 6vw, 2rem) !important;
+            line-height: 1.14 !important;
+        }
+
+        .neon-lab-shell h3 {
+            font-size: clamp(1rem, 4.8vw, 1.35rem) !important;
+        }
+
+        .neon-lab-shell p {
+            line-height: 1.65;
+        }
+
+        .neon-lab-shell .glass-card,
+        .neon-lab-shell .glass-panel,
+        .neon-lab-shell .collectible-border {
+            padding: 1rem !important;
+        }
+
+        .neon-lab-shell .grid {
+            gap: 1rem !important;
+        }
+
+        .neon-lab-shell .grid-cols-2 {
+            grid-template-columns: 1fr !important;
+        }
+
+        .neon-lab-shell .sm\:grid-cols-2,
+        .neon-lab-shell .md\:grid-cols-2,
+        .neon-lab-shell .lg\:grid-cols-2,
+        .neon-lab-shell .xl\:grid-cols-2,
+        .neon-lab-shell .xl\:grid-cols-3,
+        .neon-lab-shell .xl\:grid-cols-4 {
+            grid-template-columns: 1fr !important;
+        }
+
+        .neon-lab-shell .flex {
+            min-width: 0;
+        }
+
+        .neon-lab-shell .flex-wrap {
+            row-gap: .75rem;
+        }
+
+        .neon-lab-shell form,
+        .neon-lab-shell fieldset,
+        .neon-lab-shell input,
+        .neon-lab-shell select,
+        .neon-lab-shell textarea,
+        .neon-lab-shell button,
+        .neon-lab-shell a {
+            max-width: 100%;
+        }
+
+        .neon-lab-shell table {
+            min-width: 44rem;
+        }
+
+        .neon-lab-shell input,
+        .neon-lab-shell select,
+        .neon-lab-shell textarea {
+            font-size: 16px !important;
+        }
+
+        .neon-lab-shell .fixed.bottom-4 {
+            left: .75rem !important;
+            right: .75rem !important;
+            bottom: .75rem !important;
+        }
+
+        .neon-lab-shell .h-\[600px\] {
+            height: 68vh !important;
+            min-height: 24rem;
+        }
+
+        .neon-lab-shell .min-h-\[600px\] {
+            min-height: auto !important;
+        }
+
+        .neon-lab-shell .h-\[calc\(100vh-200px\)\] {
+            height: auto !important;
+        }
+
+        .neon-lab-shell .w-1\/3,
+        .neon-lab-shell .max-w-\[400px\] {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        .neon-lab-shell .card-shell,
+        .neon-lab-shell .flashcard {
+            width: 100%;
+        }
+
+        .neon-lab-shell .flashcard {
+            min-height: 24rem !important;
+        }
+
+        .neon-lab-shell .material-symbols-outlined.text-6xl,
+        .neon-lab-shell .material-symbols-outlined.text-5xl {
+            font-size: 2.5rem !important;
+        }
+    }
+
+    @@media (hover: none), (pointer: coarse) {
+        .neon-lab-shell .virtual-lab-fullscreen-button {
+            display: none !important;
+        }
+
+        .neon-lab-shell .virtual-lab-frame iframe {
+            pointer-events: none;
+        }
+
+        .neon-lab-shell .mobile-lab-launcher {
+            position: absolute;
+            inset: 0;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: .45rem;
+            padding: 1.25rem;
+            text-align: center;
+            color: var(--lab-text);
+            background:
+                radial-gradient(circle at 50% 42%, rgba(39,216,255,.18), transparent 12rem),
+                linear-gradient(180deg, rgba(2,6,23,.08), rgba(2,6,23,.58));
+            backdrop-filter: blur(1px);
+            -webkit-backdrop-filter: blur(1px);
+        }
+
+        .neon-lab-shell .mobile-lab-launcher .material-symbols-outlined {
+            width: 3.4rem;
+            height: 3.4rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1rem;
+            color: var(--lab-primary);
+            background: rgba(2, 10, 24, .78);
+            border: 1px solid rgba(39,216,255,.38);
+            box-shadow: 0 0 28px rgba(39,216,255,.28);
+            font-size: 2rem !important;
+        }
+
+        .neon-lab-shell .mobile-lab-launcher strong {
+            display: block;
+            font-size: clamp(1rem, 5vw, 1.35rem);
+            line-height: 1.2;
+        }
+
+        .neon-lab-shell .mobile-lab-launcher small {
+            display: block;
+            max-width: 18rem;
+            color: var(--lab-muted);
+            font-size: .82rem;
+            line-height: 1.45;
+        }
+
+        .neon-lab-shell .glass-card:hover,
+        .neon-lab-shell .glass-panel:hover,
+        .neon-lab-shell .collectible-border:hover,
+        .neon-lab-shell .cinematic-card:hover,
+        .neon-lab-shell .btn-gradient:hover {
+            transform: none !important;
+        }
+
+        .neon-lab-shell .glass-card,
+        .neon-lab-shell .glass-panel {
+            backdrop-filter: blur(12px) saturate(115%);
+            -webkit-backdrop-filter: blur(12px) saturate(115%);
+        }
+    }
+</style>

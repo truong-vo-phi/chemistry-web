@@ -1,0 +1,47 @@
+@{
+    var userName = User.Identity?.Name ?? "Khách";
+    var avatarUrl = User.FindFirst("AvatarUrl")?.Value ?? "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect fill='%23222a3d' width='40' height='40'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='12' fill='%23bbc9cf'%3E?%3C/text%3E%3C/svg%3E";
+}
+<header class="cinematic-topbar sticky top-4 z-40 flex justify-between items-center w-full mb-8 px-3 py-3 md:px-4">
+    <div class="flex items-center gap-4 min-w-0">
+        <button onclick="openMobileSidebar()" class="p-3 glass-panel rounded-xl lg:hidden border border-primary/20" aria-label="Mở menu">
+            <span class="material-symbols-outlined text-primary">menu</span>
+        </button>
+        <div class="hidden md:block">
+            <p class="text-[10px] font-label text-secondary">ChemLab</p>
+            <p class="text-sm text-on-surface-variant">Học lý thuyết, vào game thực hành, lưu điểm tiến độ.</p>
+        </div>
+    </div>
+    <div class="flex items-center gap-2 sm:gap-3">
+        <a asp-controller="Courses" asp-action="Library" class="hidden sm:flex items-center gap-2 px-4 py-3 glass-panel text-sm font-bold text-primary border border-primary/20 hover:border-primary/50 transition-all">
+            <span class="material-symbols-outlined text-lg">sports_esports</span>
+            Vào game học tập
+        </a>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a asp-controller="Profile" asp-action="Index" class="flex items-center gap-3 glass-panel p-1.5 sm:pr-4 rounded-full border border-primary/20 hover:border-primary/50 transition-all" aria-label="Trang cá nhân">
+                <img alt="@userName" class="w-10 h-10 rounded-full object-cover border border-primary/30" src="@avatarUrl" />
+                <span class="font-bold text-sm hidden sm:block text-on-background">@userName</span>
+            </a>
+            <form asp-controller="Account" asp-action="Logout" method="post" class="lg:hidden">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="h-11 w-11 glass-panel rounded-xl border border-red-400/25 text-error flex items-center justify-center hover:bg-red-500/10 transition-all" aria-label="Đăng xuất">
+                    <span class="material-symbols-outlined text-[21px]">logout</span>
+                </button>
+            </form>
+            <form asp-controller="Account" asp-action="Logout" method="post" class="hidden lg:block">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="glass-panel px-4 py-3 rounded-xl border border-red-400/20 text-sm font-bold text-on-surface-variant hover:text-error hover:bg-red-500/10 transition-all inline-flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg">logout</span>
+                    Đăng xuất
+                </button>
+            </form>
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="Login" class="bg-primary text-on-primary px-5 sm:px-6 py-3 rounded-xl font-label font-bold text-sm btn-glow">
+                Đăng nhập
+            </a>
+        }
+    </div>
+</header>

@@ -1,0 +1,144 @@
+@model ChemistryV1.ViewModels.CourseContentViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Nội dung khóa học - ChemLab";
+    ViewData["Description"] = "Quản lý chương trình học và bài học.";
+    var chapters = Model.Chapters.OrderBy(c => c.OrderIndex).ToList();
+    var activeChapter = chapters.FirstOrDefault();
+    var activeLesson = activeChapter?.Lessons.OrderBy(l => l.OrderIndex).FirstOrDefault();
+}
+
+<!-- Breadcrumb -->
+<nav class="flex items-center gap-2 mb-6 text-sm text-slate-500">
+    <a class="hover:text-primary transition-colors" asp-controller="TeacherCourses" asp-action="Index">Khóa học</a>
+    <span class="material-symbols-outlined text-sm opacity-50">chevron_right</span>
+    <span class="text-primary font-bold">Nội dung khóa học</span>
+</nav>
+
+<!-- Page Header with Actions -->
+<div class="flex justify-between items-center mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-on-background font-display">Nội dung khóa học</h1>
+        <p class="text-slate-500 mt-1">Quản lý chương trình học và bài học cho @Model.Course.Title</p>
+    </div>
+    <div class="flex items-center gap-3">
+        <span class="text-xs text-slate-500 flex items-center gap-1 mr-2">
+            <span class="material-symbols-outlined text-[14px]">cloud_done</span> Đã lưu
+        </span>
+        <a class="px-5 py-2 bg-white text-slate-600 border-2 border-slate-200 rounded-full font-bold hover:bg-slate-100 transition-colors text-sm" asp-controller="TeacherCourses" asp-action="Edit" asp-route-id="@Model.Course.Id">
+            Chỉnh sửa khóa học
+        </a>
+        <a class="px-5 py-2 bg-secondary text-white border-2 border-secondary/30 rounded-full font-bold btn-glow text-sm flex items-center gap-2" asp-controller="Lessons" asp-action="Create" asp-route-chapterId="@activeChapter?.Id">
+            <span class="material-symbols-outlined text-[18px]">publish</span> Bài học mới
+        </a>
+    </div>
+</div>
+
+<!-- Content Layout -->
+<div class="flex gap-6 h-[calc(100vh-200px)] min-h-[600px]">
+    <!-- Curriculum Sidebar -->
+    <div class="w-1/3 max-w-[400px] flex flex-col glass-card overflow-hidden relative">
+        <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="p-5 border-b-2 border-slate-200 flex justify-between items-center bg-white/50 backdrop-blur-sm z-10">
+            <h2 class="text-lg font-bold text-on-background flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">view_timeline</span> Chương trình học
+            </h2>
+            <a class="w-8 h-8 rounded-full bg-secondary/10 text-secondary flex items-center justify-center border-2 border-secondary/20 hover:bg-secondary/20 transition-all" title="Thêm chương" asp-controller="Chapters" asp-action="Create" asp-route-courseId="@Model.Course.Id">
+                <span class="material-symbols-outlined text-[18px]">add</span>
+            </a>
+        </div>
+        <div class="flex-1 overflow-y-auto p-5 z-10">
+            @foreach (var chapter in chapters)
+            {
+                <div class="mb-6 relative">
+                    <div class="flex items-center gap-3 mb-3 group">
+                        <span class="material-symbols-outlined text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity text-[18px] -ml-2">drag_indicator</span>
+                        <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm z-10 border-2 border-white shadow-sm">
+                            @chapter.OrderIndex
+                        </div>
+                        <h4 class="text-sm font-bold flex-1">@chapter.Title</h4>
+                        <a class="text-slate-400 hover:text-primary" asp-controller="Chapters" asp-action="Edit" asp-route-id="@chapter.Id" title="Chỉnh sửa chương">
+                            <span class="material-symbols-outlined text-[18px]">edit</span>
+                        </a>
+                        <a class="text-slate-400 hover:text-red-500 ml-1" asp-controller="Chapters" asp-action="Delete" asp-route-id="@chapter.Id" title="Xóa chương">
+                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                        </a>
+                    </div>
+                    <div class="ml-10 flex flex-col gap-2">
+                        @foreach (var lesson in chapter.Lessons.OrderBy(l => l.OrderIndex))
+                        {
+                            var isActive = activeLesson?.Id == lesson.Id;
+                            <a class="flex items-center gap-3 @(isActive ? "bg-primary/10 border-2 border-primary/20" : "hover:bg-slate-100 border-2 border-transparent") rounded-xl p-2 cursor-pointer transition-colors group relative" asp-controller="Lessons" asp-action="Edit" asp-route-id="@lesson.Id">
+                                <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-primary shadow-sm border border-primary/10">
+                                    <span class="material-symbols-outlined text-[18px]">article</span>
+                                </div>
+                                <div class="flex-1">
+                                    <span class="text-sm font-bold text-on-background block">@lesson.Title</span>
+                                    <span class="text-xs text-slate-500 block">@lesson.ContentType</span>
+                                </div>
+                            </a>
+                        }
+                        <a class="flex items-center gap-2 text-xs font-bold text-primary mt-1 p-2 rounded-lg hover:bg-primary/10 transition-colors w-fit border border-dashed border-primary/30" asp-controller="Lessons" asp-action="Create" asp-route-chapterId="@chapter.Id">
+                            <span class="material-symbols-outlined text-[16px]">add</span> Thêm bài học
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Lesson Preview -->
+    <div class="flex-1 flex flex-col glass-card overflow-hidden relative">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="p-6 border-b-2 border-slate-200 relative z-10 bg-white/50 backdrop-blur-sm">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold mb-2 border border-primary/20 uppercase tracking-wider flex items-center gap-1 w-fit">
+                        <span class="material-symbols-outlined text-[14px]">article</span> Bài học
+                    </span>
+                    <div class="flex items-center gap-3 group">
+                        <h2 class="text-2xl font-bold text-on-background">@(activeLesson?.Title ?? "Select a lesson")</h2>
+                    </div>
+                </div>
+                @if (activeLesson != null)
+                {
+                    <div class="flex gap-2">
+                        <a class="p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors" asp-controller="Lessons" asp-action="Details" asp-route-id="@activeLesson.Id" title="Xem trước bài học" data-turbo="false">
+                            <span class="material-symbols-outlined">visibility</span>
+                        </a>
+                        <a class="p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors" asp-controller="Lessons" asp-action="Edit" asp-route-id="@activeLesson.Id" title="Cài đặt bài học">
+                            <span class="material-symbols-outlined">settings</span>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="flex-1 overflow-y-auto p-8 bg-slate-50/50 z-10 flex flex-col gap-6">
+            <div class="bg-white rounded-2xl border-2 border-slate-200 p-6 shadow-sm">
+                <div class="flex items-center gap-2 text-slate-500 mb-4">
+                    <span class="material-symbols-outlined text-[18px]">format_align_left</span>
+                    <span class="text-xs font-bold uppercase tracking-wider">Nội dung bài học</span>
+                </div>
+                @if (activeLesson != null && !string.IsNullOrWhiteSpace(activeLesson.DocumentContent))
+                {
+                    <div class="prose prose-sm max-w-none">
+                        <p>@activeLesson.DocumentContent</p>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-sm text-slate-500">Chọn một bài học hoặc thêm nội dung để bắt đầu.</p>
+                }
+            </div>
+            <div class="mt-4 pb-12 flex justify-center">
+                @if (activeLesson != null)
+                {
+                    <a class="flex items-center gap-2 bg-white hover:bg-primary/10 text-primary px-6 py-3 rounded-full border-2 border-dashed border-primary/40 hover:border-primary transition-all font-bold shadow-sm hover:shadow-md" asp-controller="Lessons" asp-action="Edit" asp-route-id="@activeLesson.Id">
+                        <span class="material-symbols-outlined">edit</span>
+                        Chỉnh sửa bài học
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

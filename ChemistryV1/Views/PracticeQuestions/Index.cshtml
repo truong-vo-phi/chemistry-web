@@ -1,0 +1,346 @@
+@model ChemistryV1.ViewModels.PracticeFlashcardsViewModel
+@using System.Text.Json
+@{
+    Layout = "_PublicLayout";
+    ViewData["Title"] = "Luyện tập Flashcard";
+    var selectedCourse = Model.Courses.FirstOrDefault(c => c.Id == Model.SelectedCourseId);
+    var lessonOptions = selectedCourse?.Lessons ?? new List<ChemistryV1.ViewModels.PracticeLessonDeckViewModel>();
+}
+
+<partial name="_PublicTopAppBar" />
+
+@section Head {
+    <style>
+        .flashcard-hero { min-height: 18rem; }
+        .card-shell { perspective: 1400px; transform: none !important; }
+        .flashcard {
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform .55s ease;
+            min-height: 350px;
+        }
+        .flashcard,
+        .flashcard:hover,
+        .card-shell,
+        .card-shell:hover,
+        .flashcard-panel,
+        .flashcard-panel:hover {
+            filter: none !important;
+        }
+        .flashcard:hover,
+        .card-shell:hover,
+        .flashcard-panel:hover {
+            transform: none !important;
+        }
+        .flashcard.is-flipped,
+        .flashcard.is-flipped:hover {
+            transform: rotateY(180deg) !important;
+        }
+        .flashcard-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            border-radius: 1.25rem;
+            overflow: hidden;
+            background: linear-gradient(145deg, rgba(18,35,63,.96), rgba(8,17,33,.92));
+            border: 1px solid rgba(39,216,255,.32);
+            box-shadow: 0 24px 70px rgba(0,0,0,.38), 0 0 38px rgba(39,216,255,.13);
+        }
+        .flashcard-face::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 18% 20%, rgba(39,216,255,.18), transparent 14rem),
+                radial-gradient(circle at 84% 78%, rgba(214,92,255,.16), transparent 14rem);
+        }
+        .flashcard-face > * {
+            position: relative;
+            z-index: 1;
+        }
+        .flashcard-back { transform: rotateY(180deg); }
+        .squishy-button { transition: transform .2s, box-shadow .2s, filter .2s; }
+        .squishy-button:active {
+            transform: translateY(2px) scale(.98);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,.1) !important;
+        }
+        @@media (max-width: 767px) {
+            .flashcard { min-height: 410px; }
+            .flashcard-face { border-radius: 1rem; }
+        }
+    </style>
+}
+
+<div class="space-y-8">
+    <section class="flashcard-hero cinematic-hero glass-card premium-shadow overflow-hidden p-6 md:p-8">
+        <div class="lab-stage"><div class="stage-city"></div><div class="lab-orbit"></div></div>
+        <div class="molecule-field"><span></span><span></span><span></span><span></span></div>
+        <div class="relative z-10 flex flex-col xl:flex-row xl:flex-wrap xl:items-end gap-6 justify-between">
+            <div>
+                <p class="font-label text-secondary text-xs mb-3">Chế độ luyện tập</p>
+                <h1 class="text-3xl md:text-5xl font-extrabold text-on-background mb-4 font-display text-glow-primary">Ôn tập Flashcard tự động</h1>
+                <p class="text-on-surface-variant max-w-3xl leading-relaxed">
+                    Flashcard được tạo tự động từ nội dung bài học trong database để học sinh ôn tập nhanh trước khi vào game thực hành.
+                </p>
+            </div>
+
+            <div class="labos-video-card hidden xl:flex w-[22rem] p-5 items-end">
+                <div>
+                    <p class="font-label text-[10px] text-secondary">Luồng thẻ ôn tập</p>
+                    <p class="mt-2 text-2xl font-display font-black text-white">@Model.TotalCards</p>
+                    <p class="text-sm text-on-surface-variant">thẻ được tạo từ nội dung bài học</p>
+                </div>
+            </div>
+
+            <form method="get" asp-action="Index" class="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-[300px] w-full xl:w-auto">
+                <label class="font-label text-[10px] text-on-surface-variant flex flex-col gap-2">
+                    Khóa học
+                    <select name="courseId" onchange="this.form.submit()" class="rounded-xl text-sm font-semibold px-4 py-3">
+                        @foreach (var course in Model.Courses)
+                        {
+                            if (course.Id == Model.SelectedCourseId)
+                            {
+                                <option value="@course.Id" selected>@course.Title</option>
+                            }
+                            else
+                            {
+                                <option value="@course.Id">@course.Title</option>
+                            }
+                        }
+                    </select>
+                </label>
+                <label class="font-label text-[10px] text-on-surface-variant flex flex-col gap-2">
+                    Bài học
+                    <select name="lessonId" onchange="this.form.submit()" class="rounded-xl text-sm font-semibold px-4 py-3">
+                        @foreach (var lesson in lessonOptions)
+                        {
+                            if (lesson.Id == Model.SelectedLessonId)
+                            {
+                                <option value="@lesson.Id" selected>@lesson.Title</option>
+                            }
+                            else
+                            {
+                                <option value="@lesson.Id">@lesson.Title</option>
+                            }
+                        }
+                    </select>
+                </label>
+            </form>
+        </div>
+
+        <div class="relative z-10 mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="rounded-2xl bg-primary/10 border border-primary/20 p-4">
+                <p class="font-label text-[10px] text-on-surface-variant">Khóa học đã chọn</p>
+                <p class="font-bold text-primary mt-1">@Model.SelectedCourseTitle</p>
+            </div>
+            <div class="rounded-2xl bg-secondary/10 border border-secondary/20 p-4">
+                <p class="font-label text-[10px] text-on-surface-variant">Bài học đã chọn</p>
+                <p class="font-bold text-secondary mt-1">@Model.SelectedLessonTitle</p>
+            </div>
+            <div class="rounded-2xl bg-tertiary/10 border border-tertiary/20 p-4">
+                <p class="font-label text-[10px] text-on-surface-variant">Tổng số thẻ</p>
+                <p class="font-bold text-tertiary mt-1">@Model.TotalCards thẻ</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        <section class="xl:col-span-8 glass-card flashcard-panel no-tilt p-5 md:p-6" data-no-tilt>
+            @if (!Model.Flashcards.Any())
+            {
+                <div class="rounded-2xl bg-primary/10 border border-primary/20 p-10 text-center">
+                    <span class="material-symbols-outlined text-4xl text-primary">info</span>
+                    <p class="font-bold mt-3 text-on-background">Chưa có đủ dữ liệu để tạo flashcard</p>
+                    <p class="text-sm text-on-surface-variant mt-2">Vui lòng chọn bài học khác hoặc bổ sung nội dung DocumentContent cho bài học hiện tại.</p>
+                </div>
+            }
+            else
+            {
+                <div class="card-shell no-tilt" data-no-tilt>
+                    <article id="flashcard" class="flashcard no-tilt cursor-pointer select-none" data-no-tilt title="Click để lật thẻ">
+                        <div class="flashcard-face flashcard-front p-6 md:p-8 flex flex-col">
+                            <div class="flex justify-between items-center mb-6">
+                                <span id="card-tag-front" class="font-label text-[10px] px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20">Mặt trước</span>
+                                <span id="card-counter-front" class="text-xs text-on-surface-variant font-bold">1/@Model.TotalCards</span>
+                            </div>
+                            <div class="flex-1 flex items-center justify-center text-center">
+                                <p id="card-front-text" class="text-xl md:text-3xl font-bold leading-snug font-display text-on-background"></p>
+                            </div>
+                            <p class="text-xs text-on-surface-variant mt-6 text-center">Chạm hoặc bấm <strong>Lật thẻ</strong> để xem đáp án</p>
+                        </div>
+
+                        <div class="flashcard-face flashcard-back text-on-background p-6 md:p-8 flex flex-col">
+                            <div class="flex justify-between items-center mb-6">
+                                <span id="card-tag-back" class="font-label text-[10px] px-3 py-1.5 rounded-full bg-secondary/10 text-secondary border border-secondary/20">Mặt sau</span>
+                                <span id="card-counter-back" class="text-xs font-bold text-on-surface-variant">1/@Model.TotalCards</span>
+                            </div>
+                            <div class="flex-1 flex items-center justify-center">
+                                <p id="card-back-text" class="text-lg md:text-xl font-semibold leading-relaxed text-center max-w-3xl"></p>
+                            </div>
+                            <p class="text-xs text-on-surface-variant mt-6 text-center">Nhấn <strong>Lật thẻ</strong> để quay lại mặt câu hỏi</p>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <button id="btn-prev" type="button" class="px-4 py-2.5 rounded-xl border border-primary/20 bg-primary/10 text-on-background font-bold text-sm flex items-center gap-2 squishy-button hover:border-primary hover:text-primary">
+                        <span class="material-symbols-outlined text-base">arrow_back</span> Prev
+                    </button>
+                    <button id="btn-flip" type="button" class="px-5 py-2.5 rounded-xl bg-primary text-on-primary font-bold text-sm flex items-center gap-2 squishy-button btn-glow">
+                        <span class="material-symbols-outlined text-base">cached</span> Flip
+                    </button>
+                    <button id="btn-next" type="button" class="px-4 py-2.5 rounded-xl border border-primary/20 bg-primary/10 text-on-background font-bold text-sm flex items-center gap-2 squishy-button hover:border-primary hover:text-primary">
+                        Next <span class="material-symbols-outlined text-base">arrow_forward</span>
+                    </button>
+                    <button id="btn-shuffle" type="button" class="px-4 py-2.5 rounded-xl border border-tertiary/25 bg-tertiary/10 text-tertiary font-bold text-sm flex items-center gap-2 squishy-button">
+                        <span class="material-symbols-outlined text-base">shuffle</span> Shuffle
+                    </button>
+                </div>
+            }
+        </section>
+
+        <aside class="xl:col-span-4 glass-card p-6">
+            <h3 class="text-xl font-bold mb-3 flex items-center gap-2 text-on-background">
+                <span class="material-symbols-outlined text-secondary">psychology</span>
+                Quick Review Panel
+            </h3>
+            <p class="text-sm text-on-surface-variant leading-relaxed">@Model.SelectedLessonSummary</p>
+
+            <div class="mt-5 space-y-3">
+                <div class="rounded-2xl bg-secondary/10 p-4 border border-secondary/20">
+                    <p class="font-label text-[10px] text-on-surface-variant">Known Cards</p>
+                    <p id="known-count" class="text-2xl font-bold text-secondary mt-1">0</p>
+                </div>
+                <div class="rounded-2xl bg-tertiary/10 p-4 border border-tertiary/20">
+                    <p class="font-label text-[10px] text-on-surface-variant">Need Review</p>
+                    <p id="review-count" class="text-2xl font-bold text-tertiary mt-1">0</p>
+                </div>
+            </div>
+
+            <div class="mt-5 space-y-3">
+                <button id="btn-known" type="button" class="w-full px-4 py-3 rounded-xl bg-secondary text-on-secondary border border-secondary/80 font-bold text-sm flex items-center justify-center gap-2 squishy-button btn-glow-green">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    I Got It
+                </button>
+                <button id="btn-review" type="button" class="w-full px-4 py-3 rounded-xl bg-tertiary text-on-background border border-tertiary/80 font-bold text-sm flex items-center justify-center gap-2 squishy-button">
+                    <span class="material-symbols-outlined">refresh</span>
+                    Need Review
+                </button>
+            </div>
+
+            <div class="mt-6">
+                <div class="flex items-center justify-between text-xs font-bold text-on-surface-variant mb-2">
+                    <span>Deck progress</span>
+                    <span id="progress-label">0%</span>
+                </div>
+                <div class="h-2 rounded-full bg-surface-container-high overflow-hidden border border-primary/15">
+                    <div id="progress-bar" class="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-300" style="width:0%;"></div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<script id="flashcard-data" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.Flashcards, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }))</script>
+<script>
+    const cardHost = document.getElementById("flashcard");
+    const cardFrontText = document.getElementById("card-front-text");
+    const cardBackText = document.getElementById("card-back-text");
+    const cardTagFront = document.getElementById("card-tag-front");
+    const cardTagBack = document.getElementById("card-tag-back");
+    const cardCounterFront = document.getElementById("card-counter-front");
+    const cardCounterBack = document.getElementById("card-counter-back");
+    const knownCountEl = document.getElementById("known-count");
+    const reviewCountEl = document.getElementById("review-count");
+    const progressBar = document.getElementById("progress-bar");
+    const progressLabel = document.getElementById("progress-label");
+
+    const rawJson = document.getElementById("flashcard-data");
+    const cards = rawJson ? JSON.parse(rawJson.textContent || "[]") : [];
+
+    let index = 0;
+    let knownCount = 0;
+    let reviewCount = 0;
+    let deck = [...cards];
+
+    function renderCard() {
+        if (!deck.length || !cardHost) return;
+        const card = deck[index];
+        cardFrontText.textContent = card.front;
+        cardBackText.textContent = card.back;
+        cardTagFront.textContent = card.tag || "Flashcard";
+        cardTagBack.textContent = card.tag || "Answer";
+        const counter = `${index + 1}/${deck.length}`;
+        cardCounterFront.textContent = counter;
+        cardCounterBack.textContent = counter;
+        cardHost.classList.remove("is-flipped");
+        updateProgress();
+    }
+
+    function updateProgress() {
+        const completed = Math.min(deck.length, knownCount + reviewCount);
+        const percent = deck.length ? Math.round((completed * 100) / deck.length) : 0;
+        if (knownCountEl) knownCountEl.textContent = knownCount.toString();
+        if (reviewCountEl) reviewCountEl.textContent = reviewCount.toString();
+        if (progressBar) progressBar.style.width = `${percent}%`;
+        if (progressLabel) progressLabel.textContent = `${percent}%`;
+    }
+
+    function nextCard() {
+        if (!deck.length) return;
+        index = (index + 1) % deck.length;
+        renderCard();
+    }
+
+    function prevCard() {
+        if (!deck.length) return;
+        index = (index - 1 + deck.length) % deck.length;
+        renderCard();
+    }
+
+    function flipCard() {
+        if (!cardHost || !deck.length) return;
+        cardHost.classList.toggle("is-flipped");
+    }
+
+    function shuffleDeck() {
+        if (deck.length <= 1) return;
+        for (let i = deck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+        index = 0;
+        renderCard();
+    }
+
+    document.getElementById("btn-next")?.addEventListener("click", nextCard);
+    document.getElementById("btn-prev")?.addEventListener("click", prevCard);
+    document.getElementById("btn-flip")?.addEventListener("click", flipCard);
+    document.getElementById("btn-shuffle")?.addEventListener("click", shuffleDeck);
+    document.getElementById("btn-known")?.addEventListener("click", () => {
+        if (!deck.length) return;
+        knownCount++;
+        nextCard();
+    });
+    document.getElementById("btn-review")?.addEventListener("click", () => {
+        if (!deck.length) return;
+        reviewCount++;
+        nextCard();
+    });
+    cardHost?.addEventListener("click", flipCard);
+
+    window.addEventListener("keydown", (event) => {
+        if (!deck.length) return;
+        if (event.key === " ") {
+            event.preventDefault();
+            flipCard();
+        } else if (event.key === "ArrowRight") {
+            nextCard();
+        } else if (event.key === "ArrowLeft") {
+            prevCard();
+        }
+    });
+
+    renderCard();
+</script>

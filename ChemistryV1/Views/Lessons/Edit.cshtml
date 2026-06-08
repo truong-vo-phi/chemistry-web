@@ -1,0 +1,221 @@
+@model ChemistryV1.ViewModels.LessonEditorViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Chỉnh sửa bài học - ChemLab";
+    ViewData["Description"] = "Chỉnh sửa chi tiết và nội dung bài học.";
+    var chapters = Model.Chapters.OrderBy(c => c.OrderIndex).ToList();
+    var activeChapterId = Model.Lesson.ChapterId ?? chapters.FirstOrDefault()?.Id;
+}
+
+<!-- Breadcrumb -->
+<div class="flex items-center gap-2 mb-4 text-sm text-slate-500">
+    <a class="hover:text-primary transition-colors" asp-controller="TeacherCourses" asp-action="Index">Thư viện</a>
+    <span class="material-symbols-outlined text-sm opacity-50">chevron_right</span>
+    <a class="hover:text-primary transition-colors" asp-controller="TeacherCourses" asp-action="Content" asp-route-id="@Model.Course.Id">Nội dung khóa học</a>
+    <span class="material-symbols-outlined text-sm opacity-50">chevron_right</span>
+    <span class="text-primary font-bold">Chỉnh sửa @Model.Lesson.Title</span>
+</div>
+
+<!-- Page Header with Actions -->
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-on-background font-display">Chỉnh sửa bài học</h1>
+        <p class="text-slate-500 mt-1">Cập nhật nội dung và cài đặt bài học</p>
+    </div>
+    <div class="flex items-center gap-3">
+        <span class="text-xs text-slate-500 flex items-center gap-1 mr-2">
+            <span class="material-symbols-outlined text-[14px]">cloud_done</span> Đã lưu vừa xong
+        </span>
+        <a class="px-5 py-2 bg-white text-slate-600 rounded-full border-2 border-slate-200 hover:bg-slate-100 transition-colors text-sm" asp-controller="Lessons" asp-action="Details" asp-route-id="@Model.Lesson.Id" asp-route-returnUrl="@Url.Action("Edit", "Lessons", new { id = Model.Lesson.Id })" data-turbo="false">
+            Xem trước
+        </a>
+        <button form="lesson-form" class="lesson-save-button px-5 py-2 bg-secondary text-white rounded-full border-2 border-secondary/30 hover:bg-secondary/90 transition-all btn-glow text-sm flex items-center gap-2" type="submit">
+            <span class="material-symbols-outlined text-[18px]">save</span> Lưu
+        </button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('lesson-form')?.addEventListener('submit', function () {
+            const zipInput = this.querySelector('input[name="gameZipFile"]');
+            const saveButton = document.querySelector('.lesson-save-button');
+            if (!saveButton) return;
+
+            saveButton.disabled = true;
+            saveButton.classList.add('opacity-70', 'cursor-wait');
+            saveButton.innerHTML = zipInput && zipInput.files && zipInput.files.length
+                ? '<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span> Đang tải game...'
+                : '<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span> Đang lưu...';
+        });
+    </script>
+}
+
+<!-- Editor Layout -->
+<div class="flex gap-6 h-[calc(100vh-200px)] min-h-[600px]">
+    <!-- 1. Curriculum Card (Left Column) -->
+    <div class="w-1/3 max-w-[400px] flex flex-col glass-card overflow-hidden relative">
+        <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="p-5 border-b-2 border-slate-200 flex justify-between items-center bg-white/50 backdrop-blur-sm z-10">
+            <h2 class="text-lg font-bold text-on-background flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">view_timeline</span> Curriculum
+            </h2>
+            <a class="w-8 h-8 rounded-full bg-secondary/10 text-secondary flex items-center justify-center border-2 border-secondary/20 hover:bg-secondary/20 transition-all" title="Add Chapter" asp-controller="Chapters" asp-action="Create" asp-route-courseId="@Model.Course.Id">
+                <span class="material-symbols-outlined text-[18px]">add</span>
+            </a>
+        </div>
+        <div class="flex-1 overflow-y-auto p-5 z-10">
+            @foreach (var chapter in chapters)
+            {
+                <div class="mb-6 relative">
+                    <div class="flex items-center gap-3 mb-3 group">
+                        <span class="material-symbols-outlined text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity text-[18px] -ml-2">drag_indicator</span>
+                        <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm z-10 border-2 border-white shadow-sm">
+                            @chapter.OrderIndex
+                        </div>
+                        <h4 class="text-sm font-bold flex-1">@chapter.Title</h4>
+                        <a class="text-slate-400 hover:text-primary" asp-controller="Chapters" asp-action="Edit" asp-route-id="@chapter.Id" title="Edit Chapter">
+                            <span class="material-symbols-outlined text-[18px]">edit</span>
+                        </a>
+                        <a class="text-slate-400 hover:text-red-500 ml-1" asp-controller="Chapters" asp-action="Delete" asp-route-id="@chapter.Id" title="Delete Chapter">
+                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                        </a>
+                    </div>
+                    <div class="ml-10 flex flex-col gap-2">
+                        @foreach (var lesson in chapter.Lessons.OrderBy(l => l.OrderIndex))
+                        {
+                            var isActive = Model.Lesson.Id == lesson.Id;
+                            <a class="flex items-center gap-3 @(isActive ? "bg-primary/10 border-2 border-primary/20" : "hover:bg-slate-100 border-2 border-transparent") rounded-xl p-2 cursor-pointer transition-colors group relative" asp-controller="Lessons" asp-action="Edit" asp-route-id="@lesson.Id">
+                                <div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-primary shadow-sm border border-primary/10">
+                                    <span class="material-symbols-outlined text-[18px]">article</span>
+                                </div>
+                                <div class="flex-1">
+                                    <span class="text-sm font-bold text-on-background block">@lesson.Title</span>
+                                    <span class="text-xs text-slate-500 block">@lesson.ContentType</span>
+                                </div>
+                            </a>
+                        }
+                        <a class="flex items-center gap-2 text-xs font-bold text-primary mt-1 p-2 rounded-lg hover:bg-primary/10 transition-colors w-fit border border-dashed border-primary/30" asp-controller="Lessons" asp-action="Create" asp-route-chapterId="@chapter.Id">
+                            <span class="material-symbols-outlined text-[16px]">add</span> Add Lesson
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- 2. Editor Card (Middle Column) -->
+    <div class="flex-1 flex flex-col glass-card overflow-hidden relative">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
+        
+        @{
+            var formAction = Model.Lesson.Id == 0 ? "Create" : "Edit";
+        }
+        
+        <form id="lesson-form" asp-action="@formAction" asp-route-id="@(Model.Lesson.Id == 0 ? null : Model.Lesson.Id)" method="post" enctype="multipart/form-data" class="flex flex-col h-full m-0">
+            <input type="hidden" asp-for="Lesson.Id" />
+            <input type="hidden" asp-for="Lesson.ChapterId" />
+
+            <!-- Editor Header -->
+            <div class="p-6 border-b-2 border-slate-200 relative z-10 bg-white/50 backdrop-blur-sm">
+                <div class="flex justify-between items-start">
+                    <div class="w-full">
+                        <span class="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold mb-2 border border-primary/20 uppercase tracking-wider flex items-center gap-1 w-fit">
+                            <span class="material-symbols-outlined text-[14px]">edit_document</span> Lesson Editor
+                        </span>
+                        <div class="flex flex-col gap-2 w-full mt-1">
+                            <input asp-for="Lesson.Title" class="w-full bg-transparent text-2xl text-on-background outline-none border-b-2 border-transparent hover:border-slate-200 focus:border-primary/50 transition-colors py-1 font-bold font-display" placeholder="Lesson Title" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Editor Body -->
+            <div class="flex-1 overflow-y-auto p-6 bg-slate-50/50 z-10 flex flex-col gap-6">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="text-red-600 font-bold bg-red-50 p-4 rounded-xl border border-red-200 text-sm"></div>
+                }
+
+                <!-- Virtual Lab Selection -->
+                <div class="bg-white rounded-2xl border-2 border-slate-200 p-6 shadow-sm flex flex-col">
+                    <div class="flex items-center gap-2 text-slate-500 mb-4">
+                        <span class="material-symbols-outlined text-[18px]">science</span>
+                        <span class="text-xs font-bold uppercase tracking-wider">Chọn Game Thực Hành</span>
+                    </div>
+                    <select asp-for="Lesson.VirtualLabId" class="w-full bg-slate-50 rounded-xl border border-slate-200 px-4 py-3 text-on-background focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow">
+                        <option value="">-- Chọn một bài thực hành từ kho --</option>
+                        @if (Model.AvailableVirtualLabs != null)
+                        {
+                            foreach (var lab in Model.AvailableVirtualLabs)
+                            {
+                                <option value="@lab.Id">@lab.Title</option>
+                            }
+                        }
+                    </select>
+
+                    <div class="mt-4 flex items-center gap-4 w-full">
+                        <div class="h-[1px] flex-1 bg-slate-200"></div>
+                        <span class="text-xs font-bold text-slate-400 uppercase">Hoặc tải lên thư mục WebGL (File .zip)</span>
+                        <div class="h-[1px] flex-1 bg-slate-200"></div>
+                    </div>
+
+                    <div class="mt-4">
+                        <input type="file" name="gameZipFile" accept=".zip" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer" />
+                        <p class="text-xs text-slate-500 mt-2">Nén toàn bộ thư mục Build WebGL của Unity (chứa index.html) thành file .zip để tải lên. Sẽ ghi đè game hiện tại.</p>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- 3. Settings Card (Right Column) -->
+    <div class="w-80 hidden xl:flex flex-col glass-card overflow-hidden relative">
+        <div class="p-5 border-b-2 border-slate-200 bg-white/50 backdrop-blur-sm z-10">
+            <h2 class="text-lg font-bold text-on-background flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">settings</span> Lesson Settings
+            </h2>
+        </div>
+        <div class="flex-1 overflow-y-auto p-5 bg-slate-50/50 z-10 flex flex-col gap-6">
+            <!-- Access Setting -->
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Lesson Access</label>
+                <select asp-for="Lesson.IsPreview" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm focus:border-primary focus:ring-0 px-3 py-2.5 outline-none" form="lesson-form">
+                    <option value="false">🔒 Locked (Enrolled Only)</option>
+                    <option value="true">🔓 Preview (Free Access)</option>
+                </select>
+            </div>
+
+            <!-- Order Setting -->
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">Display Order</label>
+                <input asp-for="Lesson.OrderIndex" class="w-full bg-slate-50 border border-slate-200 rounded-xl text-sm focus:border-primary px-3 py-2 outline-none" type="number" form="lesson-form" />
+            </div>
+
+            <!-- Discussion Forum Setting -->
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest block">Thảo luận bài học</label>
+                    <span class="text-[10px] text-slate-400 font-bold block">Cho phép học sinh hỏi đáp</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="Lesson_CommentsEnabled" name="Lesson.CommentsEnabled" value="true" @(Model.Lesson.CommentsEnabled != false ? "checked" : "") class="sr-only peer" form="lesson-form">
+                    <input type="hidden" name="Lesson.CommentsEnabled" value="false" form="lesson-form" />
+                    <div class="w-11 h-6 bg-slate-300 rounded-full peer peer-focus:ring-0 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+
+
+            <!-- Delete button -->
+            @if (Model.Lesson.Id != 0)
+            {
+                <div class="pt-4 mt-auto">
+                    <a class="w-full py-3 text-red-600 bg-red-50 border-2 border-dashed border-red-200 hover:border-red-400 rounded-full font-bold text-xs hover:bg-red-100 transition-all flex justify-center items-center gap-1" asp-controller="Lessons" asp-action="Delete" asp-route-id="@Model.Lesson.Id">
+                        <span class="material-symbols-outlined text-[16px]">delete</span> Delete lesson
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+

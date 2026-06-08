@@ -1,0 +1,504 @@
+@model ChemistryV1.ViewModels.HomeDashboardViewModel
+@{
+    Layout = "_PublicLayout";
+    ViewData["Title"] = "Bàn thí nghiệm";
+    ViewData["Description"] = "Bảng điều khiển Chemistry Lab để học sinh vào game thực hành, theo dõi nhiệm vụ, tiến độ và thành tích.";
+    var goalPercent = Model.NextGoalTarget <= 0 ? 0 : Math.Min(100, (int)Math.Round(Model.NextGoalCurrent * 100.0 / Model.NextGoalTarget));
+    var firstName = Model.UserName.Split(' ').FirstOrDefault() ?? Model.UserName;
+    var xpToNext = Model.NextGoalTarget - Model.NextGoalCurrent;
+}
+
+<partial name="_PublicTopAppBar" />
+
+<section class="cinematic-hero cinematic-section glass-card premium-shadow overflow-hidden p-6 md:p-10 mb-10" data-reveal>
+    <div class="lab-stage" data-parallax="-0.035"><div class="stage-city"></div><div class="lab-orbit"></div></div>
+    <div id="lab-hero-3d" class="lab-hero-3d" aria-hidden="true">
+        <canvas id="lab-hero-3d-canvas"></canvas>
+        <div class="lab-hero-3d-fallback">
+            <div class="fallback-core"></div>
+            <div class="fallback-ring fallback-ring-a"></div>
+            <div class="fallback-ring fallback-ring-b"></div>
+            <div class="fallback-ring fallback-ring-c"></div>
+            <div class="fallback-beam fallback-beam-a"></div>
+            <div class="fallback-beam fallback-beam-b"></div>
+        </div>
+    </div>
+    <div class="molecule-field"><span></span><span></span><span></span><span></span></div>
+    <div class="relative z-10 grid grid-cols-1 xl:grid-cols-[1.15fr_.85fr] gap-8 items-center">
+        <div class="max-w-3xl">
+            <p class="font-label text-secondary text-xs mb-4" data-reveal>Virtual chemistry game hub</p>
+            <h1 class="font-display text-4xl md:text-6xl font-extrabold leading-tight text-glow-primary">
+                Xin chào, <span class="text-primary">@firstName</span>. Vào lab và biến bài học thành nhiệm vụ.
+            </h1>
+            <p class="mt-5 text-base md:text-lg text-on-surface-variant leading-relaxed max-w-2xl" data-reveal>
+                Đây là trung tâm học tập của bạn: chọn khóa học, mở game thực hành, lưu điểm, nhận XP và theo dõi hành trình hóa học của mình.
+            </p>
+            <div class="mt-8 flex flex-col sm:flex-row gap-3" data-reveal>
+                <a asp-controller="Courses" asp-action="Library" class="glow-button inline-flex items-center justify-center gap-3 bg-primary text-on-primary px-6 py-4 rounded-xl font-label font-bold btn-glow">
+                    <span class="material-symbols-outlined fill-1">sports_esports</span>
+                    Vào game thực hành
+                </a>
+                <a asp-controller="Profile" asp-action="Index" class="glow-button inline-flex items-center justify-center gap-3 glass-panel px-6 py-4 rounded-xl font-label font-bold text-on-background hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">query_stats</span>
+                    Xem tiến độ
+                </a>
+            </div>
+        </div>
+
+        <div class="glass-panel cinematic-card p-5 md:p-6" data-reveal data-parallax="0.025">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-20 h-20 rounded-2xl overflow-hidden border border-primary/40 bg-primary/10 shadow-neon-blue animate-float">
+                    <img alt="@Model.UserName" class="w-full h-full object-cover" src="@Model.AvatarUrl" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" />
+                    <span class="material-symbols-outlined hidden w-full h-full items-center justify-center text-4xl text-primary">person</span>
+                </div>
+                <div class="min-w-0">
+                    <p class="font-label text-tertiary text-[10px]">@Model.Role</p>
+                    <h2 class="text-2xl font-display font-bold truncate">@Model.UserName</h2>
+                    <p class="text-sm text-on-surface-variant">@Model.TotalXp.ToString("N0") XP tích lũy</p>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <div class="flex justify-between text-xs font-bold text-on-surface-variant">
+                    <span>@Model.NextGoalCurrent.ToString("N0") XP</span>
+                    <span class="text-primary">@Model.NextGoalTarget.ToString("N0") XP</span>
+                </div>
+                <div class="h-4 rounded-full bg-surface-container-high border border-primary/20 overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-tertiary via-primary to-secondary xp-glow transition-all duration-1000" style="width:@goalPercent%;"></div>
+                </div>
+                <p class="text-sm text-on-surface-variant">
+                    @if (xpToNext > 0)
+                    {
+                        <span>Còn <strong class="text-primary">@xpToNext.ToString("N0") XP</strong> để đạt mục tiêu <strong>@Model.NextGoalLabel</strong>.</span>
+                    }
+                    else
+                    {
+                        <span>Bạn đã đạt mục tiêu <strong>@Model.NextGoalLabel</strong>. Tiếp tục mở khóa nhiệm vụ mới.</span>
+                    }
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+    <div class="glass-card cinematic-card p-5" data-reveal>
+        <span class="material-symbols-outlined text-primary text-3xl">menu_book</span>
+        <p class="text-3xl font-display font-bold mt-3">@Model.TotalCompletedLessons</p>
+        <p class="font-label text-[10px] text-on-surface-variant mt-1">Bài đã học</p>
+    </div>
+    <div class="glass-card cinematic-card p-5" data-reveal>
+        <span class="material-symbols-outlined text-secondary text-3xl">fact_check</span>
+        <p class="text-3xl font-display font-bold mt-3">@Model.TotalQuizResults</p>
+        <p class="font-label text-[10px] text-on-surface-variant mt-1">Bài kiểm tra</p>
+    </div>
+    <div class="glass-card cinematic-card p-5" data-reveal>
+        <span class="material-symbols-outlined text-tertiary text-3xl">local_fire_department</span>
+        <p class="text-3xl font-display font-bold mt-3">@Model.DayStreak</p>
+        <p class="font-label text-[10px] text-on-surface-variant mt-1">Ngày liên tiếp</p>
+    </div>
+    <div class="glass-card cinematic-card p-5" data-reveal>
+        <span class="material-symbols-outlined text-primary text-3xl">military_tech</span>
+        <p class="text-3xl font-display font-bold mt-3">@Model.TotalXp.ToString("N0")</p>
+        <p class="font-label text-[10px] text-on-surface-variant mt-1">Tổng XP</p>
+    </div>
+</section>
+
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-8 mb-10">
+    <section class="xl:col-span-4" data-reveal>
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="font-display text-2xl font-bold">Nhiệm vụ hôm nay</h2>
+            <span class="font-label text-[10px] px-3 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/20">@Math.Max(0, 23 - DateTime.Now.Hour) giờ còn lại</span>
+        </div>
+        <div class="glass-card p-5 md:p-6 space-y-4">
+            @foreach (var mission in Model.Missions)
+            {
+                <div class="flex items-center gap-4 p-4 rounded-xl border @(mission.Completed ? "border-secondary/30 bg-secondary/10" : "border-primary/15 bg-white/60")">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center @(mission.Completed ? "bg-secondary text-on-secondary" : "bg-surface-container-high text-primary border border-primary/20")">
+                        <span class="material-symbols-outlined">@(mission.Completed ? "check" : "radio_button_unchecked")</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-bold text-sm truncate">@mission.Title</p>
+                        <p class="text-[11px] text-on-surface-variant font-bold">@mission.RewardText @(mission.Completed ? "hoàn thành" : $"({mission.Current}/{mission.Target})")</p>
+                        @if (!mission.Completed)
+                        {
+                            <div class="mt-2 h-1.5 rounded-full bg-surface-container-high overflow-hidden">
+                                <div class="h-full bg-primary" style="width:@mission.ProgressPercent%;"></div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            @if (!Model.Missions.Any())
+            {
+                <div class="text-center py-10 text-on-surface-variant">
+                    <span class="material-symbols-outlined text-5xl block mb-3">assignment</span>
+                    <p class="text-sm">Hôm nay chưa có nhiệm vụ mới.</p>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="xl:col-span-8" data-reveal>
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="font-display text-2xl font-bold">Tiếp tục học</h2>
+            <a asp-controller="Courses" asp-action="Library" class="text-primary font-bold text-sm hover:underline">Xem tất cả</a>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            @if (Model.ContinueCourse != null)
+            {
+                <article class="glass-card p-6 flex flex-col min-h-[22rem]">
+                    <p class="font-label text-[10px] text-secondary mb-3">Đang học</p>
+                    <h3 class="font-display text-3xl font-bold leading-tight">@Model.ContinueCourse.Title</h3>
+                    @if (!string.IsNullOrEmpty(Model.ContinueCourse.TeacherName))
+                    {
+                        <p class="text-sm text-on-surface-variant mt-2">Quản lý: @Model.ContinueCourse.TeacherName</p>
+                    }
+                    <div class="mt-auto space-y-3 pt-8">
+                        <div class="flex justify-between text-xs font-bold text-on-surface-variant">
+                            <span>Tiến độ khóa học</span>
+                            <span class="text-primary">@Model.ContinueCourse.ProgressPercent%</span>
+                        </div>
+                        <div class="h-3 rounded-full bg-surface-container-high overflow-hidden border border-primary/20">
+                            <div class="h-full bg-gradient-to-r from-primary to-secondary" style="width:@Model.ContinueCourse.ProgressPercent%;"></div>
+                        </div>
+                        <a asp-controller="Courses" asp-action="Details" asp-route-id="@Model.ContinueCourse.Id" class="mt-4 bg-primary text-on-primary py-4 px-6 rounded-xl font-label font-bold flex items-center justify-center gap-2 btn-glow">
+                            Học tiếp
+                            <span class="material-symbols-outlined">play_arrow</span>
+                        </a>
+                    </div>
+                </article>
+            }
+            else
+            {
+                <article class="glass-card p-6 flex flex-col items-center justify-center text-center min-h-[22rem]">
+                    <span class="material-symbols-outlined text-6xl text-primary mb-4">school</span>
+                    <h3 class="font-display text-2xl font-bold">Bạn chưa tham gia khóa học</h3>
+                    <p class="text-sm text-on-surface-variant mt-2 mb-6">Chọn một khóa học để bắt đầu mở game thực hành.</p>
+                    <a asp-controller="Courses" asp-action="Library" class="bg-primary text-on-primary py-3 px-6 rounded-xl font-label font-bold btn-glow">Khám phá</a>
+                </article>
+            }
+
+            <div class="grid grid-rows-3 gap-4">
+                @foreach (var course in Model.RecentCourses.Take(3))
+                {
+                    var label = course.ProgressPercent == 0 ? "Mới" : course.ProgressPercent >= 75 ? "Gần xong" : "Đang học";
+                    <a asp-controller="Courses" asp-action="Details" asp-route-id="@course.Id" class="collectible-border rounded-xl p-4 flex items-center gap-4 group">
+                        <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center">
+                            <span class="material-symbols-outlined">bubble_chart</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-sm truncate">@course.Title</p>
+                            <p class="font-label text-[10px] text-on-surface-variant">@label - @course.ProgressPercent%</p>
+                        </div>
+                        <span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">chevron_right</span>
+                    </a>
+                }
+                @if (!Model.RecentCourses.Any())
+                {
+                    <div class="row-span-3 glass-card p-6 flex flex-col items-center justify-center text-center">
+                        <span class="material-symbols-outlined text-5xl text-on-surface-variant mb-3">explore</span>
+                        <p class="text-sm text-on-surface-variant">Chưa có gợi ý khóa học.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+</div>
+
+<section class="glass-card cinematic-section p-6 md:p-8 mb-10 overflow-hidden" data-reveal>
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_22rem] gap-8 items-center">
+        <div>
+            <p class="font-label text-tertiary text-xs mb-3">Interactive learning flow</p>
+            <h2 class="font-display text-3xl md:text-4xl font-bold text-glow-primary">Một khóa học có thể chứa video, tài liệu, PDF và game Unity để học sinh thực hành.</h2>
+            <p class="text-on-surface-variant mt-4 leading-relaxed">
+                Giáo viên upload nội dung, học sinh vào từng bài, chơi lab ảo trong iframe, hệ thống nhận điểm thực hành và cộng tiến độ.
+            </p>
+            <div class="mt-6 flex flex-wrap gap-3">
+                <span class="px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 text-sm font-bold">Course</span>
+                <span class="px-4 py-2 rounded-full bg-tertiary/10 text-tertiary border border-tertiary/20 text-sm font-bold">Lesson</span>
+                <span class="px-4 py-2 rounded-full bg-secondary/10 text-secondary border border-secondary/20 text-sm font-bold">Game score</span>
+            </div>
+        </div>
+        <div class="mission-visual" data-parallax="0.018">
+            <div class="mission-node">
+                <span class="material-symbols-outlined text-5xl">science</span>
+            </div>
+            <div class="mission-node">
+                <span class="material-symbols-outlined text-5xl">sports_esports</span>
+            </div>
+            <div class="mission-node">
+                <span class="material-symbols-outlined text-5xl">emoji_events</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+    <div data-reveal>
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="font-display text-2xl font-bold">Thành tích gần đây</h2>
+            <a asp-controller="Profile" asp-action="Index" class="text-primary font-bold text-sm hover:underline">Xem bộ sưu tập</a>
+        </div>
+        <div class="flex gap-4 overflow-x-auto custom-scrollbar pb-4">
+            @foreach (var achievement in Model.Achievements)
+            {
+                <div class="flex-shrink-0 w-36 h-44 rounded-xl collectible-border p-5 flex flex-col items-center justify-center text-center @(achievement.Earned ? "" : "opacity-55")">
+                    <div class="w-14 h-14 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center mb-4">
+                        <span class="material-symbols-outlined text-3xl">@(achievement.Earned ? achievement.Icon : "lock")</span>
+                    </div>
+                    <p class="font-bold text-xs leading-tight">@achievement.Title</p>
+                    <p class="font-label text-[9px] text-on-surface-variant mt-2">@(achievement.Earned ? achievement.Tier : "Khóa")</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div data-reveal>
+        <h2 class="font-display text-2xl font-bold mb-4">Hoạt động gần đây</h2>
+        <div class="glass-card p-6 space-y-4">
+            @foreach (var item in Model.RecentActivity)
+            {
+                var barColor = item.ColorClass == "secondary" ? "bg-secondary" : item.ColorClass == "tertiary" ? "bg-tertiary" : "bg-primary";
+                <div class="flex items-start gap-4">
+                    <div class="w-1.5 h-12 @barColor rounded-full flex-shrink-0"></div>
+                    <div class="min-w-0">
+                        <p class="font-bold text-sm truncate">@item.Title</p>
+                        <p class="text-[11px] text-on-surface-variant">@item.Detail</p>
+                    </div>
+                </div>
+            }
+            @if (!Model.RecentActivity.Any())
+            {
+                <div class="text-center py-8 text-on-surface-variant">
+                    <span class="material-symbols-outlined text-4xl block mb-2">history</span>
+                    <p class="text-sm">Chưa có hoạt động nào. Hãy bắt đầu học.</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<nav class="lg:hidden fixed bottom-4 left-4 right-4 glass-panel border border-primary/20 rounded-2xl p-2 flex justify-around items-center z-50">
+    <a asp-controller="Home" asp-action="Index" class="flex flex-col items-center p-2 text-primary">
+        <span class="material-symbols-outlined fill-1">science</span>
+        <span class="text-[9px] font-label mt-1">Lab</span>
+    </a>
+    <a asp-controller="Courses" asp-action="Library" class="flex flex-col items-center p-2 text-on-surface-variant">
+        <span class="material-symbols-outlined">apps</span>
+        <span class="text-[9px] font-label mt-1">Khóa</span>
+    </a>
+    <a asp-controller="Courses" asp-action="Library" class="flex flex-col items-center p-3 bg-primary text-on-primary rounded-xl -mt-10 btn-glow">
+        <span class="material-symbols-outlined">sports_esports</span>
+    </a>
+    <a asp-controller="Profile" asp-action="Index" class="flex flex-col items-center p-2 text-on-surface-variant">
+        <span class="material-symbols-outlined">stars</span>
+        <span class="text-[9px] font-label mt-1">Tiến độ</span>
+    </a>
+</nav>
+
+@section Scripts {
+    <script type="module">
+        import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+
+        const mount = document.getElementById("lab-hero-3d");
+        const canvas = document.getElementById("lab-hero-3d-canvas");
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        if (mount && canvas && !reduceMotion) {
+            const isMobile = window.matchMedia("(max-width: 767px)").matches;
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(isMobile ? 46 : 42, 1, 0.1, 100);
+            camera.position.set(0, 0.6, isMobile ? 9.4 : 7.8);
+
+            const renderer = new THREE.WebGLRenderer({
+                canvas,
+                alpha: true,
+                antialias: !isMobile,
+                powerPreference: "high-performance"
+            });
+            renderer.setClearColor(0x000000, 0);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 1.05 : 1.35));
+
+            const group = new THREE.Group();
+            group.position.set(isMobile ? 1.5 : 2.45, isMobile ? -.28 : -.05, 0);
+            scene.add(group);
+
+            const cyan = new THREE.Color("#38e8ff");
+            const violet = new THREE.Color("#8b5cf6");
+            const magenta = new THREE.Color("#ff4fd8");
+            const amber = new THREE.Color("#ff9f43");
+
+            scene.add(new THREE.AmbientLight(0x6eefff, 0.55));
+            const keyLight = new THREE.PointLight(0x38e8ff, 30, 24);
+            keyLight.position.set(-3, 3, 5);
+            scene.add(keyLight);
+            const rimLight = new THREE.PointLight(0xff4fd8, 18, 22);
+            rimLight.position.set(4, -2, 3);
+            scene.add(rimLight);
+
+            const core = new THREE.Mesh(
+                new THREE.IcosahedronGeometry(1.05, 4),
+                new THREE.MeshPhysicalMaterial({
+                    color: 0x38e8ff,
+                    emissive: 0x167dff,
+                    emissiveIntensity: 1.25,
+                    roughness: 0.22,
+                    metalness: 0.18,
+                    transmission: 0.28,
+                    transparent: true,
+                    opacity: 0.88
+                })
+            );
+            group.add(core);
+
+            const shellMaterial = new THREE.MeshBasicMaterial({
+                color: 0x38e8ff,
+                transparent: true,
+                opacity: 0.22,
+                wireframe: true
+            });
+            const shell = new THREE.Mesh(new THREE.IcosahedronGeometry(2.15, 2), shellMaterial);
+            group.add(shell);
+
+            const ringMaterial = new THREE.MeshBasicMaterial({
+                color: 0x38e8ff,
+                transparent: true,
+                opacity: 0.52
+            });
+            const rings = [];
+            for (let i = 0; i < 4; i++) {
+                const ring = new THREE.Mesh(new THREE.TorusGeometry(2.35 + i * 0.34, 0.012, 10, 160), ringMaterial.clone());
+                ring.material.color = i % 2 ? violet : cyan;
+                ring.rotation.set(i * 0.7, i * 0.52, i * 0.24);
+                rings.push(ring);
+                group.add(ring);
+            }
+
+            const atomMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xffffff,
+                emissive: 0x38e8ff,
+                emissiveIntensity: 1.8,
+                roughness: 0.32,
+                metalness: 0.08
+            });
+            const atomGeometry = new THREE.SphereGeometry(0.12, isMobile ? 14 : 22, isMobile ? 10 : 16);
+            const atoms = [];
+            const atomCount = isMobile ? 8 : 20;
+            for (let i = 0; i < atomCount; i++) {
+                const atom = new THREE.Mesh(atomGeometry, atomMaterial.clone());
+                atom.material.emissive = i % 3 === 0 ? magenta : i % 3 === 1 ? amber : cyan;
+                atom.userData = {
+                    radius: 2.75 + Math.random() * 1.25,
+                    speed: 0.28 + Math.random() * 0.42,
+                    phase: Math.random() * Math.PI * 2,
+                    lift: -0.8 + Math.random() * 1.6
+                };
+                atoms.push(atom);
+                group.add(atom);
+            }
+
+            const panelMaterial = new THREE.MeshBasicMaterial({
+                color: 0x38e8ff,
+                transparent: true,
+                opacity: 0.11,
+                side: THREE.DoubleSide
+            });
+            const panelGeometry = new THREE.PlaneGeometry(1.35, 0.82);
+            const panelCount = isMobile ? 4 : 10;
+            const panels = [];
+            for (let i = 0; i < panelCount; i++) {
+                const panel = new THREE.Mesh(panelGeometry, panelMaterial.clone());
+                panel.material.color = i % 2 ? violet : cyan;
+                panel.position.set(-2.7 + i * 0.88, -2.15 + Math.sin(i) * 0.42, -1.8 - i * 0.08);
+                panel.rotation.set(-0.38, 0.22, -0.08 + i * 0.025);
+                panel.userData.phase = i * 0.8;
+                panels.push(panel);
+                group.add(panel);
+            }
+
+            const particleCount = isMobile ? 80 : 240;
+            const particlePositions = new Float32Array(particleCount * 3);
+            for (let i = 0; i < particleCount; i++) {
+                particlePositions[i * 3] = (Math.random() - 0.5) * 10;
+                particlePositions[i * 3 + 1] = (Math.random() - 0.5) * 6;
+                particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 6;
+            }
+            const particleGeometry = new THREE.BufferGeometry();
+            particleGeometry.setAttribute("position", new THREE.BufferAttribute(particlePositions, 3));
+            const particles = new THREE.Points(
+                particleGeometry,
+                new THREE.PointsMaterial({
+                    color: 0x7df6ff,
+                    size: isMobile ? 0.035 : 0.026,
+                    transparent: true,
+                    opacity: 0.66,
+                    depthWrite: false
+                })
+            );
+            scene.add(particles);
+
+            let active = true;
+            let visible = document.visibilityState === "visible";
+            let lastFrame = 0;
+            const frameInterval = 1000 / (isMobile ? 30 : 45);
+            const observer = new IntersectionObserver((entries) => {
+                active = entries.some(entry => entry.isIntersecting);
+            }, { threshold: 0.08 });
+            observer.observe(mount);
+            document.addEventListener("visibilitychange", () => {
+                visible = document.visibilityState === "visible";
+            });
+
+            const resize = () => {
+                const rect = mount.getBoundingClientRect();
+                const width = Math.max(1, rect.width);
+                const height = Math.max(1, rect.height);
+                renderer.setSize(width, height, false);
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+            };
+            window.addEventListener("resize", resize, { passive: true });
+            resize();
+
+            const clock = new THREE.Clock();
+            const animate = (now = 0) => {
+                requestAnimationFrame(animate);
+                if (!active || !visible || now - lastFrame < frameInterval) return;
+                lastFrame = now;
+
+                const t = clock.getElapsedTime();
+                core.rotation.set(t * 0.21, t * 0.34, t * 0.16);
+                shell.rotation.set(-t * 0.08, t * 0.12, t * 0.06);
+                group.rotation.y = Math.sin(t * 0.32) * 0.16;
+                group.rotation.x = Math.sin(t * 0.21) * 0.05;
+
+                rings.forEach((ring, i) => {
+                    ring.rotation.z += 0.0025 + i * 0.0008;
+                    ring.rotation.x += 0.0012;
+                    ring.material.opacity = 0.34 + Math.sin(t * 1.3 + i) * 0.12;
+                });
+
+                atoms.forEach((atom, i) => {
+                    const d = atom.userData;
+                    const a = t * d.speed + d.phase;
+                    atom.position.set(
+                        Math.cos(a) * d.radius,
+                        Math.sin(a * 1.4) * 0.85 + d.lift,
+                        Math.sin(a) * d.radius * 0.42
+                    );
+                    atom.scale.setScalar(0.75 + Math.sin(t * 1.9 + i) * 0.16);
+                });
+
+                panels.forEach((panel) => {
+                    panel.position.y += Math.sin(t + panel.userData.phase) * 0.0009;
+                    panel.material.opacity = 0.08 + Math.sin(t * 1.4 + panel.userData.phase) * 0.035;
+                });
+
+                particles.rotation.y = t * 0.018;
+                particles.rotation.x = Math.sin(t * 0.16) * 0.05;
+                renderer.render(scene, camera);
+            };
+            animate();
+        }
+    </script>
+}

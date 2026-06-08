@@ -1,0 +1,76 @@
+@model ChemistryV1.Models.Category
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Delete Category - ChemLab";
+    ViewData["Description"] = "Confirm deletion of category.";
+}
+
+<!-- Breadcrumb -->
+<nav class="flex items-center gap-2 mb-6 text-sm text-slate-500">
+    <a class="hover:text-primary transition-colors" asp-controller="Categories" asp-action="Index">Categories</a>
+    <span class="material-symbols-outlined text-sm opacity-50">chevron_right</span>
+    <span class="text-red-600 font-bold">Delete Category</span>
+</nav>
+
+<!-- Delete Confirmation Modal -->
+<div class="glass-card max-w-2xl mx-auto relative overflow-hidden">
+    <div class="h-2 w-full bg-gradient-to-r from-red-500 via-red-600 to-red-500"></div>
+    <div class="p-8 md:p-10 flex flex-col items-center text-center">
+        <div class="relative w-24 h-24 mb-7 animate-float flex items-center justify-center">
+            <div class="absolute inset-0 bg-red-500/10 rounded-full blur-2xl"></div>
+            <div class="relative w-full h-full bg-red-50 rounded-full border-4 border-red-500 flex items-center justify-center shadow-lg">
+                <span class="material-symbols-outlined text-[52px] text-red-500 fill-1">warning</span>
+            </div>
+        </div>
+
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-red-600 text-xs font-bold tracking-widest uppercase border border-red-200 mb-4">
+            <span class="material-symbols-outlined text-[14px]">menu_book</span>
+            Hành động hủy bỏ
+        </span>
+
+        <h2 class="text-3xl font-bold text-on-background mb-3 tracking-tight font-display">Xóa danh mục?</h2>
+        <p class="text-lg text-slate-500 max-w-xl mb-8 leading-relaxed">
+            Bạn đang xóa <span class="font-bold text-red-600">@Model.Name</span> khỏi học viện.
+        </p>
+
+        <div class="w-full bg-amber-50 rounded-2xl p-6 flex items-start gap-4 mb-8 text-left border border-amber-200 relative overflow-hidden">
+            <div class="relative mt-1"><span class="material-symbols-outlined text-amber-600 text-2xl">history_edu</span></div>
+            <div>
+                <p class="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">Sẽ bị xóa</p>
+                <p class="text-sm text-slate-700 leading-relaxed">Tất cả khóa học, nhãn và cấu trúc liên quan đến danh mục này sẽ bị xóa vĩnh viễn.</p>
+            </div>
+        </div>
+
+        <form class="w-full flex flex-col sm:flex-row gap-4 items-center justify-center pt-2" asp-action="Delete" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <a class="w-full sm:w-auto px-10 py-3.5 rounded-full font-bold text-center border-2 border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors" asp-action="Index">Hủy</a>
+            <button type="submit" class="w-full sm:w-auto px-12 py-3.5 rounded-full text-white font-bold flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 transition-colors">
+                <span class="material-symbols-outlined text-[20px]">delete_forever</span>
+                Xác nhận xóa
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Head {
+    <style>
+        .animate-float {
+            animation: float 5s ease-in-out infinite;
+        }
+
+        @* Use @@ to escape the symbol *@
+        @@keyframes float {
+            0%, 100%
+
+        {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-8px);
+        }
+
+        }
+    </style>
+}

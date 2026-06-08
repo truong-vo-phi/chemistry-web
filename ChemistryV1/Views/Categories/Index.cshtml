@@ -1,0 +1,68 @@
+@model ChemistryV1.ViewModels.CategoryManagementViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Category Management | ChemLab";
+    ViewData["Description"] = "Organize course categories and manage course groupings.";
+    var iconPool = new[] { "science", "eco", "bolt", "biotech", "psychology" };
+}
+
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-on-background font-display">Category Management</h1>
+        <p class="text-slate-500 mt-1 max-w-2xl">Organize course categories, update symbolic representations, and maintain the elemental balance.</p>
+    </div>
+    <a class="bg-secondary text-white py-3 px-6 rounded-full border-2 border-secondary/30 btn-glow flex items-center gap-2 flex-shrink-0 group hover:scale-[1.02] active:scale-[0.98] transition-all" asp-action="Create">
+        <span class="material-symbols-outlined transition-transform group-hover:rotate-90 duration-300">add_circle</span>
+        Add New Category
+    </a>
+</div>
+
+<!-- Categories Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    @for (var i = 0; i < Model.Categories.Count; i++)
+    {
+        var card = Model.Categories[i];
+        var icon = string.IsNullOrWhiteSpace(card.Category.Icon) ? iconPool[i % iconPool.Length] : card.Category.Icon;
+        <article class="glass-card p-6 relative flex flex-col gap-6 hover:shadow-lg transition-all">
+            <div class="flex justify-between items-start">
+                <div class="w-14 h-14 rounded-xl bg-primary/10 text-primary flex items-center justify-center border-2 border-primary/20">
+                    <span class="material-symbols-outlined text-3xl fill-1">@icon</span>
+                </div>
+                <div class="flex gap-2">
+                    <a aria-label="Edit @card.Category.Name" class="w-10 h-10 rounded-full border-2 border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:border-primary hover:text-primary transition-colors" asp-action="Edit" asp-route-id="@card.Category.Id">
+                        <span class="material-symbols-outlined text-[20px]">edit</span>
+                    </a>
+                    <a aria-label="Delete @card.Category.Name" class="w-10 h-10 rounded-full border-2 border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:border-red-500 hover:text-red-500 transition-colors" asp-action="Delete" asp-route-id="@card.Category.Id">
+                        <span class="material-symbols-outlined text-[20px]">delete</span>
+                    </a>
+                </div>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-lg font-bold text-on-background mb-1">@card.Category.Name</h3>
+                <p class="text-sm text-slate-500 mb-3">@card.Category.Slug</p>
+                <p class="text-slate-600">@card.Category.Description</p>
+            </div>
+            <div class="pt-4 border-t-2 border-slate-200 flex items-center gap-2">
+                <span class="px-3 py-1 bg-slate-100 rounded-full text-sm text-slate-600 flex items-center gap-1 border border-slate-200">
+                    <span class="material-symbols-outlined text-[16px]">menu_book</span>
+                    @card.CourseCount Courses
+                </span>
+                @if (card.Category.IsActive)
+                {
+                    <span class="px-3 py-1 bg-secondary/10 rounded-full text-sm text-secondary flex items-center gap-1 border border-secondary/20">
+                        <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                        Active
+                    </span>
+                }
+                else
+                {
+                    <span class="px-3 py-1 bg-slate-100 rounded-full text-sm text-slate-600 flex items-center gap-1 border border-slate-200">
+                        <span class="material-symbols-outlined text-[16px]">build</span>
+                        Hidden
+                    </span>
+                }
+            </div>
+        </article>
+    }
+</div>

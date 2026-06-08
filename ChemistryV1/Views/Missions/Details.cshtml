@@ -1,0 +1,126 @@
+@model ChemistryV1.ViewModels.MissionDetailsViewModel
+@{
+    ViewData["Title"] = $"{Model.Title} | ChemLab";
+    ViewData["Description"] = "Xem nhiệm vụ và tham gia thảo luận cùng cộng đồng.";
+}
+
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="grid gap-6 lg:grid-cols-[1.5fr_0.9fr]">
+        <div class="glass-card p-6 md:p-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <div class="inline-flex items-center gap-3 rounded-full bg-secondary/10 text-secondary px-4 py-2 text-sm font-bold">
+                        <span class="material-symbols-outlined">stars</span>
+                        Thử thách nhiệm vụ
+                    </div>
+                    <h1 class="mt-4 text-3xl font-bold text-on-background">@Model.Title</h1>
+                    <p class="text-sm text-slate-500 mt-2">Hoàn thành mục tiêu để nhận phần thưởng.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-16 h-16 rounded-3xl bg-slate-100 grid place-items-center text-3xl text-secondary">
+                        <span class="material-symbols-outlined">@Model.Icon</span>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-slate-500 uppercase tracking-[0.25em] font-semibold">Phần thưởng</p>
+                        <p class="text-lg font-bold text-on-background">@Model.RewardText</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 space-y-4">
+                <div class="rounded-3xl bg-slate-50 p-5 border border-slate-200">
+                    <div class="flex items-center justify-between text-sm text-slate-500 mb-3">
+                        <span>Tiến trình</span>
+                        <span>@Model.Current / @Model.Target</span>
+                    </div>
+                    <div class="h-3 rounded-full overflow-hidden bg-slate-200">
+                        <div class="h-full rounded-full bg-gradient-to-r from-primary to-secondary" style="width: @Model.ProgressPercent%"></div>
+                    </div>
+                </div>
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="rounded-3xl bg-slate-50 p-5 border border-slate-200">
+                        <p class="text-sm text-slate-500">Current</p>
+                        <p class="text-3xl font-bold text-on-background mt-2">@Model.Current</p>
+                    </div>
+                    <div class="rounded-3xl bg-slate-50 p-5 border border-slate-200">
+                        <p class="text-sm text-slate-500">Target</p>
+                        <p class="text-3xl font-bold text-on-background mt-2">@Model.Target</p>
+                    </div>
+                </div>
+
+                <div class="rounded-3xl bg-white p-6 border border-slate-200 shadow-sm">
+                    <h2 class="text-xl font-bold text-on-background mb-3">Chi tiết nhiệm vụ</h2>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Nhiệm vụ này yêu cầu bạn hoàn thành mục tiêu và giúp bạn theo dõi tiến trình học tập. Hãy thực hiện các bài học hoặc quiz liên quan để tiến gần hơn đến phần thưởng.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card p-6 md:p-8">
+            <h2 class="text-xl font-bold text-on-background flex items-center gap-2 mb-6">
+                <span class="material-symbols-outlined text-secondary">forum</span>
+                Thảo luận nhiệm vụ
+            </h2>
+
+            @if (TempData["CommentError"] != null)
+            {
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 font-bold text-sm rounded-xl flex items-center gap-2">
+                    <span class="material-symbols-outlined">error</span>
+                    @TempData["CommentError"]
+                </div>
+            }
+            @if (TempData["CommentSuccess"] != null)
+            {
+                <div class="mb-6 p-4 bg-secondary/10 border border-secondary/20 text-secondary font-bold text-sm rounded-xl flex items-center gap-2">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    @TempData["CommentSuccess"]
+                </div>
+            }
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <form asp-controller="Comments" asp-action="Create" method="post" class="mb-8 p-5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col gap-3">
+                    <input type="hidden" name="missionId" value="@Model.MissionId" />
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px] text-primary">create</span>
+                        <label class="text-xs font-bold text-slate-600 uppercase tracking-wider block">Gửi bình luận mới</label>
+                    </div>
+                    <textarea name="content" rows="3" class="w-full bg-white border border-slate-200 focus:border-primary/50 focus:ring-0 rounded-xl text-sm p-4 font-medium outline-none resize-none transition-all" placeholder="Viết bình luận của bạn..."></textarea>
+                    <button type="submit" class="px-5 py-2.5 bg-primary text-white rounded-full border-2 border-primary/30 hover:bg-primary/90 transition-all btn-glow text-sm self-end flex items-center gap-2 font-bold">
+                        <span class="material-symbols-outlined text-[18px]">send</span>
+                        Gửi
+                    </button>
+                </form>
+            }
+            else
+            {
+                <div class="mb-8 p-6 bg-slate-100 rounded-2xl text-center border border-slate-200">
+                    <p class="text-sm text-slate-500 font-medium mb-3">Đăng nhập để tham gia thảo luận nhiệm vụ.</p>
+                    <a class="px-5 py-2 bg-primary text-white rounded-full border-2 border-primary/30 hover:bg-primary/90 transition-all btn-glow text-sm inline-flex items-center gap-2 font-bold" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path">
+                        <span class="material-symbols-outlined text-[18px]">login</span>
+                        Đăng nhập
+                    </a>
+                </div>
+            }
+
+            <div class="space-y-4">
+                @if (!Model.Comments.Any())
+                {
+                    <div class="text-center py-12 text-slate-400 font-medium">
+                        <span class="material-symbols-outlined text-4xl block mb-2 opacity-50">forum</span>
+                        Chưa có bình luận nào. Hãy bắt đầu cuộc trò chuyện!
+                    </div>
+                }
+                else
+                {
+                    @foreach (var comment in Model.Comments)
+                    {
+                        <partial name="_CommentThread" model="comment" />
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>

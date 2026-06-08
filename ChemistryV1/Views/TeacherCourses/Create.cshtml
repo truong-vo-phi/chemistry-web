@@ -1,0 +1,147 @@
+@model ChemistryV1.ViewModels.TeacherCourseEditViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Tạo khóa học - ChemLab";
+    ViewData["Description"] = "Tạo khóa học mới cho học viện.";
+}
+
+<!-- Breadcrumb -->
+<nav class="flex items-center gap-2 mb-6 text-sm text-slate-500">
+    <a class="hover:text-primary transition-colors" asp-action="Index">Khóa học</a>
+    <span class="material-symbols-outlined text-sm opacity-50">chevron_right</span>
+    <span class="text-primary font-bold">Tạo khóa học</span>
+</nav>
+
+<!-- Page Header with Actions -->
+<div class="flex justify-between items-center mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-on-background font-display">Tạo khóa học mới</h1>
+        <p class="text-slate-500 mt-1">Thiết kế trải nghiệm học tập mới</p>
+    </div>
+    <div class="hidden md:flex items-center gap-3">
+        <button class="px-6 py-3 bg-white text-slate-600 border-2 border-slate-200 rounded-full font-bold hover:bg-slate-100 transition-colors flex items-center gap-2" onclick="submitCourseForm('draft')" type="button">
+            <span class="material-symbols-outlined">save</span>
+            Lưu nháp
+        </button>
+        <button class="px-6 py-3 bg-primary text-white border-2 border-primary/30 rounded-full font-bold btn-glow flex items-center gap-2" onclick="submitCourseForm('published')" type="button">
+            <span class="material-symbols-outlined fill-1">rocket_launch</span>
+            Xuất bản
+        </button>
+    </div>
+</div>
+
+<!-- Form Layout -->
+<form id="course-form" asp-action="Create" method="post" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="lg:col-span-8 space-y-6">
+        <!-- Course Details Card -->
+        <div class="glass-card p-6 md:p-8 relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl"></div>
+            <h2 class="text-lg font-bold text-primary mb-6 flex items-center gap-2">
+                <span class="material-symbols-outlined">menu_book</span>
+                Chi tiết khóa học
+            </h2>
+            <div class="space-y-6 relative z-10">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Tiêu đề khóa học</label>
+                    <input asp-for="Title" class="w-full bg-white border-2 border-slate-200 rounded-2xl px-6 py-4 text-on-background focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all" placeholder="e.g., Crystallization 101: Growing Geodes" type="text" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Mô tả</label>
+                    <textarea asp-for="Description" class="w-full bg-white border-2 border-slate-200 rounded-2xl px-6 py-4 text-on-background focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all resize-none" placeholder="Mô tả nội dung khóa học..." rows="4"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-3">Danh mục</label>
+                    <div class="flex flex-wrap gap-3">
+                        @foreach (var category in Model.Categories)
+                        {
+                            var selected = Model.SelectedCategoryIds.Contains(category.Id);
+                            <label class="cursor-pointer group">
+                                <input class="peer sr-only" name="SelectedCategoryIds" type="checkbox" value="@category.Id" @(selected ? "checked" : null) />
+                                <div class="bg-white border-2 border-slate-200 text-slate-500 text-xs font-bold rounded-full px-5 py-2 group-hover:bg-slate-100 transition-colors peer-checked:bg-secondary/10 peer-checked:text-secondary peer-checked:border-secondary flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[18px]">category</span>
+                                    @category.Name
+                                </div>
+                            </label>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Slug (tùy chọn)</label>
+                    <input asp-for="Slug" class="w-full bg-white border-2 border-slate-200 rounded-2xl px-6 py-3 text-on-background focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all" placeholder="auto-generate-from-title" type="text" />
+                    <span asp-validation-for="Slug" class="text-red-500 text-xs"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cover Image Card -->
+        <div class="glass-card p-6 md:p-8">
+            <h2 class="text-lg font-bold text-primary mb-6 flex items-center gap-2">
+                <span class="material-symbols-outlined">image</span>
+                Ảnh bìa
+            </h2>
+            <div class="relative w-full h-64 bg-slate-50 rounded-2xl border-4 border-dashed border-primary/30 flex flex-col items-center justify-center transition-all group overflow-hidden">
+                <div class="absolute inset-0 opacity-20 bg-cover bg-center transition-transform group-hover:scale-105 duration-500" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBuzYyPxBIHzRjakSddvr7Be3JXTj0TYC5S788E-VUztNu3Nt-hmAarj4bpimXojbWkrNtU6aITXLcp8Y9JpAYftz9Kmyq4d6kU3pp6NUC3jBrreJykkinIpFuNi1s3hsMBWKx-TZuyXviHS2oI5lRNWBT0k4NYvWCEPof-41uWCG-9MUhyu4f513AaxsrBuBJeYeFNP-jNXbUH5xwrWJLHo7yYd2wKUqU-movkTsueZ_cIVAgQMnDkDEv2P5iqNFL3kyGP7X0VCSg');">
+                </div>
+                <div class="z-10 flex flex-col items-center text-center p-4 bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-slate-200 shadow-sm">
+                    <span class="material-symbols-outlined text-4xl text-primary mb-2">upload_file</span>
+                    <p class="text-xs font-bold text-slate-600 uppercase tracking-widest">URL ảnh bìa</p>
+                    <input asp-for="ThumbnailUrl" class="mt-3 w-full bg-white border-2 border-slate-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/5 transition-all" placeholder="https://..." type="text" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Sidebar -->
+    <div class="lg:col-span-4 space-y-6">
+        <div class="glass-card p-6">
+            <h2 class="text-lg font-bold text-primary mb-6 flex items-center gap-2">
+                <span class="material-symbols-outlined">settings</span>
+                Cài đặt khóa học
+            </h2>
+            <div class="space-y-6">
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">Trạng thái</label>
+                    <select asp-for="Status" class="w-full bg-white border-2 border-slate-200 rounded-2xl px-4 py-3 text-sm focus:ring-primary focus:border-primary">
+                        <option value="draft">Nháp</option>
+                        <option value="published">Đã xuất bản</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xs font-bold text-slate-600 uppercase tracking-widest">Trạng thái hiện tại</h3>
+                <span class="bg-secondary/10 text-secondary border-2 border-secondary rounded-full px-3 py-1 text-[12px] font-bold">NHÁP</span>
+            </div>
+            <p class="text-sm text-slate-500 mb-4">Khóa học này đang ẩn với học sinh cho đến khi bạn xuất bản nó.</p>
+            <div class="md:hidden flex flex-col gap-3 mt-6">
+                <button class="w-full px-6 py-3 bg-white text-slate-600 border-2 border-slate-200 rounded-full font-bold flex justify-center items-center gap-2" onclick="submitCourseForm('draft')" type="button">
+                    <span class="material-symbols-outlined">save</span>
+                    Lưu nháp
+                </button>
+                <button class="w-full px-6 py-3 bg-primary text-white border-2 border-primary/30 rounded-full font-bold btn-glow flex justify-center items-center gap-2" onclick="submitCourseForm('published')" type="button">
+                    <span class="material-symbols-outlined fill-1">rocket_launch</span>
+                    Xuất bản
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        function submitCourseForm(status) {
+            const statusSelect = document.getElementById('Status');
+            if (statusSelect) {
+                statusSelect.value = status;
+            }
+
+            const form = document.getElementById('course-form');
+            if (form) {
+                form.requestSubmit();
+            }
+        }
+    </script>
+}

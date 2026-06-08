@@ -1,0 +1,233 @@
+@model ChemistryV1.ViewModels.UserProfileViewModel
+@{
+    Layout = "_PublicLayout";
+    ViewData["Title"] = "@Model.UserName - ChemLab Profile";
+    ViewData["Description"] = "View your learning progress, achievements, and collection.";
+
+    string ToneText(string tone) => tone switch
+    {
+        "secondary" => "text-secondary",
+        "tertiary" => "text-tertiary",
+        "outline" => "text-slate-500",
+        _ => "text-primary"
+    };
+
+    string ToneBg(string tone) => tone switch
+    {
+        "secondary" => "bg-secondary/10",
+        "tertiary" => "bg-tertiary/10",
+        "outline" => "bg-slate-100",
+        _ => "bg-primary/10"
+    };
+
+    string ToneBorder(string tone) => tone switch
+    {
+        "secondary" => "border-secondary/30",
+        "tertiary" => "border-tertiary/30",
+        "outline" => "border-slate-200",
+        _ => "border-primary/30"
+    };
+}
+
+@Html.Partial("_PublicTopAppBar")
+
+<!-- Hero Section & Stats Bento -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-8 mb-12">
+    <!-- Hero Card -->
+    <section class="xl:col-span-8 glass-card premium-shadow p-10 relative overflow-hidden flex flex-col md:flex-row items-center gap-12 group">
+        <div class="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-secondary/5 rounded-full blur-2xl"></div>
+        <div class="labos-visual-stage opacity-60 hidden lg:block">
+            <div class="labos-visual-core"></div>
+            <div class="labos-visual-chip"><span class="material-symbols-outlined">military_tech</span></div>
+            <div class="labos-visual-chip"><span class="material-symbols-outlined">stars</span></div>
+            <div class="labos-visual-chip"><span class="material-symbols-outlined">local_fire_department</span></div>
+            <div class="labos-visual-chip"><span class="material-symbols-outlined">psychology</span></div>
+            <div class="labos-visual-beam"></div>
+        </div>
+        <!-- Avatar float -->
+        <div class="relative z-10 w-full max-w-[200px] flex-shrink-0 animate-float">
+            <div class="w-40 h-40 mx-auto rounded-full overflow-hidden border-4 border-white shadow-2xl bg-primary/10 flex items-center justify-center">
+                <img alt="@Model.UserName" class="w-full h-full object-cover" src="@Model.AvatarUrl" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" />
+                <span class="material-symbols-outlined text-6xl text-primary hidden">person</span>
+            </div>
+            <div class="mt-3 text-center">
+                <span class="inline-block px-4 py-1.5 bg-tertiary/10 text-tertiary rounded-full text-[11px] font-bold uppercase tracking-widest border border-tertiary/20">
+                    Level @Model.Level
+                </span>
+            </div>
+        </div>
+        <!-- Hero Text -->
+        <div class="relative z-10 flex-1 w-full text-center md:text-left">
+            <h2 class="text-4xl font-bold text-on-background mb-4 font-display leading-tight">
+                @Model.UserName
+            </h2>
+            <p class="text-slate-500 text-lg mb-8 leading-relaxed font-medium">
+                Next Milestone: @Model.XpToNextLevel XP to Level @(Model.Level + 1) - You're on a roll!
+            </p>
+            <!-- XP Bar -->
+            <div class="space-y-3">
+                <div class="flex justify-between font-bold text-xs text-slate-400 px-1">
+                    <span>@Model.TotalXp.ToString("N0") XP Collected</span>
+                    <span class="text-primary">@Model.NextLevelXp.ToString("N0") XP</span>
+                </div>
+                <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden border border-white relative shadow-inner">
+                    <div class="bg-gradient-to-r from-primary to-blue-400 h-full rounded-full xp-glow transition-all duration-1000" style="width:@Model.LevelProgressPercent%;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Stats -->
+    <section class="xl:col-span-4 grid grid-cols-2 gap-4">
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:border-primary/30 transition-all group hover:scale-[1.02]">
+            <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-primary">menu_book</span>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-on-background">@Model.TotalCompletedLessons</p>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">Lessons</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:border-secondary/30 transition-all group hover:scale-[1.02]">
+            <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-secondary">fact_check</span>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-on-background">@Model.TotalQuizResults</p>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">Quizzes</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:border-tertiary/30 transition-all group hover:scale-[1.02]">
+            <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-tertiary">local_fire_department</span>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-on-background">@Model.DayStreak</p>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">Day Streak</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:border-primary/30 transition-all group hover:scale-[1.02]">
+            <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-primary">military_tech</span>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-on-background">@Model.TotalXp.ToString("N0")</p>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">Total XP</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Achievements & Collection -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
+    <!-- Achievements -->
+    <section class="xl:col-span-8">
+        <div class="flex items-center justify-between mb-8">
+            <h3 class="text-xl font-bold text-on-background font-display">Periodic Collection</h3>
+        </div>
+        <div class="flex gap-6 overflow-x-auto pb-6 custom-scrollbar px-1">
+            @foreach (var element in Model.Elements)
+            {
+                if (element.Unlocked)
+                {
+                    <div class="flex-shrink-0 w-20 h-20 rounded-2xl @ToneBg(element.Tone) flex flex-col items-center justify-center @ToneBorder(element.Tone) transition-transform hover:-translate-y-1 cursor-pointer collectible-border">
+                        <span class="@ToneText(element.Tone) font-bold text-2xl">@element.Symbol</span>
+                        <span class="text-[10px] uppercase font-bold text-slate-500 mt-1">@element.Name</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="flex-shrink-0 w-20 h-20 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center opacity-50">
+                        <span class="material-symbols-outlined text-slate-300">lock</span>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 mt-1">@element.Name</span>
+                    </div>
+                }
+            }
+        </div>
+    </section>
+
+    <!-- Sidebar -->
+    <aside class="xl:col-span-4 flex flex-col gap-8">
+        <!-- Achievements -->
+        <div class="glass-card p-8">
+            <h3 class="text-xl font-bold text-on-background font-display mb-6 flex items-center gap-2">
+                <span class="material-symbols-outlined text-tertiary">military_tech</span>
+                Achievements
+            </h3>
+            <div class="grid grid-cols-3 gap-4">
+                @foreach (var badge in Model.Badges)
+                {
+                    var mutedClass = badge.Earned ? string.Empty : "opacity-40 grayscale";
+                    <div class="flex flex-col items-center gap-2 text-center @mutedClass">
+                        <div class="w-16 h-16 rounded-full @ToneBg(badge.Tone) @ToneText(badge.Tone) flex items-center justify-center border-2 @ToneBorder(badge.Tone) shadow-sm">
+                            <span class="material-symbols-outlined text-3xl">@badge.Icon</span>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase leading-tight">@badge.Title</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Daily Missions -->
+        <div class="glass-card p-8">
+            <h3 class="text-xl font-bold text-on-background font-display mb-6 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">assignment</span>
+                Nhiệm vụ hàng ngày
+            </h3>
+            <div class="space-y-4">
+                @if (Model.Missions.Any())
+                {
+                    @foreach (var mission in Model.Missions)
+                    {
+                        <div class="p-4 rounded-2xl border @ToneBorder(mission.Tone) @ToneBg(mission.Tone)">
+                            <div class="flex items-start gap-4">
+                                <div class="w-11 h-11 rounded-xl bg-white/80 flex items-center justify-center border border-white shadow-sm @ToneText(mission.Tone)">
+                                    <span class="material-symbols-outlined">@mission.Icon</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-3 mb-1">
+                                        <p class="font-bold text-sm text-on-background">@mission.Title</p>
+                                        <span class="text-[10px] font-bold uppercase text-slate-500">@mission.RewardText</span>
+                                    </div>
+                                    <div class="h-2 bg-white/80 rounded-full overflow-hidden border border-white/60">
+                                        <div class="h-full @ToneBg(mission.Tone)" style="width:@mission.ProgressPercent%;"></div>
+                                    </div>
+                                    <div class="flex justify-between text-[10px] text-slate-500 font-bold mt-2 uppercase tracking-wider">
+                                        <span>@mission.Current/@mission.Target</span>
+                                        <span>@(mission.Completed ? "Đã hoàn thành" : "Đang thực hiện")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-sm text-slate-500">
+                        Không có nhiệm vụ nào đang hoạt động ngay bây giờ.
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="glass-card p-8">
+            <h3 class="text-xl font-bold text-on-background font-display mb-6">Hoạt động gần đây</h3>
+            <ul class="space-y-6 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
+                @foreach (var activity in Model.RecentActivity)
+                {
+                    <li class="relative flex items-center gap-4 pl-10">
+                        <div class="absolute left-0 w-10 h-10 rounded-full border-4 border-white shadow-sm flex items-center justify-center z-10 @ToneBg(activity.Tone) @ToneText(activity.Tone)">
+                            <span class="material-symbols-outlined text-lg">@activity.Icon</span>
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm leading-tight">@activity.Title</p>
+                            <p class="text-slate-500 text-xs">@activity.TimeLabel</p>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </aside>
+</div>

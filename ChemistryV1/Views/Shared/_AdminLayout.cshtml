@@ -1,0 +1,142 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString()?.ToLowerInvariant() ?? "";
+    var isDashboard = controller == "dashboard";
+    var isTeacherCourses = controller == "teachercourses" || controller == "lessons" || controller == "chapters";
+    var isCategories = controller == "categories";
+    var isAdminMissions = controller == "adminmissions";
+}
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Quản trị ChemLab</title>
+    <meta name="description" content="@ViewData["Description"]" />
+    <link rel="icon" type="image/png" href="~/images/LogoChemistry.png" asp-append-version="true" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <partial name="_DesignSystem" />
+    <script src="https://unpkg.com/@@hotwired/turbo@8.0.4/dist/turbo.es2017-umd.js" defer></script>
+    @RenderSection("Head", required: false)
+</head>
+<body class="neon-lab-shell labos-admin-shell text-on-background min-h-screen">
+    <div class="blob -top-48 -left-48"></div>
+    <div class="blob top-1/2 -right-48"></div>
+    <div class="labos-global-3d" aria-hidden="true">
+        <span class="labos-3d-object"></span>
+        <span class="labos-3d-object"></span>
+        <span class="labos-3d-object"></span>
+    </div>
+
+    <div id="mobile-overlay" class="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm md:hidden" onclick="closeMobileSidebar()"></div>
+
+    <div class="admin-shell-grid min-h-screen">
+        <aside id="admin-mobile-sidebar" class="neon-sidebar relative flex flex-col h-screen w-72 fixed left-0 top-0 z-50 transition-transform duration-300 -translate-x-full md:sticky md:translate-x-0 md:row-span-3">
+            <div class="flex items-center gap-3 px-6 py-6 border-b border-primary/15">
+                <img src="/images/LogoChemistry.png" alt="Logo ChemLab" class="w-10 h-10" />
+                <div>
+                    <h1 class="font-display font-bold text-primary text-xl leading-tight text-glow-primary">ChemLab</h1>
+                    <p class="text-[10px] text-on-surface-variant font-label">Trung tâm điều khiển</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 px-4 py-4 mx-4 mt-4 glass-panel">
+                <img alt="Quản trị" class="w-10 h-10 rounded-full object-cover border-2 border-primary/30" src="@(User.FindFirst("AvatarUrl")?.Value ?? "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect fill='%2312233f' width='64' height='64'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='16' fill='%23a9bfd2'%3E?%3C/text%3E%3C/svg%3E")" />
+                <div class="min-w-0">
+                    <p class="font-bold text-sm truncate leading-tight">@User.Identity?.Name</p>
+                    <p class="text-[10px] text-secondary font-label">@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Quản trị")</p>
+                </div>
+            </div>
+
+            <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto custom-scrollbar">
+                <a asp-controller="Dashboard" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(isDashboard ? "sidebar-active" : "neon-nav-link")">
+                    <span class="material-symbols-outlined @(isDashboard ? "fill-1" : "")">dashboard</span>
+                    Tổng quan
+                </a>
+                <a asp-controller="AdminUsers" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(controller == "adminusers" ? "sidebar-active" : "neon-nav-link")">
+                    <span class="material-symbols-outlined @(controller == "adminusers" ? "fill-1" : "")">group</span>
+                    Người dùng
+                </a>
+                <a asp-controller="TeacherCourses" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(isTeacherCourses ? "sidebar-active" : "neon-nav-link")">
+                    <span class="material-symbols-outlined @(isTeacherCourses ? "fill-1" : "")">auto_stories</span>
+                    Khóa học và game
+                </a>
+                <a asp-controller="AdminComments" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(controller == "admincomments" ? "sidebar-active" : "neon-nav-link")">
+                    <span class="material-symbols-outlined @(controller == "admincomments" ? "fill-1" : "")">forum</span>
+                    Bình luận
+                </a>
+                <a asp-controller="AdminMissions" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(isAdminMissions ? "sidebar-active" : "neon-nav-link")">
+                    <span class="material-symbols-outlined @(isAdminMissions ? "fill-1" : "")">assignment</span>
+                    Nhiệm vụ
+                </a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Categories" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all @(isCategories ? "sidebar-active" : "neon-nav-link")">
+                        <span class="material-symbols-outlined @(isCategories ? "fill-1" : "")">category</span>
+                        Danh mục
+                    </a>
+                }
+            </nav>
+
+            <div class="px-4 pb-6 space-y-2">
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-on-surface-variant hover:text-error hover:bg-red-500/10 transition-all">
+                        <span class="material-symbols-outlined">logout</span>
+                        Đăng xuất
+                    </button>
+                </form>
+                <a asp-controller="TeacherCourses" asp-action="Create" class="w-full flex items-center justify-center gap-2 bg-primary text-on-primary py-3 rounded-xl font-label font-bold text-sm btn-glow hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    <span class="material-symbols-outlined">add</span>
+                    Khóa học mới
+                </a>
+            </div>
+        </aside>
+
+        <header class="admin-command-strip sticky top-0 z-40 border-x-0 border-t-0 rounded-none h-16 flex items-center">
+            <div class="flex justify-between items-center w-full px-4 md:px-8 gap-4">
+                <button onclick="openMobileSidebar()" class="md:hidden p-2 rounded-xl glass-panel" aria-label="Mở menu quản trị">
+                    <span class="material-symbols-outlined text-primary">menu</span>
+                </button>
+                <div class="hidden md:block">
+                    <p class="font-label text-[10px] text-secondary">Vận hành giảng dạy</p>
+                    <p class="text-sm text-on-surface-variant">Quản lý khóa học, bài học, tài liệu và game thực hành.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="md:hidden">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="h-10 w-10 glass-panel rounded-xl border border-red-400/25 text-error flex items-center justify-center" aria-label="Đăng xuất">
+                            <span class="material-symbols-outlined text-[20px]">logout</span>
+                        </button>
+                    </form>
+                    <img alt="Quản trị" class="w-9 h-9 rounded-full object-cover border-2 border-primary/30" src="@(User.FindFirst("AvatarUrl")?.Value ?? "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect fill='%2312233f' width='64' height='64'/%3E%3C/svg%3E")" />
+                </div>
+            </div>
+        </header>
+
+        <main class="admin-content pb-16">
+            <div class="max-w-[1400px] mx-auto px-4 md:px-8 py-6">
+                @RenderBody()
+            </div>
+        </main>
+
+        <footer class="border-t border-primary/15 py-6 px-8 text-center text-on-surface-variant text-xs">
+            <span class="font-label">Trung tâm điều khiển ChemLab - 2026</span>
+        </footer>
+    </div>
+
+    <script>
+        function openMobileSidebar() {
+            document.getElementById('admin-mobile-sidebar').classList.add('open');
+            document.getElementById('mobile-overlay').classList.add('active');
+        }
+        function closeMobileSidebar() {
+            document.getElementById('admin-mobile-sidebar').classList.remove('open');
+            document.getElementById('mobile-overlay').classList.remove('active');
+        }
+    </script>
+
+    <partial name="_LabOsScripts" />
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

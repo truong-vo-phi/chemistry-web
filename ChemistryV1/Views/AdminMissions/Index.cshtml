@@ -1,0 +1,162 @@
+@model ChemistryV1.ViewModels.AdminMissionsViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Mission Management | ChemLab";
+    ViewData["Description"] = "Create and manage daily missions for homepage and profile.";
+}
+
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+    <div>
+        <p class="text-xs uppercase tracking-[0.3em] text-slate-500 font-bold">Hệ thống quản trị</p>
+        <h1 class="text-3xl md:text-4xl font-bold text-on-background font-display">Quản lý nhiệm vụ</h1>
+        <p class="text-slate-500 mt-2 max-w-2xl">Create and manage daily missions for homepage and profile. Each mission automatically calculates progress based on real data.</p>
+    </div>
+</div>
+
+@if (TempData["MissionMessage"] != null)
+{
+    <div class="mb-6 glass-card border border-emerald-200 text-emerald-700 px-4 py-3 rounded-2xl font-bold shadow-sm">
+        @TempData["MissionMessage"]
+    </div>
+}
+
+<!-- Search -->
+<form method="get" class="mb-6">
+    <div class="relative max-w-md">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+        <input name="search" value="@Model.Search" class="w-full bg-white border-2 border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm outline-none transition-all focus:border-primary" placeholder="Search missions by title or metric..." />
+    </div>
+</form>
+
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <!-- Form -->
+    <div class="xl:col-span-1 glass-card p-6 h-fit sticky top-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold text-on-background font-display">@(Model.Form.Id.HasValue ? "Edit Mission" : "New Mission")</h2>
+            @if (Model.Form.Id.HasValue)
+            {
+                <a asp-action="Index" class="text-sm font-semibold text-slate-500 hover:text-slate-900">Reset</a>
+            }
+        </div>
+
+        <form asp-action="Upsert" method="post" class="space-y-4">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Form.Id" />
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Title</label>
+                <input asp-for="Form.Title" class="w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-primary" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Reward</label>
+                <input asp-for="Form.RewardText" class="w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-primary" placeholder="+150 XP" />
+            </div>
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Metric Key</label>
+                <input asp-for="Form.MetricKey" class="w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-primary" placeholder="lessons_completed" />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Target</label>
+                    <input asp-for="Form.TargetValue" type="number" min="1" class="w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-primary" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Order</label>
+                    <input asp-for="Form.SortOrder" type="number" class="w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-primary" />
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Icon</label>
+                    <input asp-for="Form.Icon" class="w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-primary" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Color</label>
+                    <input asp-for="Form.ColorClass" class="w-full rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-primary" placeholder="primary" />
+                </div>
+            </div>
+            <label class="flex items-center gap-3 rounded-2xl bg-white border-2 border-slate-200 px-4 py-3 cursor-pointer">
+                <input asp-for="Form.IsActive" type="checkbox" class="rounded border-slate-300 text-primary focus:ring-primary" />
+                <span class="font-semibold text-sm">Đang hoạt động</span>
+            </label>
+            <button type="submit" class="w-full rounded-2xl bg-slate-900 text-white font-bold py-3 hover:bg-slate-800 transition-colors btn-glow">Lưu nhiệm vụ</button>
+        </form>
+    </div>
+
+    <!-- Missions List -->
+    <div class="xl:col-span-2">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="glass-card p-5">
+                <p class="text-xs uppercase tracking-wider text-slate-500 font-bold">Total</p>
+                <p class="text-3xl font-bold mt-2 text-on-background">@Model.Missions.Count</p>
+            </div>
+            <div class="glass-card p-5">
+                <p class="text-xs uppercase tracking-wider text-slate-500 font-bold">Active</p>
+                <p class="text-3xl font-bold mt-2 text-on-background">@Model.Missions.Count(m => m.IsActive)</p>
+            </div>
+            <div class="glass-card p-5">
+                <p class="text-xs uppercase tracking-wider text-slate-500 font-bold">Inactive</p>
+                <p class="text-3xl font-bold mt-2 text-on-background">@Model.Missions.Count(m => !m.IsActive)</p>
+            </div>
+        </div>
+
+        <div class="glass-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-600">Mission</th>
+                            <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-600">Progress</th>
+                            <th class="px-5 py-4 text-left text-xs font-bold uppercase tracking-wider text-slate-600">State</th>
+                            <th class="px-5 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-600">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        @foreach (var mission in Model.Missions)
+                        {
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-5 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                                            <span class="material-symbols-outlined">@mission.Icon</span>
+                                        </div>
+                                        <div>
+                                            <p class="font-bold text-on-background">@mission.Title</p>
+                                            <p class="text-xs text-slate-500">@mission.MetricKey • Target @mission.TargetValue • @mission.RewardText</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-4 text-sm text-slate-600">Order @mission.SortOrder</td>
+                                <td class="px-5 py-4">
+                                    @if (mission.IsActive)
+                                    {
+                                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 text-rose-700 text-xs font-bold border border-rose-200">Inactive</span>
+                                    }
+                                </td>
+                                <td class="px-5 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a asp-action="Index" asp-route-editId="@mission.Id" class="px-3 py-2 rounded-full border border-slate-300 bg-white text-sm font-semibold hover:border-slate-900 transition-colors">Edit</a>
+                                        <form asp-action="ToggleActive" method="post" class="inline-block">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@mission.Id" />
+                                            <button type="submit" class="px-3 py-2 rounded-full border border-slate-300 bg-white text-sm font-semibold hover:border-slate-900 transition-colors">@(mission.IsActive ? "Disable" : "Enable")</button>
+                                        </form>
+                                        <form asp-action="Delete" method="post" class="inline-block" onsubmit="return confirm('Delete this mission?')">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@mission.Id" />
+                                            <button type="submit" class="px-3 py-2 rounded-full border border-rose-300 bg-white text-sm font-semibold text-rose-700 hover:border-rose-600 transition-colors">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

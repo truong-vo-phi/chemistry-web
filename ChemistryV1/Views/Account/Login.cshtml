@@ -1,0 +1,89 @@
+@model ChemistryV1.ViewModels.LoginViewModel
+@{
+    Layout = "_UserFlowLayout";
+    ViewData["Title"] = "Đăng nhập";
+    ViewData["Description"] = "Đăng nhập ChemLab để vào khóa học và game thực hành.";
+}
+
+@section Head {
+    <style>
+        .auth-input[type="password"]::-webkit-credentials-auto-fill-button {
+            visibility: hidden;
+        }
+    </style>
+}
+
+<section class="glass-card premium-shadow overflow-hidden grid grid-cols-1 lg:grid-cols-[1.05fr_.95fr] min-h-[560px]">
+    <div class="relative hidden lg:flex flex-col justify-between p-8 overflow-hidden">
+        <div class="lab-stage"><div class="stage-city"></div><div class="lab-orbit"></div></div>
+        <div class="molecule-field"><span></span><span></span><span></span><span></span></div>
+        <div class="relative z-10">
+            <div class="flex items-center gap-3 text-primary font-display font-bold text-2xl text-glow-primary">
+                <img src="/images/LogoChemistry.png" alt="Logo ChemLab" class="w-10 h-10" />
+                ChemLab
+            </div>
+        </div>
+        <div class="relative z-10 max-w-md">
+            <p class="font-label text-secondary text-xs mb-4">Cổng luyện tập học viên</p>
+            <h1 class="font-display text-3xl xl:text-4xl font-extrabold leading-[1.08] text-glow-primary text-wrap balance">
+                Vào lab, mở bài học, chơi game và lưu tiến độ.
+            </h1>
+            <p class="mt-4 text-sm md:text-base text-on-surface-variant leading-relaxed max-w-[34rem]">
+                Tất cả dữ liệu khóa học, nhiệm vụ và điểm thực hành được đồng bộ theo tài khoản của bạn.
+            </p>
+        </div>
+    </div>
+
+    <div class="p-6 md:p-8 flex items-center">
+        <div class="w-full max-w-md mx-auto">
+            <div class="text-center mb-7">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center shadow-neon-blue overflow-hidden">
+                    <img src="/images/LogoChemistry.png" alt="Logo ChemLab" class="h-11 w-11 object-contain lg:hidden" />
+                    <span class="material-symbols-outlined hidden lg:block text-primary text-3xl">science</span>
+                </div>
+                <h2 class="font-display text-2xl md:text-3xl font-extrabold leading-tight text-on-background text-wrap balance">Đăng nhập</h2>
+                <p class="text-on-surface-variant mt-2 text-sm md:text-base leading-relaxed">Tiếp tục hành trình học hóa học tương tác.</p>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="mb-5 rounded-xl bg-red-500/10 border border-red-500/30 p-4 text-error font-bold text-sm">
+                    <div asp-validation-summary="All" class="list-none"></div>
+                </div>
+            }
+
+            <form asp-action="Login" method="post" class="space-y-4">
+                @Html.AntiForgeryToken()
+                <input asp-for="ReturnUrl" type="hidden" />
+
+                <div class="space-y-2">
+                    <label asp-for="Identity" class="font-label text-[10px] text-on-surface-variant">Email hoặc tên đăng nhập</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/70">person</span>
+                        <input asp-for="Identity" class="auth-input w-full pl-12 pr-4 py-3.5 rounded-xl border outline-none font-semibold" placeholder="hocvien hoặc email@chemlab.vn" type="text" />
+                    </div>
+                    <span asp-validation-for="Identity" class="text-xs text-error"></span>
+                </div>
+
+                <div class="space-y-2">
+                    <label asp-for="Password" class="font-label text-[10px] text-on-surface-variant">Mật khẩu</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/70">lock</span>
+                        <input asp-for="Password" class="auth-input w-full pl-12 pr-4 py-3.5 rounded-xl border outline-none font-semibold" placeholder="••••••••" type="password" />
+                    </div>
+                    <span asp-validation-for="Password" class="text-xs text-error"></span>
+                </div>
+
+                <button class="w-full bg-primary text-on-primary font-label font-bold py-4 rounded-xl btn-glow hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2" type="submit">
+                    <span>Đăng nhập</span>
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+            </form>
+
+            <p class="text-center text-on-surface-variant mt-6">
+                Chưa có tài khoản?
+                <a class="text-primary font-bold hover:underline" asp-action="Register" asp-controller="Account">Đăng ký</a>
+            </p>
+        </div>
+    </div>
+</section>

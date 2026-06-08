@@ -1,0 +1,108 @@
+@model ChemistryV1.ViewModels.AdminUsersViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý người dùng";
+    ViewData["Description"] = "Quản lý tài khoản, khóa mở tài khoản và phân quyền người dùng.";
+}
+
+<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+    <div>
+        <p class="text-xs uppercase tracking-[0.3em] text-secondary font-bold">Hệ thống quản trị</p>
+        <h1 class="text-3xl md:text-4xl font-bold text-on-background font-display">Quản lý người dùng</h1>
+        <p class="text-on-surface-variant mt-2 max-w-2xl">Quản lý tài khoản, trạng thái hoạt động và quyền truy cập.</p>
+    </div>
+</div>
+
+@if (TempData["UserActionMessage"] != null)
+{
+    <div class="mb-6 glass-card border border-emerald-400/30 text-emerald-300 px-4 py-3 rounded-2xl font-bold shadow-sm">
+        @TempData["UserActionMessage"]
+    </div>
+}
+
+<form method="get" class="mb-6">
+    <div class="relative max-w-md">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/70">search</span>
+        <input name="search" value="@Model.Search" class="auth-input w-full rounded-2xl pl-12 pr-4 py-3 text-sm outline-none font-semibold" placeholder="Tìm theo tên, tài khoản hoặc email..." />
+    </div>
+</form>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div class="glass-card p-5">
+        <p class="text-xs uppercase tracking-wider text-on-surface-variant font-bold">Tổng người dùng</p>
+        <p class="text-3xl font-bold mt-2 text-on-background">@Model.Users.Count</p>
+    </div>
+    <div class="glass-card p-5">
+        <p class="text-xs uppercase tracking-wider text-on-surface-variant font-bold">Quản trị viên</p>
+        <p class="text-3xl font-bold mt-2 text-on-background">@Model.Users.Count(u => u.Role == "Admin")</p>
+    </div>
+    <div class="glass-card p-5">
+        <p class="text-xs uppercase tracking-wider text-on-surface-variant font-bold">Đang hoạt động</p>
+        <p class="text-3xl font-bold mt-2 text-on-background">@Model.Users.Count(u => u.IsActive == true)</p>
+    </div>
+</div>
+
+<div class="glass-card overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead>
+                <tr>
+                    <th class="px-5 py-4 text-left">Người dùng</th>
+                    <th class="px-5 py-4 text-left">Vai trò</th>
+                    <th class="px-5 py-4 text-left">Trạng thái</th>
+                    <th class="px-5 py-4 text-right">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model.Users)
+                {
+                    <tr class="transition-colors">
+                        <td class="px-5 py-4">
+                            <div class="flex items-center gap-3">
+                                <img class="w-11 h-11 rounded-full object-cover border border-primary/20" src="@(user.AvatarUrl ?? "https://via.placeholder.com/44")" alt="@user.Username" />
+                                <div>
+                                    <p class="font-bold text-on-background">@(user.FullName ?? user.Username ?? "Không rõ")</p>
+                                    <p class="text-xs text-on-surface-variant">@user.Email</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4">
+                            <form asp-action="UpdateRole" method="post" class="flex items-center gap-2">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@user.Id" />
+                                <select name="role" class="rounded-full border border-primary/20 bg-surface px-3 py-2 text-sm font-semibold outline-none focus:border-primary">
+                                    <option value="Student" selected="@(user.Role == "Student")">Học viên</option>
+                                    <option value="Admin" selected="@(user.Role == "Admin")">Quản trị viên</option>
+                                </select>
+                                <button type="submit" class="px-3 py-2 rounded-full bg-primary text-on-primary text-sm font-semibold hover:brightness-110 transition-colors">Lưu</button>
+                            </form>
+                        </td>
+                        <td class="px-5 py-4">
+                            @if (user.IsActive == true)
+                            {
+                                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 text-xs font-bold border border-emerald-400/20">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Đang hoạt động
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 text-rose-300 text-xs font-bold border border-rose-400/20">
+                                    <span class="w-2 h-2 rounded-full bg-rose-400"></span> Đã khóa
+                                </span>
+                            }
+                        </td>
+                        <td class="px-5 py-4 text-right">
+                            <form asp-action="ToggleActive" method="post" class="inline-block">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@user.Id" />
+                                <button type="submit" class="px-3 py-2 rounded-full border border-primary/20 bg-surface text-sm font-semibold hover:border-primary transition-colors">
+                                    @(user.IsActive == true ? "Khóa" : "Mở khóa")
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
