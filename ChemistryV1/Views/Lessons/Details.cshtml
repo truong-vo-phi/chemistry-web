@@ -11,6 +11,7 @@
     ViewData["IsLessonCompleted"] = Model.CompletedLessonIds.Contains(Model.Lesson.Id);
     ViewData["LessonId"] = Model.Lesson.Id;
     var chapters = Model.Chapters.OrderBy(c => c.OrderIndex).ToList();
+    var currentReturnUrl = ViewData["ReturnUrl"] as string;
 }
 
 @section LessonOutline {
@@ -28,7 +29,7 @@
         {
             var isActive = lesson.Id == Model.Lesson.Id;
             var isCompleted = Model.CompletedLessonIds.Contains(lesson.Id);
-            <a class="lesson-outline-item flex items-center gap-2 min-h-[2.75rem] @(isActive ? "lesson-outline-item--active bg-primary/15 text-primary border border-primary/40 shadow-neon-blue" : "text-on-surface-variant hover:bg-surface-container-high border border-transparent hover:border-outline/40") rounded-lg px-2.5 py-2 cursor-pointer transition-colors" asp-controller="Lessons" asp-action="Details" asp-route-id="@lesson.Id">
+            <a class="lesson-outline-item flex items-center gap-2 min-h-[2.75rem] @(isActive ? "lesson-outline-item--active bg-primary/15 text-primary border border-primary/40 shadow-neon-blue" : "text-on-surface-variant hover:bg-surface-container-high border border-transparent hover:border-outline/40") rounded-lg px-2.5 py-2 cursor-pointer transition-colors" asp-controller="Lessons" asp-action="Details" asp-route-id="@lesson.Id" asp-route-returnUrl="@currentReturnUrl">
                 <span class="material-symbols-outlined text-[20px] shrink-0 fill-1">@(isActive ? "play_circle" : "article")</span>
                 <span class="text-xs leading-snug flex-1 min-w-0 font-semibold line-clamp-2">@lesson.Title</span>
                 @if (isCompleted)

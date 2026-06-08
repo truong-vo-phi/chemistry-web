@@ -72,7 +72,7 @@ public class VirtualLabsController : Controller
         if (playerHtml != null)
         {
             Response.Headers["X-Content-Type-Options"] = "nosniff";
-            Response.Headers["Cache-Control"] = "no-store";
+            Response.Headers["Cache-Control"] = "public,max-age=3600"; // Cache HTML 1 hour
             return Content(playerHtml, "text/html; charset=utf-8");
         }
 
@@ -113,9 +113,9 @@ public class VirtualLabsController : Controller
             RegexOptions.IgnoreCase,
             TimeSpan.FromMilliseconds(250));
 
-        html = PreferUncompressedUnityAsset(html, buildDirectory, "dataUrl", ".data.br", ".data");
-        html = PreferUncompressedUnityAsset(html, buildDirectory, "frameworkUrl", ".framework.js.br", ".framework.js");
-        html = PreferUncompressedUnityAsset(html, buildDirectory, "codeUrl", ".wasm.br", ".wasm");
+        html = PreferCompressedUnityAsset(html, buildDirectory, "dataUrl", ".data.br", ".data");
+        html = PreferCompressedUnityAsset(html, buildDirectory, "frameworkUrl", ".framework.js.br", ".framework.js");
+        html = PreferCompressedUnityAsset(html, buildDirectory, "codeUrl", ".wasm.br", ".wasm");
 
         var runtimeCss = """
             <style id="chemlab-unity-frame-fix">
@@ -160,7 +160,7 @@ public class VirtualLabsController : Controller
             TimeSpan.FromMilliseconds(250));
 
         Response.Headers["X-Content-Type-Options"] = "nosniff";
-        Response.Headers["Cache-Control"] = "no-store";
+        Response.Headers["Cache-Control"] = "public,max-age=3600"; // Cache HTML 1 hour
 
         return Content(html, "text/html; charset=utf-8");
     }
@@ -351,7 +351,12 @@ public class VirtualLabsController : Controller
         var loaderUrlJson = JsonSerializer.Serialize(loaderUrl, jsonOptions);
         var configJson = JsonSerializer.Serialize(config, jsonOptions);
         var logoUrl = $"{templateBaseUrl}/unity-logo-dark.png";
-        var preloadLinks = string.Empty;
+        var preloadLinks = $"""
+            <link rel="preload" href="{loaderUrl}" as="script" crossorigin="anonymous">
+            <link rel="preload" href="{dataUrl}" as="fetch" crossorigin="anonymous">
+            <link rel="preload" href="{frameworkUrl}" as="script" crossorigin="anonymous">
+            <link rel="preload" href="{wasmUrl}" as="fetch" crossorigin="anonymous">
+            """;
         var safeReturnUrl = string.IsNullOrWhiteSpace(returnUrl) ? string.Empty : HtmlEncoder.Default.Encode(returnUrl);
         var backButtonHtml = string.IsNullOrWhiteSpace(safeReturnUrl)
             ? string.Empty
@@ -919,6 +924,34 @@ public class VirtualLabsController : Controller
         }
 
         return "application/octet-stream";
+    }
+
+    private static string PreferCompressedUnityAsset(
+        string html,
+        string buildDirectory,
+        string configKey,
+        string compressedExtension,
+        string plainExtension)
+    {
+        if (!Directory.Exists(buildDirectory))
+        {
+            return html;
+        }
+
+        return Regex.Replace(
+            html,
+            $@"{configKey}\s*:\s*buildUrl\s*\+\s*[""']/(?<file>[^""']+{Regex.Escape(plainExtension)})[""']",
+            match =>
+            {
+                var plainFile = match.Groups["file"].Value;
+                var compressedFile = plainFile[..^plainExtension.Length] + compressedExtension;
+                var compressedPath = Path.Combine(buildDirectory, compressedFile);
+                return System.IO.File.Exists(compressedPath)
+                    ? $"{configKey}: buildUrl + \"/{compressedFile}\""
+                    : match.Value;
+            },
+            RegexOptions.IgnoreCase,
+            TimeSpan.FromMilliseconds(250));
     }
 
     private static string PreferUncompressedUnityAsset(
