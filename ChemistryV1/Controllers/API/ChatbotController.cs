@@ -53,10 +53,25 @@ public class ChatbotController : ControllerBase
             return BadRequest(new { success = false, message = "Tin nhắn không được để trống." });
         }
 
-        var apiKey = _configuration["Gemini:ApiKey"];
-        var model = _configuration["Gemini:Model"] ?? "gemini-1.5-flash";
+        var provider = _configuration["Chatbot:Provider"] ?? "Gemini";
+        string? apiKey;
+        string model;
+        bool isGroq = provider.Equals("Groq", StringComparison.OrdinalIgnoreCase);
 
-        if (!IsGeminiConfigured(apiKey))
+        if (isGroq)
+        {
+            apiKey = _configuration["Chatbot:Groq:ApiKey"];
+            model = _configuration["Chatbot:Groq:Model"] ?? "llama-3.3-70b-versatile";
+        }
+        else
+        {
+            apiKey = _configuration["Gemini:ApiKey"];
+            model = _configuration["Gemini:Model"] ?? "gemini-1.5-flash";
+        }
+
+        if (string.IsNullOrWhiteSpace(apiKey) || 
+            apiKey == "YOUR_GEMINI_API_KEY_HERE" || 
+            apiKey == "YOUR_GROQ_API_KEY_HERE")
         {
             return Ok(new 
             { 
@@ -111,131 +126,21 @@ public class ChatbotController : ControllerBase
                 }
             }
 
-            // 2. Tạo payload cho Gemini API
-            var contents = new List<object>();
-
-            // Nạp lịch sử hội thoại
-            foreach (var hist in request.History)
-            {
-                // Gemini API quy định role là "user" hoặc "model"
-                var role = hist.Role.ToLowerInvariant() == "model" ? "model" : "user";
-                contents.Add(new
-                {
-                    role = role,
-                    parts = new[] { new { text = hist.Text } }
-                });
-            }
-
-            // Nạp tin nhắn hiện tại của user
-            contents.Add(new
-            {
-                role = "user",
-                parts = new[] { new { text = request.Message } }
-            });
-
-            // 3. Gọi Gemini API
+            // 2. Gọi API tương ứng
             var client = _httpClientFactory.CreateClient();
             client.Timeout = TimeSpan.FromSeconds(25);
-            var apiUrl = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
+            string reply = "";
 
-            async Task<(string Reply, string FinishReason)> GenerateReplyAsync(List<object> requestContents)
-            {
-                var payload = new
-                {
-                    contents = requestContents,
-                    systemInstruction = new
-                    {
-                        parts = new[] { new { text = sbContext.ToString() } }
-                    },
-                    generationConfig = new
-                    {
-                        maxOutputTokens = 4096,
-                        temperature = 0.55,
-                        topP = 0.9
-                    }
-                };
-
-                var jsonPayload = JsonSerializer.Serialize(payload);
-                var httpContent = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-
-                var response = await client.PostAsync(apiUrl, httpContent);
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorText = await response.Content.ReadAsStringAsync();
-                    throw new HttpRequestException(errorText, null, response.StatusCode);
-                }
-
-                var responseString = await response.Content.ReadAsStringAsync();
-                using var doc = JsonDocument.Parse(responseString);
-
-                var replyBuilder = new StringBuilder();
-                var finishReason = "";
-
-                if (doc.RootElement.TryGetProperty("candidates", out var candidates) &&
-                    candidates.GetArrayLength() > 0)
-                {
-                    var candidate = candidates[0];
-                    if (candidate.TryGetProperty("finishReason", out var finishReasonElement))
-                    {
-                        finishReason = finishReasonElement.GetString() ?? "";
-                    }
-
-                    if (candidate.TryGetProperty("content", out var content) &&
-                        content.TryGetProperty("parts", out var parts))
-                    {
-                        foreach (var part in parts.EnumerateArray())
-                        {
-                            if (part.TryGetProperty("text", out var textElement))
-                            {
-                                replyBuilder.Append(textElement.GetString());
-                            }
-                        }
-                    }
-                }
-
-                return (replyBuilder.ToString(), finishReason);
-            }
-
-            string reply;
             try
             {
-                var result = await GenerateReplyAsync(contents);
-                var replyBuilder = new StringBuilder(result.Reply);
-                var finishReason = result.FinishReason;
-
-                const int maxContinuationAttempts = 2;
-                for (var attempt = 0; attempt < maxContinuationAttempts && finishReason == "MAX_TOKENS"; attempt++)
+                if (isGroq)
                 {
-                    contents.Add(new
-                    {
-                        role = "model",
-                        parts = new[] { new { text = replyBuilder.ToString() } }
-                    });
-                    contents.Add(new
-                    {
-                        role = "user",
-                        parts = new[]
-                        {
-                            new
-                            {
-                                text = "Câu trả lời vừa rồi bị dừng giữa chừng vì giới hạn độ dài. Hãy tiếp tục chính xác từ ý đang dang dở, hoàn tất phần còn thiếu và kết thúc bằng một kết luận ngắn. Không lặp lại toàn bộ từ đầu."
-                            }
-                        }
-                    });
-
-                    var continuation = await GenerateReplyAsync(contents);
-                    if (string.IsNullOrWhiteSpace(continuation.Reply))
-                    {
-                        break;
-                    }
-
-                    replyBuilder.AppendLine();
-                    replyBuilder.AppendLine();
-                    replyBuilder.Append(continuation.Reply.TrimStart());
-                    finishReason = continuation.FinishReason;
+                    reply = await GenerateGroqReplyAsync(client, apiKey, model, sbContext.ToString(), request);
                 }
-
-                reply = replyBuilder.ToString();
+                else
+                {
+                    reply = await GenerateGeminiReplyAsync(client, apiKey, model, sbContext.ToString(), request);
+                }
             }
             catch (HttpRequestException ex) when (ex.StatusCode.HasValue)
             {
@@ -271,10 +176,236 @@ public class ChatbotController : ControllerBase
         }
     }
 
-    private static bool IsGeminiConfigured(string? apiKey)
+    private async Task<string> GenerateGroqReplyAsync(
+        HttpClient client,
+        string apiKey,
+        string model,
+        string systemInstruction,
+        ChatRequest request)
     {
-        return !string.IsNullOrWhiteSpace(apiKey) &&
-            apiKey != "YOUR_GEMINI_API_KEY_HERE";
+        var messages = new List<object>
+        {
+            new { role = "system", content = systemInstruction }
+        };
+
+        foreach (var hist in request.History)
+        {
+            var role = hist.Role.ToLowerInvariant() == "model" ? "assistant" : "user";
+            messages.Add(new { role = role, content = hist.Text });
+        }
+
+        messages.Add(new { role = "user", content = request.Message });
+
+        var apiUrl = "https://api.groq.com/openai/v1/chat/completions";
+
+        async Task<(string Reply, string FinishReason)> CallApiAsync(List<object> msgs)
+        {
+            var payload = new
+            {
+                model = model,
+                messages = msgs,
+                temperature = 0.55,
+                max_tokens = 4096
+            };
+
+            var jsonPayload = JsonSerializer.Serialize(payload);
+            using var httpContent = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, apiUrl)
+            {
+                Content = httpContent
+            };
+            httpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+
+            var response = await client.SendAsync(httpRequest);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorText = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException(errorText, null, response.StatusCode);
+            }
+
+            var responseString = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(responseString);
+
+            var replyText = "";
+            var finishReason = "";
+
+            if (doc.RootElement.TryGetProperty("choices", out var choices) &&
+                choices.GetArrayLength() > 0)
+            {
+                var choice = choices[0];
+                if (choice.TryGetProperty("finish_reason", out var finishReasonElement))
+                {
+                    finishReason = finishReasonElement.GetString() ?? "";
+                }
+
+                if (choice.TryGetProperty("message", out var messageElement) &&
+                    messageElement.TryGetProperty("content", out var contentElement))
+                {
+                    replyText = contentElement.GetString() ?? "";
+                }
+            }
+
+            return (replyText, finishReason);
+        }
+
+        var result = await CallApiAsync(messages);
+        var replyBuilder = new StringBuilder(result.Reply);
+        var finishReason = result.FinishReason;
+
+        const int maxContinuationAttempts = 2;
+        for (var attempt = 0; attempt < maxContinuationAttempts && finishReason == "length"; attempt++)
+        {
+            messages.Add(new
+            {
+                role = "assistant",
+                content = replyBuilder.ToString()
+            });
+            messages.Add(new
+            {
+                role = "user",
+                content = "Câu trả lời vừa rồi bị dừng giữa chừng vì giới hạn độ dài. Hãy tiếp tục chính xác từ ý đang dang dở, hoàn tất phần còn thiếu và kết thúc bằng một kết luận ngắn. Không lặp lại toàn bộ từ đầu."
+            });
+
+            var continuation = await CallApiAsync(messages);
+            if (string.IsNullOrWhiteSpace(continuation.Reply))
+            {
+                break;
+            }
+
+            replyBuilder.AppendLine();
+            replyBuilder.AppendLine();
+            replyBuilder.Append(continuation.Reply.TrimStart());
+            finishReason = continuation.FinishReason;
+        }
+
+        return replyBuilder.ToString();
+    }
+
+    private async Task<string> GenerateGeminiReplyAsync(
+        HttpClient client,
+        string apiKey,
+        string model,
+        string systemInstruction,
+        ChatRequest request)
+    {
+        var contents = new List<object>();
+
+        // Nạp lịch sử hội thoại
+        foreach (var hist in request.History)
+        {
+            var role = hist.Role.ToLowerInvariant() == "model" ? "model" : "user";
+            contents.Add(new
+            {
+                role = role,
+                parts = new[] { new { text = hist.Text } }
+            });
+        }
+
+        // Nạp tin nhắn hiện tại của user
+        contents.Add(new
+        {
+            role = "user",
+            parts = new[] { new { text = request.Message } }
+        });
+
+        var apiUrl = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
+
+        async Task<(string Reply, string FinishReason)> CallApiAsync(List<object> requestContents)
+        {
+            var payload = new
+            {
+                contents = requestContents,
+                systemInstruction = new
+                {
+                    parts = new[] { new { text = systemInstruction } }
+                },
+                generationConfig = new
+                {
+                    maxOutputTokens = 4096,
+                    temperature = 0.55,
+                    topP = 0.9
+                }
+            };
+
+            var jsonPayload = JsonSerializer.Serialize(payload);
+            var httpContent = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync(apiUrl, httpContent);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorText = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException(errorText, null, response.StatusCode);
+            }
+
+            var responseString = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(responseString);
+
+            var replyBuilder = new StringBuilder();
+            var finishReason = "";
+
+            if (doc.RootElement.TryGetProperty("candidates", out var candidates) &&
+                candidates.GetArrayLength() > 0)
+            {
+                var candidate = candidates[0];
+                if (candidate.TryGetProperty("finishReason", out var finishReasonElement))
+                {
+                    finishReason = finishReasonElement.GetString() ?? "";
+                }
+
+                if (candidate.TryGetProperty("content", out var content) &&
+                    content.TryGetProperty("parts", out var parts))
+                {
+                    foreach (var part in parts.EnumerateArray())
+                    {
+                        if (part.TryGetProperty("text", out var textElement))
+                        {
+                            replyBuilder.Append(textElement.GetString());
+                        }
+                    }
+                }
+            }
+
+            return (replyBuilder.ToString(), finishReason);
+        }
+
+        var result = await CallApiAsync(contents);
+        var replyBuilder = new StringBuilder(result.Reply);
+        var finishReason = result.FinishReason;
+
+        const int maxContinuationAttempts = 2;
+        for (var attempt = 0; attempt < maxContinuationAttempts && finishReason == "MAX_TOKENS"; attempt++)
+        {
+            contents.Add(new
+            {
+                role = "model",
+                parts = new[] { new { text = replyBuilder.ToString() } }
+            });
+            contents.Add(new
+            {
+                role = "user",
+                parts = new[]
+                {
+                    new
+                    {
+                        text = "Câu trả lời vừa rồi bị dừng giữa chừng vì giới hạn độ dài. Hãy tiếp tục chính xác từ ý đang dang dở, hoàn tất phần còn thiếu và kết thúc bằng một kết luận ngắn. Không lặp lại toàn bộ từ đầu."
+                    }
+                }
+            });
+
+            var continuation = await CallApiAsync(contents);
+            if (string.IsNullOrWhiteSpace(continuation.Reply))
+            {
+                break;
+            }
+
+            replyBuilder.AppendLine();
+            replyBuilder.AppendLine();
+            replyBuilder.Append(continuation.Reply.TrimStart());
+            finishReason = continuation.FinishReason;
+        }
+
+        return replyBuilder.ToString();
     }
 
     private static string BuildLocalFallbackReply(string message)
