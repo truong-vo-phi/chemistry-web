@@ -390,7 +390,7 @@ public class AccountController : Controller
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        return RedirectToAction(nameof(Login));
+        return RedirectToAction("Index", "Home");
     }
 
     private async Task SignInUserAsync(User user)
@@ -408,8 +408,7 @@ public class AccountController : Controller
 
         var authProperties = new AuthenticationProperties
         {
-            IsPersistent = true,
-            ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+            IsPersistent = false
         };
 
         await HttpContext.SignInAsync(

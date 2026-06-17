@@ -15,5 +15,5 @@ public class LoginViewModel
 
     public string? ReturnUrl { get; set; }
 
-    public bool RememberMe { get; set; } = true;
+    public bool RememberMe { get; set; }
 }

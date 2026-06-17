@@ -19,7 +19,6 @@ namespace ChemistryV1.Controllers
             _context = context;
         }
 
-        [Authorize]
         public async Task<IActionResult> Index()
         {
             var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
